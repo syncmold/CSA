@@ -1,0 +1,49 @@
+{
+  "nav": "自評表紀錄",
+  "title": "自評表紀錄",
+  "subtitle": "結案後內容鎖定，可以打開或匯出 PDF。",
+  "scope": {
+    "all": "全部廠區・全部年度",
+    "plants": "{{plants}}・全部年度",
+    "plantsAndOwn": "{{plants}}、我參與過的・全部年度",
+    "own": "我參與過的・全部年度",
+    "plantCount": "{{count}} 個廠區",
+    "separator": "、"
+  },
+  "filters": {
+    "year": "年度",
+    "allYears": "全部年度",
+    "company": "公司",
+    "allCompanies": "全部公司",
+    "plant": "廠區",
+    "allPlants": "全部廠區",
+    "template": "範本",
+    "templatePlaceholder": "編號或名稱",
+    "templatePlaceholderPhone": "搜尋範本"
+  },
+  "status": {
+    "all": "全部",
+    "in_progress": "簽核中",
+    "closed": "已結案"
+  },
+  "columns": {
+    "assessment": "自評表",
+    "plant": "廠區",
+    "status": "狀態",
+    "closedAt": "結案日",
+    "pdf": "PDF"
+  },
+  "assessment": "{{code}} {{name}}",
+  "yearHeading": "{{year}} 年度　{{count}} 張",
+  "plantHeading": "{{code}} {{name}}　{{count}} 張",
+  "meta": {
+    "inProgress": "簽核中 {{count}}",
+    "closed": "已結案 {{count}}",
+    "separator": "・"
+  },
+  "expandAll": "全部展開",
+  "collapseAll": "全部收合",
+  "closedOn": "結案 {{date}}",
+  "empty": "目前沒有你看得到的自評表",
+  "emptyFiltered": "沒有符合條件的自評表"
+}

@@ -1,0 +1,61 @@
+{
+  "panelNote": "輪到你簽核「{{name}}」。控制要點唯讀，請檢視後核准，或退回之前的關卡。",
+  "approve": "核准",
+  "return": "退回",
+  "approveTitle": "核准：{{name}}",
+  "approveLastNote": "這是最後一關，核准後自評表結案並鎖定，任何人都不能再修改。",
+  "comment": "意見（選填）",
+  "returnTitle": "退回自評表",
+  "returnNote": "退回後，退回目標那一關起已完成的簽核會作廢（保留在簽核歷程），從那一關重新往下簽核；退回到某個單位時，其他單位已完成的部分不受影響。",
+  "returnTo": "退回到",
+  "returnToRequired": "請選擇要退回的關卡",
+  "reason": "退回原因",
+  "reasonRequired": "請填寫退回原因",
+  "approved": "已核准，自評表移到「{{name}}」",
+  "approvedBranch": "已核准，本單位接著到「{{name}}」",
+  "approvedWaiting": "已核准；等其他單位都完成後，自評表才往下簽核",
+  "closed": "已核准，自評表已結案",
+  "returned": "已退回「{{name}}」，作廢 {{voided}} 筆簽核",
+  "errors": {
+    "forbidden": "現在不是你的關卡，或自評表已結案；請重新整理頁面",
+    "self_check_step": "自行檢查人員關卡以「送出」簽核",
+    "reason_required": "請填寫退回原因",
+    "invalid_target": "這一關不能退回到那一關；請重新整理頁面"
+  },
+  "history": {
+    "title": "簽核歷程",
+    "empty": "還沒有任何簽核紀錄",
+    "note": "簽核以系統紀錄為憑：帳號、姓名、時間與簽核記錄編號。作廢的簽核是被後來的退回取消的，仍保留在歷程中。",
+    "serialNo": "簽核記錄編號",
+    "serialNoShort": "編號",
+    "signedAt": "時間",
+    "step": "關卡",
+    "signer": "簽核人",
+    "stepAndSigner": "關卡／簽核人",
+    "action": "動作",
+    "actionAndState": "動作／狀態",
+    "comment": "意見／原因",
+    "state": "狀態",
+    "actions": {
+      "submit": "送出",
+      "approve": "核准",
+      "return": "退回"
+    },
+    "returnTo": "至 {{step}}",
+    "valid": "有效",
+    "voided": "作廢"
+  },
+  "route": {
+    "title": "簽核流程",
+    "branches": "廠區端・各單位並行",
+    "audit": "稽核室覆核（依序）",
+    "returns": "退回 ×{{count}}",
+    "closed": "結案・鎖定",
+    "unassigned": "待分派",
+    "legend": {
+      "done": "已完成",
+      "current": "目前關卡",
+      "todo": "未開始"
+    }
+  }
+}

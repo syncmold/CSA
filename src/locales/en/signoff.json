@@ -1,0 +1,61 @@
+{
+  "panelNote": "It is your turn to sign off \"{{name}}\". Control points are read-only; review them, then approve or return the assessment to an earlier step.",
+  "approve": "Approve",
+  "return": "Return",
+  "approveTitle": "Approve: {{name}}",
+  "approveLastNote": "This is the last step: approving closes the assessment and locks it for everyone.",
+  "comment": "Comment (optional)",
+  "returnTitle": "Return the assessment",
+  "returnNote": "Sign-offs from the target step onwards are voided (they stay in the sign-off history), and signing restarts from that step; returning to one unit leaves what the other units finished in place.",
+  "returnTo": "Return to",
+  "returnToRequired": "Choose the step to return to",
+  "reason": "Reason",
+  "reasonRequired": "Enter the reason for returning",
+  "approved": "Approved; the assessment moved to \"{{name}}\"",
+  "approvedBranch": "Approved; this unit moved on to \"{{name}}\"",
+  "approvedWaiting": "Approved; the assessment moves on once every other unit is done",
+  "closed": "Approved; the assessment is closed",
+  "returned": "Returned to \"{{name}}\"; {{voided}} sign-off(s) voided",
+  "errors": {
+    "forbidden": "It is no longer your step, or the assessment is closed; reload the page",
+    "self_check_step": "Self-check steps sign off by submitting their answers",
+    "reason_required": "Enter the reason for returning",
+    "invalid_target": "This step cannot return to that one; reload the page"
+  },
+  "history": {
+    "title": "Sign-off history",
+    "empty": "No sign-offs yet",
+    "note": "Sign-offs are recorded by the system: account, name, time and sign-off number. Voided sign-offs were cancelled by a later return and stay in the history.",
+    "serialNo": "Sign-off no.",
+    "serialNoShort": "No.",
+    "signedAt": "Time",
+    "step": "Step",
+    "signer": "Signer",
+    "stepAndSigner": "Step / signer",
+    "action": "Action",
+    "actionAndState": "Action / state",
+    "comment": "Comment / reason",
+    "state": "State",
+    "actions": {
+      "submit": "Submitted",
+      "approve": "Approved",
+      "return": "Returned"
+    },
+    "returnTo": "to {{step}}",
+    "valid": "Valid",
+    "voided": "Voided"
+  },
+  "route": {
+    "title": "Approval route",
+    "branches": "Plant: units in parallel",
+    "audit": "Audit review (in order)",
+    "returns": "Returned ×{{count}}",
+    "closed": "Closed and locked",
+    "unassigned": "To be assigned",
+    "legend": {
+      "done": "Done",
+      "current": "Current step",
+      "todo": "Not started"
+    }
+  }
+}

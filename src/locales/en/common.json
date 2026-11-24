@@ -1,0 +1,241 @@
+{
+  "app": {
+    "title": "Annual Internal Control Self-Assessment Questionnaire — Online Sign-off & Tracking",
+    "backToSyncHub": "Back to SyncHub",
+    "logout": "Sign out",
+    "language": "Language",
+    "navHome": "Home",
+    "openMenu": "Open menu",
+    "brandSub": "Internal control self-assessment",
+    "pendingCount": " pending",
+    "menu": "Menu",
+    "collapseMenu": "Collapse menu",
+    "expandMenu": "Expand menu",
+    "brandWithEnv": "CSA ({{env}})",
+    "accountMenu": "Account menu: {{name}}",
+    "launchSteps": "Sending out forms"
+  },
+  "login": {
+    "systemName": "📋 CSA Internal Control Sign-off System",
+    "version": "Version v{{version}} ({{commit}})",
+    "versionNoCommit": "Version v{{version}}",
+    "logoAlt": "Group logo",
+    "account": "Employee ID or email",
+    "accountPlaceholder": "e.g. FQ0123 or someone@company.com",
+    "password": "Password",
+    "submit": "Sign in",
+    "devAccessAll": "Development: access checks are fully open (OPEN-2 undecided)",
+    "error": {
+      "invalidCredentials": "Incorrect account or password",
+      "network": "Cannot reach OMS, please try again later",
+      "account_disabled": "This account is disabled, please contact DTO",
+      "profile_not_found": "Account profile not found, please contact DTO",
+      "not_authorized": "This account is not enabled for the audit system, please contact the system maintainer",
+      "oms_token_invalid": "Your sign-in has expired, please sign in again",
+      "exchange_failed": "Could not establish the audit system session, please try again later",
+      "dev_login_disabled": "Dev login is not enabled (CSA_DEV_LOGIN)",
+      "oms_unavailable": "OMS could not be asked about this employee ID (no OMS_CHANNEL_KEY here, or today's lookups are used up). Please try again later."
+    },
+    "mustChange": {
+      "title": "Change your initial password first",
+      "body": "This account still uses its initial password. Please change it in SyncHub first, then come back and sign in.",
+      "go": "Go to SyncHub"
+    },
+    "devLogin": {
+      "title": "Development: sign in by employee ID",
+      "hint": "No password. Only shown locally when CSA_DEV_LOGIN=true; production has no such entry (Q82)",
+      "empId": "Employee ID (employed, per OMS)",
+      "submit": "Sign in as"
+    },
+    "help": "<b>Group employees</b> can sign in with their employee ID; the account and password are <b>shared with the OMS organisation master</b>.<br/>If it says not enabled yet, ask the system maintainer to enable CSA for you.",
+    "admin": {
+      "link": "🔑 Admin sign-in",
+      "title": "🔑 Admin sign-in",
+      "subtitle": "For the system admin account only; it belongs to no employee",
+      "email": "Email",
+      "back": "⬅ Back to employee sign-in"
+    },
+    "backToSyncHub": "← Back to SyncHub"
+  },
+  "home": {
+    "greeting": "Hello, {{name}} ({{factory}})",
+    "greetingNoFactory": "Hello, {{name}}",
+    "taskAssessment": "Assessment"
+  },
+  "assessments": {
+    "heading": "{{year}} {{plant}} {{code}} {{name}}",
+    "year": "Year",
+    "plant": "Plant",
+    "dueDate": "Due date",
+    "status": "Status",
+    "statuses": {
+      "in_progress": "In progress",
+      "closed": "Closed"
+    },
+    "currentStep": "Current step",
+    "currentStepName": "Step {{position}}: {{name}}",
+    "currentStepValue": "Step {{position}} of {{total}}: {{name}}",
+    "branchesValue": "{{done}} of {{total}} units done",
+    "branchSigner": "{{unit}}: {{signer}}",
+    "currentSigner": "Current signer",
+    "readOnlyNote": "Control points are read-only for now.",
+    "controlPoint": "Control point",
+    "assessingUnit": "Assessing unit",
+    "notFound": "This assessment does not exist or you are not allowed to view it",
+    "unassigned": "To be assigned"
+  },
+  "years": {
+    "label": "Year",
+    "next": "{{year}} (next launch)",
+    "launched": "{{year}} (launched)",
+    "loadError": "Could not read the years: {{error}}"
+  },
+  "nextLaunch": {
+    "note": "The {{subject}} edited here are used by the next launch and top-ups; assessments already issued are not affected. For past years, open that year's assessment in <records>Assessment records</records>.",
+    "questions": "questions",
+    "routes": "approval routes"
+  },
+  "editMode": {
+    "start": "Edit",
+    "finish": "Done editing",
+    "badge": "Editing"
+  },
+  "typeToDelete": {
+    "phrase": "delete {{code}}",
+    "typePhrase": "Type the grey text in the box yourself to confirm (pasting is disabled)",
+    "delete": "Delete"
+  },
+  "templates": {
+    "title": "Templates",
+    "code": "Code",
+    "name": "Name",
+    "status": "Status",
+    "applicablePlants": "Applicable plants",
+    "allPlants": "All plants",
+    "noPlants": "Not set",
+    "lastModified": "Last changed",
+    "size": "Contents",
+    "sizeValue": "{{sections}} sections, {{points}} control points",
+    "controlPoint": "Control point",
+    "assessingUnit": "Assessing unit",
+    "assessingUnitsLabel": "Assessing units (in answering order)",
+    "unitsRequired": "A control point under control activities needs at least one assessing unit",
+    "addUnitToPoint": "Choose an assessing unit to add",
+    "moveUnitUp": "Move \"{{name}}\" up",
+    "moveUnitDown": "Move \"{{name}}\" down",
+    "removeUnit": "Remove",
+    "removeUnitLabel": "Remove \"{{name}}\"",
+    "noUnitsYet": "No assessing unit added yet",
+    "unitsOrderHint": "This order is the row order on the answer sheet and the PDF; drag ⠿ or use ↑↓ to change it.",
+    "empty": "No templates to show (only audit admins can see template management)",
+    "notFound": "This template does not exist or you are not allowed to view it",
+    "toRoute": "See the approval route →",
+    "component": "Component",
+    "componentChoiceHint": "Per Article 6 of the Regulations Governing Establishment of Internal Control Systems by Public Companies. Control activities cover the operating cycles and have different answer columns from the other four, so a template cannot move between control activities and the others once created.",
+    "componentFixedControl": "Control activities have different answer columns from the other four components, so this template cannot move to another component.",
+    "componentFixedElement": "It can move among these four; control activities have different answer columns, so it cannot become one.",
+    "components": {
+      "control_environment": "Control environment",
+      "risk_assessment": "Risk assessment",
+      "control_activities": "Control activities",
+      "information_communication": "Information and communication",
+      "monitoring": "Monitoring activities",
+      "unclassified": "Unclassified"
+    },
+    "componentHeadings": {
+      "control_environment": "1. Control environment",
+      "risk_assessment": "2. Risk assessment",
+      "control_activities": "3. Control activities",
+      "information_communication": "4. Information and communication",
+      "monitoring": "5. Monitoring activities",
+      "unclassified": "Unclassified"
+    },
+    "groupEmpty": "No templates in this component",
+    "unclassifiedHint": "These templates have no component yet; open the template, press \"Edit\" and choose one under \"Edit header\".",
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "create": "New template",
+    "createTitle": "New template",
+    "editTitle": "Edit template",
+    "editHeader": "Edit header",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "required": "Required",
+    "statusHint": "Only active templates appear in the annual launch; deactivating one does not affect assessments already issued.",
+    "somePlants": "Selected plants",
+    "factoryCodes": "Plant codes",
+    "factoryCodesHint": "Pick or type OMS plant codes (e.g. FQ, KH-HW); the plant master source is not settled yet (Q68).",
+    "limitedPlantsHint": "Only the plants you run; for a template that applies to other plants or all plants, ask the 稽核主管.",
+    "factoryCodesPlaceholder": "Pick or type plant codes",
+    "dragHint": "Drag ⠿ to reorder sections and control points.",
+    "dragHandle": "Drag to reorder",
+    "addSection": "Add section",
+    "renameSection": "Edit section",
+    "sectionName": "Section name",
+    "sectionLevel": "Level",
+    "sectionLevelHint": "Level 1 is a card; levels 2 and 3 are sub-headings inside it",
+    "sectionLevels": { "1": "Level 1 (card)", "2": "Level 2", "3": "Level 3" },
+    "itemCode": "Number",
+    "codeHint": "As on the paper form; leave blank to number automatically",
+    "headingOnly": "Heading only: its sub-sections follow",
+    "deleteSubsectionsFirst": "It still heads sub-sections: delete or move them first",
+    "sectionEmpty": "This section has no control points yet",
+    "deleteSectionConfirm": "Delete this section and its {{count}} control points?",
+    "addControlPoint": "Add control point",
+    "editControlPoint": "Edit control point",
+    "deleteControlPointConfirm": "Delete this control point?",
+    "chooseUnit": "Choose an assessing unit",
+    "elementUnitHint": "Optional outside control activities, and there may be several; to have one self-checker answer it, give every control point of the template the same assessing unit.",
+    "units": {
+      "title": "Assessing units",
+      "hint": "Shared across the group and unrelated to OMS departments; control points pick their assessing unit from here (required under control activities, optional for the other components).",
+      "name": "Assessing unit",
+      "actions": "Actions",
+      "add": "Add",
+      "placeholder": "e.g. HR unit",
+      "empty": "No assessing units yet",
+      "deleteConfirm": "Delete \"{{name}}\"?",
+      "duplicate": "An assessing unit with this name already exists",
+      "inUse": "This assessing unit is still used by control points or approval routes and cannot be deleted"
+    },
+    "showInactive": "Show inactive templates ({{count}})",
+    "onlyInactive": "Only inactive templates exist; turn on \"Show inactive templates\" above to see them",
+    "usage": {
+      "title": "Usage",
+      "inUse": "In use",
+      "unused": "Unused"
+    },
+    "deleteTemplate": {
+      "button": "Delete template",
+      "title": "Delete template {{code}} {{name}}",
+      "onlyUnused": "Only a template that was never used can be deleted: no assessment issued and no approval route. Deactivate a used template instead; deleting cannot be undone.",
+      "contents": "This also deletes {{sections}} sections, {{points}} control points and the applicable plants.",
+      "inUse": "Already in use, deactivate it instead: this template has issued assessments or an approval route",
+      "inUseHint": "This template has issued assessments or an approval route and cannot be deleted; deactivate it under \"Edit\" → \"Edit header\" instead"
+    },
+    "errors": {
+      "duplicate": "This already exists",
+      "duplicateTemplate": "A template with this code already exists (one template per code)",
+      "inUse": "Still in use elsewhere, cannot be deleted",
+      "unitRule": "Control points under control activities need an assessing unit",
+      "componentLayout": "A template cannot move between control activities and the other components: their answer columns differ",
+      "forbidden": "Only audit admins can change templates",
+      "stale": "This page is out of date; reload and try again",
+      "generic": "Could not save: {{message}}"
+    },
+    "allView": "All",
+    "controlPointCount": "Items",
+    "sameContent": "Plants with the same content",
+    "sameContentNone": "Only this plant",
+    "sameContentMore": "{{codes}}… ({{count}})",
+    "sameContentHint": "Lists the other plants whose current sections, questions and assessing units are identical (inactive templates excluded). It is recompared from the current content every time the list opens; one different character makes them differ. Check it before editing to see which plants may need the same change; once edited, a template no longer matches, so this column does not remember plants that used to be the same."
+  },
+  "plants": {
+    "pickerLabel": "Plant",
+    "noPlant": "No plant",
+    "loadError": "Could not load the plants, so the list is not split by plant: {{error}}"
+  }
+}

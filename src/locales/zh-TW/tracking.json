@@ -1,0 +1,101 @@
+{
+  "nav": "追蹤總覽",
+  "plantHeader": "公司／廠區",
+  "title": "追蹤總覽",
+  "filters": {
+    "year": "年度",
+    "company": "公司",
+    "allCompanies": "全部公司",
+    "plant": "廠區（可多選）",
+    "allPlants": "全部廠區",
+    "status": "狀態"
+  },
+  "status": {
+    "all": "全部",
+    "in_progress": "進行中",
+    "closed": "已結案"
+  },
+  "subtitle": "{{year}} 年度 · 截止日 {{due}}",
+  "views": {
+    "heatmap": "熱度矩陣",
+    "queue": "待處理優先"
+  },
+  "kpi": {
+    "total": "自評表（{{plants}} 廠區 × {{templates}} 範本）",
+    "notLaunched": "未發起 {{count}} 份",
+    "inProgress": "進行中",
+    "closed": "已結案（{{percent}}%）",
+    "long": "停留 ≥ {{long}} 天（其中 ≥ {{veryLong}} 天 {{veryLongCount}}）"
+  },
+  "dwell": {
+    "veryLong": "停留 {{veryLong}} 天以上",
+    "long": "停留 {{long}}–{{last}} 天",
+    "short": "未滿 {{long}} 天"
+  },
+  "heat": {
+    "closed": "已結案",
+    "inProgress": "進行中，{{dwell}}",
+    "hint": "格內數字＝在目前關卡停留天數，「n／m」＝已結案／張數；滑過看範本與簽核人，點格子開自評表，點「控制作業」欄標題展開各表單",
+    "closedCount": "{{closed}}／{{total}}",
+    "closedCountNarrow": "{{closed}}/{{total}}",
+    "controlsTotal": "合計"
+  },
+  "queue": {
+    "inProgress": "進行中 {{count}}",
+    "long": "≥ {{long}} 天 {{count}}（≥ {{veryLong}} 天 {{veryLongCount}}）",
+    "closedShare": "已結案 {{closed}}／{{total}}",
+    "more": "再顯示 {{count}} 張",
+    "closed": "已結案 {{count}} 張",
+    "expand": "展開",
+    "collapse": "收起",
+    "columns": {
+      "days": "停留天數",
+      "assessment": "自評表",
+      "step": "目前關卡",
+      "signer": "目前簽核人",
+      "due": "截止日",
+      "closedAt": "結案日期"
+    }
+  },
+  "stage": {
+    "filling": "填寫中",
+    "signing": "簽核中",
+    "closed": "已結案"
+  },
+  "noYears": "尚未發起任何年度作業",
+  "empty": "沒有符合條件的自評表（追蹤總覽只給稽核主管、檢視者與廠區管理員）",
+  "cell": {
+    "step": "第 {{position}}／{{count}} 關 {{name}}",
+    "stageProgress": "{{stage}}・{{progress}}",
+    "branches": "已核准 {{done}}／{{total}} 單位",
+    "days": "停留 {{count}} 天",
+    "closed": "已結案",
+    "notLaunched": "未發起",
+    "notApplicable": "不適用",
+    "closedShare": "已結案 {{closed}}／{{total}}"
+  },
+  "export": "匯出 Excel",
+  "exportFailed": "匯出 Excel 失敗：{{message}}",
+  "fileName": "追蹤總覽_{{year}}.xlsx",
+  "excel": {
+    "overviewSheet": "總覽",
+    "detailSheet": "明細",
+    "year": "年度",
+    "company": "公司",
+    "plant": "廠區",
+    "factoryCode": "廠區代碼",
+    "templateCode": "範本編號",
+    "templateName": "範本名稱",
+    "status": "狀態",
+    "stepPosition": "目前關卡",
+    "stepCount": "總關數",
+    "stepName": "關卡名稱",
+    "signerEmpId": "簽核人工號",
+    "signerName": "簽核人姓名",
+    "enteredAt": "進入目前關卡（台北時間）",
+    "days": "停留天數",
+    "closedAt": "結案日期",
+    "dueDate": "截止日"
+  },
+  "unassigned": "待分派"
+}

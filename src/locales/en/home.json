@@ -1,0 +1,50 @@
+{
+  "mine": {
+    "title": "My assessments",
+    "tabs": {
+      "todo": "To do",
+      "all": "I'm part of"
+    },
+    "empty": {
+      "todo": "Nothing waiting for you to fill in or sign",
+      "all": "You aren't on the route of any current assessment"
+    },
+    "assessment": "Assessment",
+    "heading": "{{year}} · {{plant}} · {{code}} {{name}}",
+    "action": "Action",
+    "status": "Status",
+    "progress": "My progress",
+    "actions": {
+      "start": "Start",
+      "continue": "Continue",
+      "sign": "Sign off"
+    },
+    "statuses": {
+      "my_turn": "Waiting for me",
+      "upcoming": "Not my turn yet",
+      "done": "My part is done",
+      "closed": "Closed"
+    },
+    "answered": "{{answered}} of {{total}} answered",
+    "notStarted": "Not started",
+    "overdue_one": "{{count}} day overdue",
+    "overdue_other": "{{count}} days overdue",
+    "dueToday": "Due today",
+    "dueIn_one": "In {{count}} day",
+    "dueIn_other": "In {{count}} days",
+    "pastClosed": "{{count}} closed in earlier years are in Assessment records →"
+  },
+  "plants": {
+    "title": "{{year}} progress by plant",
+    "titleNoYear": "Progress by plant",
+    "toTracking": "Tracking",
+    "filling": "Filling in",
+    "signing": "Signing",
+    "closed": "Closed",
+    "ofTotalClosed": " / {{total}} closed",
+    "plantAria": "{{plant}}: {{closed}} of {{total}} closed",
+    "overdueFilling": "Overdue and still filling in: {{count}}",
+    "noOverdue": "Nothing overdue is still being filled in",
+    "empty": "No assessments launched this year yet"
+  }
+}

@@ -1,0 +1,224 @@
+{
+  "nav": "分派填寫人",
+  "title": "分派填寫人",
+  "year": "年度",
+  "choice": "年度與廠區",
+  "choiceNote": {
+    "both": "截止日 {{due}}。換年度或廠區，左邊的自評表清單跟著換。",
+    "year": "截止日 {{due}}。換年度，左邊的自評表清單跟著換。",
+    "plant": "截止日 {{due}}。換廠區，左邊的自評表清單跟著換。",
+    "none": "截止日 {{due}}",
+    "next": "下次發出（年度發起或補發）照這裡的人發出；每一關都分派好，那條流程才能發出。"
+  },
+  "next": "下次發出",
+  "empty": "這裡沒有要分派的簽核流程或自評表（只有廠區管理員與稽核主管看得到）",
+  "forms": "自評表",
+  "routes": "簽核流程",
+  "openRoute": "開啟簽核流程",
+  "tabs": {
+    "todo": "待分派 {{count}}",
+    "all": "全部 {{count}}"
+  },
+  "missing": "差 {{count}} 關",
+  "allAssigned": "已分派",
+  "open": "開啟自評表",
+  "hint": "選了人就存好，也寫回簽核流程，明年沿用。一條分流的人都齊了，那條分流就開始。還沒簽的關卡都可以換人，暫存答案留在表上，由新的人接著填。",
+  "hintNext": "選了人就存好，記在簽核流程上，發出時照抄進自評表。人選好了之後還能換，直到發出。",
+  "hintReadOnly": "發出後只有稽核主管能換人。",
+  "footnote": "名單列 {{plant}} 的自評表與簽核流程已經排過的人；其他人請輸入完整工號，由 OMS 確認（別廠的同仁也可以）。連動的稽核主管、台北稽核人員由權限管理決定，不在這裡。",
+  "branch": {
+    "unassigned": "待分派",
+    "assigned": "已分派",
+    "started": "已開始",
+    "approved": "已核准"
+  },
+  "pick": "選人，或輸入完整工號",
+  "signed": "已簽",
+  "reassign": "換人",
+  "vacant": "從缺",
+  "vacatedFrom": "原為 {{person}}，已離職",
+  "vacancy": "{{template}} {{step}}從缺（原為 {{person}}，已離職）",
+  "moreVacancies": "還有 {{more}} 關從缺",
+  "reminder": "{{plant}} {{year}} 年度還有 {{count}} 張自評表待分派，分派好的單位才能開始填寫。",
+  "toAssign": "前往分派",
+  "errors": {
+    "stepSigned": "這一關剛簽了，不能換人。",
+    "linkedStep": "連動的稽核室關卡由權限管理決定，不能在這裡分派。",
+    "closed": "這張自評表已結案。",
+    "denied": "只有這一廠的廠區管理員或稽核主管可以分派。",
+    "deniedIssued": "發出後只有稽核主管能換人。",
+    "signerRequired": "請選一位簽核人。"
+  },
+  "sheet": {
+    "download": "下載分派表",
+    "import": "匯入分派表",
+    "review": {
+      "title": "匯入分派表：檢查結果",
+      "file": "{{file}}・匯入到 {{plant}}・{{year}}",
+      "fileNext": "{{file}}・匯入到 {{plant}}・下次發出（{{year}} 年度）",
+      "foot": "不在 OMS、已離職、留停、轉調的人，他們的格子不寫入；廠區不同只提醒，照常寫入；OMS 還沒開通 CSA 的人怎麼處理，看上表的「這次怎麼處理」。已簽的關卡和灰色格也不會寫入。改好 Excel 可以再上傳一次。",
+      "footNext": "不在 OMS、已離職、留停、轉調的人，他們的格子不寫入；廠區不同只提醒，照常寫入；OMS 還沒開通 CSA 的人怎麼處理，看上表的「這次怎麼處理」。灰色格不會寫入。寫進簽核流程，發出時照抄進自評表；改好 Excel 可以再上傳一次。",
+      "footStopped": "整份不匯入，{{plant}} 現在的分派沒有任何改變。",
+      "cancel": "取消",
+      "close": "關閉",
+      "redownload": "重新下載分派表",
+      "confirm": "確認匯入"
+    },
+    "checks": {
+      "name1": "檔案是哪一廠",
+      "name2": "格式",
+      "name3": "自評表",
+      "name3Next": "簽核流程",
+      "name4": "人員（OMS）",
+      "ok1": "{{plant}}｜{{year}} 年度（第 1 列和隱藏的系統資料），和這一頁相同",
+      "ok1Next": "{{plant}}｜{{year}} 年度（第 1 列和隱藏的系統資料），是 {{plant}} 下次發出的年度",
+      "ok2": "欄位和系統產生時相同，也是最新版",
+      "ok3": "{{count}} 列都是 {{plant}} {{year}} 已發出的自評表",
+      "ok3Next": "{{count}} 列都是 {{plant}} 下次發出的簽核流程",
+      "ok3NotIssued": "{{count}} 列是 {{plant}} {{year}} 已發出的自評表；{{later}} 張還沒發出，這次略過",
+      "ok3NotIssuedNext": "{{count}} 列是 {{plant}} 下次發出的簽核流程；{{later}} 張下次不會發給 {{plant}}，這次略過",
+      "bad1": "{{file}} 年度，和這一頁（{{plant}}｜{{year}}）不同",
+      "bad1Next": "{{file}} 年度，和下次發出（{{plant}}｜{{year}}）不同",
+      "notOurs": "找不到第 1 列的廠區、年度或系統資料",
+      "bad2": "有 {{count}} 處和系統產生時不同",
+      "bad3": "有 {{count}} 列不是 {{plant}} {{year}} 已發出的自評表",
+      "bad3Next": "有 {{count}} 列不是 {{plant}} 的範本",
+      "skipped": "前面沒通過，沒有檢查",
+      "asking": "正在向 OMS 比對…",
+      "omsFailed": "OMS 比對沒有完成（{{message}}），請稍後再上傳一次",
+      "allMatched": "{{count}} 位都對得上",
+      "noPeople": "這份表沒有填工號",
+      "someToSee": "{{ok}} 位對得上，{{rest}} 位要看下面",
+      "bulk": "{{count}} / {{total}} 位不是 {{plant}} 的員工，超過 {{percent}}%，要確認"
+    },
+    "stop": {
+      "notOursTitle": "這不是系統產生的分派表",
+      "notOursItem": "檔案讀不到，或沒有第 1 列的廠區、年度與隱藏的系統資料（只收系統產生的 .xlsx）",
+      "notOursFix": "整份不匯入。請按「下載分派表」，把工號填進系統產生的檔案再上傳。",
+      "otherPlantTitle": "這是 {{file}} 的分派表，不是 {{plant}} 的",
+      "otherYearTitle": "這是 {{file}} 年度的分派表，不是 {{year}} 年度的",
+      "otherYearTitleNext": "這是 {{file}} 年度的分派表，下次發出是 {{year}} 年度",
+      "fileBoth": "檔案第 1 列和系統資料：{{claim}} 年度",
+      "fileRow1": "檔案第 1 列：{{claim}} 年度",
+      "fileSystem": "系統資料：{{claim}} 年度",
+      "importingTo": "你現在匯入到：{{plant}}｜{{year}} 年度",
+      "importingToNext": "你現在匯入到：{{plant}}｜下次發出（{{year}} 年度）",
+      "otherFix": "整份不匯入。這份請到它的廠區與年度匯入；{{plant}} {{year}} 的分派表請找 {{plant}} 寄回的那份。",
+      "formatTitle": "這份檔案的格式和系統產生時不同",
+      "missing": "少了一欄：{{column}}",
+      "unknown": "多了不認得的欄：「{{column}}」",
+      "unnamed": "{{column}} 欄沒有表頭，卻填了工號",
+      "expired": "{{codes}} 的自評單位和這份檔案產生時（{{date}}）不同，這份已過期",
+      "formatFix": "整份不匯入。請按「重新下載分派表」，把工號填進新檔再上傳。調換欄或列的順序不會被擋。",
+      "row": "第 {{row}} 列：{{label}}",
+      "rowNoCode": "第 {{row}} 列：填了工號，卻沒有自評表編號",
+      "rowRepeated": "第 {{row}} 列：{{label}}（和第 {{first}} 列重複）",
+      "rowsFix": "整份不匯入。請刪掉這幾列，或重新下載後再填。"
+    },
+    "notIssued": {
+      "title": "這 {{count}} 張自評表還沒發出，這次略過",
+      "titleNext": "這 {{count}} 張自評表下次不會發給 {{plant}}，這次略過",
+      "text": "這幾列這次不寫入，其他照常匯入。發起（或補發）這幾張表之後，把同一份檔案再匯入一次就會寫入；已經寫過的格子不會變動。",
+      "textNext": "範本停用了，或已不適用這一廠，沒有它的簽核流程可寫。這幾列這次不寫入，其他照常匯入。"
+    },
+    "bulk": {
+      "title": "這份表多數人不是 {{plant}} 的員工，可能貼錯廠區的名單",
+      "text": "{{total}} 位裡有 {{count}} 位（{{percent}}%）工號在 OMS，但不是 {{plant}} 的員工。少數幾位可能是跨廠支援，這麼多人比較像是把別廠的名單貼進來了。",
+      "confirm": "我確認這份是 {{plant}} 的名單（主管跨廠支援）"
+    },
+    "people": {
+      "title": "OMS 比對：每個工號＋{{plant}}，OMS 查得到嗎",
+      "note": "這份表用到 {{count}} 位人員，每人只比一次。CSA 後端向 OMS 查，畫面只顯示比對結果，不顯示人員資料。",
+      "filter": "依比對結果篩選",
+      "all": "全部",
+      "empId": "工號",
+      "used": "用在幾格",
+      "oms": "OMS 比對（工號＋{{plant}}）",
+      "action": "這次怎麼處理",
+      "cells": "{{count}} 格",
+      "rest": "其餘 {{count}} 人",
+      "says": {
+        "matched": "工號＋{{plant}} 在 OMS，在職",
+        "not_found": "OMS 查不到這個工號",
+        "other_plant": "工號在 OMS，在職，但不是 {{plant}} 的員工（也不是派駐或兼管 {{plant}}）",
+        "departed": "OMS 記錄已離職",
+        "on_leave": "OMS 記錄留職停薪",
+        "transferred": "OMS 記錄這是轉調前的舊工號",
+        "no_csa": "OMS 還沒開通 CSA（授權頁沒勾 CSA，或沒有啟用的帳號）"
+      },
+      "does": {
+        "matched": "照常分派",
+        "not_found": "這些格子不匯入。請確認工號，或請 {{plant}} 的 HR 在 OMS 補資料",
+        "other_plant": "照常分派。跨廠支援就不用處理；填錯的話改 Excel 再上傳",
+        "departed": "這些格子不匯入，請換一位",
+        "on_leave": "這些格子不匯入，請換一位",
+        "transferred": "這些格子不匯入，請改用新工號",
+        "no_csa": "照常分派（OMS 全面開通前只提醒）。請 OMS 管理員在授權頁勾 CSA，否則他登不進來簽核",
+        "no_csaRequired": "這些格子不匯入。請 OMS 管理員在授權頁勾 CSA 後再匯入一次"
+      }
+    },
+    "status": {
+      "matched": "對得上",
+      "not_found": "不在 OMS",
+      "other_plant": "廠區不同",
+      "departed": "已離職",
+      "on_leave": "留停",
+      "transferred": "轉調",
+      "no_csa": "未開通 CSA"
+    },
+    "done": {
+      "written": "已匯入 {{file}}，寫入 {{count}} 格。",
+      "left": "{{gone}} 位不在 OMS、{{left}} 位已離職，他們的格子沒有匯入。",
+      "otherPlant": "{{count}} 位不是 {{plant}} 的員工，已照常分派，請確認是跨廠支援。",
+      "otherPlantConfirmed": "{{count}} 位不是 {{plant}} 的員工，已照常分派（已勾選確認）。",
+      "skipped": "{{count}} 格的關卡剛簽了，沒有換人。",
+      "notIssued": "{{count}} 張還沒發出的自評表這次略過，發起後再匯入一次。",
+      "notIssuedNext": "{{count}} 張下次不會發給 {{plant}} 的自評表這次略過。",
+      "noCsa": "{{count}} 位在 OMS 還沒開通 CSA，已照常分派，請 OMS 管理員勾 CSA。",
+      "noCsaRequired": "{{count}} 位在 OMS 還沒開通 CSA，他們的格子沒有匯入。",
+      "onLeave": "{{count}} 位留停，他們的格子沒有匯入。",
+      "transferred": "{{count}} 位是轉調前的舊工號，他們的格子沒有匯入，請改用新工號。"
+    },
+    "omsErrors": {
+      "not_signed_in": "登入已過期，請重新登入",
+      "not_allowed": "你不能分派這一廠",
+      "oms_match_failed": "OMS 沒有回應",
+      "other": "比對服務沒有回應：{{code}}",
+      "oms_not_configured": "這個環境還沒設定 OMS 通道的金鑰，請洽系統維護員",
+      "oms_rate_limited": "OMS 今天的查詢量已到上限，請明天再匯入",
+      "oms_key_rejected": "OMS 不接受這個環境的通道金鑰（可能已換新或作廢），請洽系統維護員"
+    }
+  },
+  "picker": {
+    "typeAll": "名單裡沒有符合的人。要找其他人請輸入完整工號（不能用姓名或部分工號向 OMS 搜尋）",
+    "nobodyYet": "這一廠的表還沒排過人，請輸入完整工號",
+    "refused": {
+      "not_found": "OMS 查不到 {{empId}}，不能分派",
+      "departed": "OMS 記錄 {{empId}} 已離職，不能分派",
+      "on_leave": "OMS 記錄 {{empId}} 留職停薪，不能分派",
+      "transferred": "{{empId}} 是轉調前的舊工號，請改用新工號",
+      "no_csa": "OMS 授權頁還沒幫 {{empId}} 勾 CSA，不能分派，請 OMS 管理員開通"
+    },
+    "errors": {
+      "not_signed_in": "登入已過期，請重新登入",
+      "not_allowed": "你不能用工號查人",
+      "oms_not_configured": "這個環境還沒設定 OMS 通道的金鑰，請洽系統維護員",
+      "oms_key_rejected": "OMS 不接受這個環境的通道金鑰，請洽系統維護員",
+      "oms_rate_limited": "OMS 今天的查詢量已到上限，名單以外的人請明天再分派",
+      "oms_match_failed": "OMS 沒有回應，名單以外的人請稍後再試",
+      "lookup_failed": "CSA 的查詢服務出錯，請稍後再試",
+      "other": "查詢服務沒有回應：{{code}}"
+    },
+    "listFailed": "讀不到這一廠排過的人，請重新整理；也可以直接輸入完整工號",
+    "option": {
+      "no_csa": "　（OMS 還沒開通 CSA）",
+      "other_plant": "　（主檔廠區 {{plant}}，不是本廠）"
+    },
+    "assigned": {
+      "no_csa": "{{person}} 已分派，但 OMS 授權頁還沒勾 CSA，他登不進來簽核，請 OMS 管理員開通",
+      "other_plant": "{{person}} 已分派。提醒：OMS 記錄他不是 {{plant}} 的人（主檔廠區 {{home}}），跨廠支援就不用處理",
+      "unchecked": "{{person}} 已分派，但 OMS 沒有回應，這次沒有確認他是否在職"
+    }
+  },
+  "reminderRoutes": "{{plant}} 還有 {{count}} 條簽核流程沒分派好簽核人，分派好才能發出表單。"
+}

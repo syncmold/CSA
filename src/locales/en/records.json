@@ -1,0 +1,49 @@
+{
+  "nav": "Assessment records",
+  "title": "Assessment records",
+  "subtitle": "Closed assessments are locked; open or export them as PDF.",
+  "scope": {
+    "all": "All plants · all years",
+    "plants": "{{plants}} · all years",
+    "plantsAndOwn": "{{plants}}, ones I'm on · all years",
+    "own": "Ones I've been on · all years",
+    "plantCount": "{{count}} plants",
+    "separator": ", "
+  },
+  "filters": {
+    "year": "Year",
+    "allYears": "All years",
+    "company": "Company",
+    "allCompanies": "All companies",
+    "plant": "Plant",
+    "allPlants": "All plants",
+    "template": "Template",
+    "templatePlaceholder": "Code or name",
+    "templatePlaceholderPhone": "Template"
+  },
+  "status": {
+    "all": "All",
+    "in_progress": "In sign-off",
+    "closed": "Closed"
+  },
+  "columns": {
+    "assessment": "Assessment",
+    "plant": "Plant",
+    "status": "Status",
+    "closedAt": "Closed on",
+    "pdf": "PDF"
+  },
+  "assessment": "{{code}} {{name}}",
+  "yearHeading": "{{year}} · {{count}}",
+  "plantHeading": "{{code}} {{name}} · {{count}}",
+  "meta": {
+    "inProgress": "{{count}} in sign-off",
+    "closed": "{{count}} closed",
+    "separator": " · "
+  },
+  "expandAll": "Expand all",
+  "collapseAll": "Collapse all",
+  "closedOn": "Closed {{date}}",
+  "empty": "No assessments you can see yet",
+  "emptyFiltered": "No assessments match these filters"
+}

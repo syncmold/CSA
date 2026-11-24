@@ -1,0 +1,6 @@
+# Keep shell scripts and SQL LF so Git Bash and the Supabase CLI read them on Windows
+*.sh text eol=lf
+*.sql text eol=lf
+*.toml text eol=lf
+# 草稿定義檔由 templates:convert 產生，templates:verify 逐位元比對，所以和 SQL 一樣固定 LF
+supabase/drafts/**/*.json text eol=lf

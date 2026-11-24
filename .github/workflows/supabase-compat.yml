@@ -1,0 +1,69 @@
+name: Supabase compatibility
+
+# The migrations and the database rules, run again on the Supabase local stack: the demo and production databases are
+# Supabase projects (Q97). Split from ci.yml (#215) so it runs only when something it tests changes: a pull request that
+# only touches the screens skips it. ci.yml still runs the same RLS tests on Postgres + PostgREST for every pull request.
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'tests/db/**'
+      # What the DB tests import: the queries the screens send, domain rules, the PDF source, the exchange and scripts.
+      - 'src/api/**'
+      - 'src/domain/**'
+      - 'src/pdf/**'
+      - 'exchange/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vitest.config.ts'
+      - '.github/workflows/supabase-compat.yml'
+
+jobs:
+  supabase-compat:
+    name: RLS on the Supabase local stack (migration compatibility)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # A fixed version is downloaded directly; `latest` first asks the GitHub API, which hit its rate limit (2026-11-11,
+      # PR #169) and left the job without the CLI. v3.1.0 is what `latest` resolved to on the last green run.
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.1.0
+
+      - name: Start local Supabase (applies supabase/migrations)
+        run: supabase start -x studio,realtime,storage-api,imgproxy,mailpit,logflare,vector,supavisor,edge-runtime
+
+      - name: Point the tests at the Supabase stack
+        run: |
+          supabase status -o env \
+            --override-name api.url=SUPABASE_URL \
+            --override-name auth.anon_key=SUPABASE_ANON_KEY \
+            --override-name auth.jwt_secret=SUPABASE_JWT_SECRET \
+            | grep -E '^(SUPABASE_URL|SUPABASE_ANON_KEY|SUPABASE_JWT_SECRET)=' | sed 's/"//g' > sb.env
+          . ./sb.env
+          cp .env.example .env
+          {
+            echo "CSA_REST_URL=$SUPABASE_URL/rest/v1"
+            echo "CSA_JWT_SECRET=$SUPABASE_JWT_SECRET"
+            echo "VITE_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY"
+            # 少數測試要直接連資料庫做 API 做不到的 DDL（tests/db/helpers.ts withSuperuser）；Supabase 本機堆疊的預設帳密與埠號
+            echo "CSA_DB_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:54322/postgres"
+            echo "CSA_DB_URL=postgres://authenticator@127.0.0.1:54322/postgres"
+          } >> .env
+
+      - name: RLS tests (Vitest against Supabase)
+        run: npm run test:db
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup

@@ -1,0 +1,224 @@
+{
+  "nav": "Assign signers",
+  "title": "Assign signers",
+  "year": "Year",
+  "choice": "Year and plant",
+  "choiceNote": {
+    "both": "Due {{due}}. Change the year or plant to switch the assessments listed on the left.",
+    "year": "Due {{due}}. Change the year to switch the assessments listed on the left.",
+    "plant": "Due {{due}}. Change the plant to switch the assessments listed on the left.",
+    "none": "Due {{due}}",
+    "next": "The next launch (or top-up) issues the forms to the people here; a route goes out only once every step has someone."
+  },
+  "next": "Next launch",
+  "empty": "No approval routes or assessments to assign here (only plant coordinators and the audit chief see them)",
+  "forms": "Assessments",
+  "routes": "Approval routes",
+  "openRoute": "Open approval route",
+  "tabs": {
+    "todo": "To assign {{count}}",
+    "all": "All {{count}}"
+  },
+  "missing": "{{count}} open",
+  "allAssigned": "Assigned",
+  "open": "Open assessment",
+  "hint": "Choosing a person saves it, on the approval route too, so next year keeps them. A branch starts once all its steps have someone. Any step not signed yet can change hands; saved answers stay on the assessment for the new person.",
+  "hintNext": "Choosing a person saves it on the approval route; the launch copies them onto the assessment. They can be changed until the forms go out.",
+  "hintReadOnly": "Once the forms are out, only the audit chief can reassign.",
+  "footnote": "The list holds the people already on {{plant}}’s assessments and approval routes; for anyone else type the complete employee ID and OMS confirms it (colleagues from other plants too). The linked audit chief and Taipei auditor follow access management, not this page.",
+  "branch": {
+    "unassigned": "To assign",
+    "assigned": "Assigned",
+    "started": "Started",
+    "approved": "Approved"
+  },
+  "pick": "Pick someone, or type a complete employee ID",
+  "signed": "Signed",
+  "reassign": "Reassign",
+  "vacant": "Vacant",
+  "vacatedFrom": "Was {{person}}, who has left",
+  "vacancy": "{{template}} {{step}} is vacant (was {{person}}, who has left)",
+  "moreVacancies": "{{more}} more vacant",
+  "reminder": "{{plant}} {{year}}: {{count}} assessments still need assigning. Units can start once they are assigned.",
+  "toAssign": "Assign now",
+  "errors": {
+    "stepSigned": "This step was just signed, so it cannot change hands.",
+    "linkedStep": "Linked audit steps follow access management; they cannot be assigned here.",
+    "closed": "This assessment is closed.",
+    "denied": "Only this plant's coordinator or the audit chief can assign.",
+    "deniedIssued": "Once the forms are out, only the audit chief can reassign.",
+    "signerRequired": "Pick a signer."
+  },
+  "sheet": {
+    "download": "Download sheet",
+    "import": "Import sheet",
+    "review": {
+      "title": "Import assignment sheet: checks",
+      "file": "{{file}} · into {{plant}} · {{year}}",
+      "fileNext": "{{file}} · into {{plant}} · next launch ({{year}})",
+      "foot": "Cells of people not in OMS, who have left, are on leave or have an old ID are not written; another plant is only pointed out, and written; for people not enabled for CSA yet, see “What happens” above. Signed steps and grey cells are not written either. Fix the Excel file and upload it again any time.",
+      "footNext": "Cells of people not in OMS, who have left, are on leave or have an old ID are not written; another plant is only pointed out, and written; for people not enabled for CSA yet, see “What happens” above. Grey cells are not written either. Written to the approval routes and copied onto the forms when they are issued; fix the Excel file and upload it again any time.",
+      "footStopped": "Nothing is imported; {{plant}}'s assignments are unchanged.",
+      "cancel": "Cancel",
+      "close": "Close",
+      "redownload": "Download the sheet again",
+      "confirm": "Import"
+    },
+    "checks": {
+      "name1": "Which plant",
+      "name2": "Format",
+      "name3": "Forms",
+      "name3Next": "Routes",
+      "name4": "People (OMS)",
+      "ok1": "{{plant}} | {{year}} (row 1 and the hidden system sheet), same as this page",
+      "ok1Next": "{{plant}} | {{year}} (row 1 and the hidden system sheet), the year of {{plant}}'s next launch",
+      "ok2": "Columns are as generated and up to date",
+      "ok3": "All {{count}} rows are {{plant}} {{year}} forms that were issued",
+      "ok3Next": "All {{count}} rows are {{plant}}'s routes for the next launch",
+      "ok3NotIssued": "{{count}} rows are {{plant}} {{year}} forms that were issued; {{later}} not issued yet, left for later",
+      "ok3NotIssuedNext": "{{count}} rows are {{plant}}'s routes for the next launch; {{later}} will not be issued to {{plant}} and are left out",
+      "bad1": "{{file}}, not this page's {{plant}} | {{year}}",
+      "bad1Next": "{{file}}, not the next launch ({{plant}} | {{year}})",
+      "notOurs": "No plant, year or system sheet found",
+      "bad2": "{{count}} difference(s) from the generated file",
+      "bad3": "{{count}} row(s) are not {{plant}} {{year}} forms that were issued",
+      "bad3Next": "{{count}} row(s) are not {{plant}} templates",
+      "skipped": "Not checked: an earlier check failed",
+      "asking": "Asking OMS…",
+      "omsFailed": "OMS did not answer ({{message}}); upload again later",
+      "allMatched": "All {{count}} match",
+      "noPeople": "No employee IDs filled in",
+      "someToSee": "{{ok}} match, {{rest}} to look at below",
+      "bulk": "{{count}} / {{total}} are not {{plant}} employees, over {{percent}}%: confirm first"
+    },
+    "stop": {
+      "notOursTitle": "This is not a sheet the system generated",
+      "notOursItem": "The file cannot be read, or has no plant and year in row 1 and no hidden system sheet (only generated .xlsx files)",
+      "notOursFix": "Nothing is imported. Press Download sheet, fill the IDs into the generated file and upload that.",
+      "otherPlantTitle": "This is {{file}}'s sheet, not {{plant}}'s",
+      "otherYearTitle": "This is the {{file}} sheet, not {{year}}",
+      "otherYearTitleNext": "This is the {{file}} sheet; the next launch is {{year}}",
+      "fileBoth": "Row 1 and the system sheet: {{claim}}",
+      "fileRow1": "Row 1: {{claim}}",
+      "fileSystem": "System sheet: {{claim}}",
+      "importingTo": "You are importing into: {{plant}} | {{year}}",
+      "importingToNext": "You are importing into: {{plant}} | next launch ({{year}})",
+      "otherFix": "Nothing is imported. Import this one under its own plant and year; for {{plant}} {{year}}, use the file {{plant}} sent back.",
+      "formatTitle": "This file's format differs from the generated one",
+      "missing": "Missing column: {{column}}",
+      "unknown": "Unknown column: \"{{column}}\"",
+      "unnamed": "Column {{column}} has no heading but holds employee IDs",
+      "expired": "The units of {{codes}} are not the ones this file was made for ({{date}}), so it is out of date",
+      "formatFix": "Nothing is imported. Press Download the sheet again, fill the IDs into the new file and upload that. Reordering columns or rows is fine.",
+      "row": "Row {{row}}: {{label}}",
+      "rowNoCode": "Row {{row}}: employee IDs but no form code",
+      "rowRepeated": "Row {{row}}: {{label}} (repeats row {{first}})",
+      "rowsFix": "Nothing is imported. Delete these rows, or download again and refill."
+    },
+    "notIssued": {
+      "title": "These {{count}} forms are not issued yet and are left out this time",
+      "titleNext": "These {{count}} forms will not be issued to {{plant}} next time and are left out",
+      "text": "These rows are not written now; the rest is imported. Once these forms are issued (or topped up), import the same file again to write them; cells already written stay as they are.",
+      "textNext": "Their template is inactive or no longer for this plant, so there is no route to write to. These rows are not written; the rest is imported."
+    },
+    "bulk": {
+      "title": "Most people in this sheet are not {{plant}} employees: it may be another plant's list",
+      "text": "{{count}} of {{total}} ({{percent}}%) are in OMS but not {{plant}} employees. A few may support across plants; this many looks like another plant's list pasted in.",
+      "confirm": "I confirm this is {{plant}}'s list (managers supporting across plants)"
+    },
+    "people": {
+      "title": "OMS check: each ID + {{plant}}, does OMS know them?",
+      "note": "This sheet uses {{count}} people, each checked once. CSA’s backend asks OMS; only the result is shown, no personal data.",
+      "filter": "Filter by result",
+      "all": "All",
+      "empId": "Employee ID",
+      "used": "Cells",
+      "oms": "OMS (ID + {{plant}})",
+      "action": "What happens",
+      "cells": "{{count}}",
+      "rest": "The other {{count}}",
+      "says": {
+        "matched": "ID + {{plant}} in OMS, employed",
+        "not_found": "OMS has no such ID",
+        "other_plant": "In OMS and employed, but not a {{plant}} employee (nor posted to or also covering {{plant}})",
+        "departed": "OMS records them as having left",
+        "on_leave": "OMS records them as on unpaid leave",
+        "transferred": "OMS records this as an old ID from before a transfer",
+        "no_csa": "Not enabled for CSA in OMS yet (CSA not ticked, or no active account)"
+      },
+      "does": {
+        "matched": "Assigned",
+        "not_found": "Not imported. Check the ID, or ask {{plant}}'s HR to add them in OMS",
+        "other_plant": "Assigned. Nothing to do for cross-plant support; if it is a mistake, fix the Excel file and upload again",
+        "departed": "Not imported; pick someone else",
+        "on_leave": "Not imported; pick someone else",
+        "transferred": "Not imported; use their new ID",
+        "no_csa": "Assigned (only pointed out until OMS has enabled everyone). Ask the OMS administrator to tick CSA, or they cannot sign in to sign",
+        "no_csaRequired": "Not imported. Ask the OMS administrator to tick CSA, then import again"
+      }
+    },
+    "status": {
+      "matched": "Match",
+      "not_found": "Not in OMS",
+      "other_plant": "Other plant",
+      "departed": "Left",
+      "on_leave": "On leave",
+      "transferred": "Old ID",
+      "no_csa": "No CSA"
+    },
+    "done": {
+      "written": "Imported {{file}}: {{count}} cell(s) written. ",
+      "left": "{{gone}} not in OMS and {{left}} who left were not imported. ",
+      "otherPlant": "{{count}} not {{plant}} employees were assigned; check they support across plants. ",
+      "otherPlantConfirmed": "{{count}} not {{plant}} employees were assigned (confirmed). ",
+      "skipped": "{{count}} step(s) were just signed and kept their signer.",
+      "notIssued": "{{count}} form(s) not issued yet were left out; import again after they are issued.",
+      "notIssuedNext": "{{count}} form(s) not issued to {{plant}} next time were left out.",
+      "noCsa": "{{count}} are not enabled for CSA in OMS yet; assigned anyway, please ask OMS to tick CSA.",
+      "noCsaRequired": "{{count}} are not enabled for CSA in OMS yet; their cells were not imported.",
+      "onLeave": "{{count}} on leave were not imported.",
+      "transferred": "{{count}} old IDs from before a transfer were not imported; use their new IDs."
+    },
+    "omsErrors": {
+      "not_signed_in": "your sign-in has expired; sign in again",
+      "not_allowed": "you cannot assign this plant",
+      "oms_match_failed": "OMS did not answer",
+      "other": "the matching service did not answer: {{code}}",
+      "oms_not_configured": "This environment has no key for the OMS channel yet; ask the system maintainer",
+      "oms_rate_limited": "OMS’s lookup limit for today has been reached; import again tomorrow",
+      "oms_key_rejected": "OMS refused this environment’s channel key (it may have been replaced or revoked); ask the system maintainer"
+    }
+  },
+  "picker": {
+    "typeAll": "Nobody on the list matches. For anyone else type the complete employee ID (OMS cannot be searched by name or part of an ID)",
+    "nobodyYet": "Nobody has been on this plant’s assessments yet; type a complete employee ID",
+    "refused": {
+      "not_found": "OMS has no {{empId}}; cannot be assigned",
+      "departed": "OMS records {{empId}} as having left; cannot be assigned",
+      "on_leave": "OMS records {{empId}} as on unpaid leave; cannot be assigned",
+      "transferred": "{{empId}} is an old ID from before a transfer; use the new ID",
+      "no_csa": "CSA is not ticked for {{empId}} in OMS; cannot be assigned, ask the OMS administrator"
+    },
+    "errors": {
+      "not_signed_in": "Your session has expired, please sign in again",
+      "not_allowed": "You may not look people up by ID",
+      "oms_not_configured": "This environment has no key for the OMS channel yet; ask the system maintainer",
+      "oms_key_rejected": "OMS refused this environment’s channel key; ask the system maintainer",
+      "oms_rate_limited": "OMS’s lookup limit for today has been reached; assign people off the list tomorrow",
+      "oms_match_failed": "OMS did not answer; try people off the list again later",
+      "lookup_failed": "CSA’s lookup service failed; try again in a moment",
+      "other": "The lookup service did not answer: {{code}}"
+    },
+    "listFailed": "Could not read the people already on this plant’s assessments; reload, or type a complete employee ID",
+    "option": {
+      "no_csa": "  (not enabled for CSA in OMS yet)",
+      "other_plant": "  (home plant {{plant}}, not this plant)"
+    },
+    "assigned": {
+      "no_csa": "{{person}} is assigned, but CSA is not ticked for them in OMS, so they cannot sign in to sign; ask the OMS administrator",
+      "other_plant": "{{person}} is assigned. Note: OMS has them outside {{plant}} (home plant {{home}}); nothing to do for cross-plant support",
+      "unchecked": "{{person}} is assigned, but OMS did not answer, so whether they are still employed was not checked"
+    }
+  },
+  "reminderRoutes": "{{plant}}: {{count}} approval routes still have steps without a signer. The forms cannot go out until they are assigned."
+}

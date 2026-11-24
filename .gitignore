@@ -1,0 +1,53 @@
+# dependencies / build
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# env & secrets
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.key
+*.pem
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# test output
+test-results/
+playwright-report/
+blob-report/
+
+# Python tooling (seed conversion scripts)
+.venv/
+__pycache__/
+
+# 公司原始資料不得進版控（真實簽名 PDF、內控文件原檔）；種子資料只放轉檔後、去識別的版本
+*.doc
+*.docx
+raw/
+# 草稿途徑的簽核流程定義含真實 OMS 工號 (Q90)：放這裡給 drafts:write，不進版控
+supabase/drafts/local/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+~$*
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Agent scratch and stray logs
+.scratch/
+*.log
+
+# demo:build 寫的清單檔（demo:refresh 用；部署指令的清單檔在 ../csa-deploy/）
+.demo-manifest.json
+
+# AI 工具的本機設定
+.claude/

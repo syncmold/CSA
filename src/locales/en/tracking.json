@@ -1,0 +1,103 @@
+{
+  "nav": "Tracking",
+  "plantHeader": "Company / plant",
+  "title": "Tracking overview",
+  "filters": {
+    "year": "Year",
+    "company": "Company",
+    "allCompanies": "All companies",
+    "plant": "Plants",
+    "allPlants": "All plants",
+    "status": "Status"
+  },
+  "status": {
+    "all": "All",
+    "in_progress": "In progress",
+    "closed": "Closed"
+  },
+  "subtitle": "{{year}} · due {{due}}",
+  "views": {
+    "heatmap": "Heat map",
+    "queue": "Longest waiting"
+  },
+  "kpi": {
+    "total": "Assessments ({{plants}} plants × {{templates}} templates)",
+    "notLaunched": "{{count}} not launched",
+    "inProgress": "In progress",
+    "closed": "Closed ({{percent}}%)",
+    "long": "At one step ≥ {{long}} days ({{veryLongCount}} of them ≥ {{veryLong}} days)"
+  },
+  "dwell": {
+    "veryLong": "{{veryLong}} days or more",
+    "long": "{{long}}–{{last}} days",
+    "short": "Under {{long}} days"
+  },
+  "heat": {
+    "closed": "Closed",
+    "inProgress": "In progress, {{dwell}}",
+    "hint": "The number is the days at the current step, \"n/m\" is closed out of all; hover for the template and signer, click to open the assessment, click Control activities to show each form",
+    "closedCount": "{{closed}}/{{total}}",
+    "closedCountNarrow": "{{closed}}/{{total}}",
+    "controlsTotal": "Total"
+  },
+  "queue": {
+    "inProgress": "{{count}} in progress",
+    "long": "{{count}} ≥ {{long}} days ({{veryLongCount}} ≥ {{veryLong}} days)",
+    "closedShare": "{{closed}}/{{total}} closed",
+    "more": "Show {{count}} more",
+    "closed_one": "{{count}} closed",
+    "closed_other": "{{count}} closed",
+    "expand": "Show",
+    "collapse": "Hide",
+    "columns": {
+      "days": "Days at step",
+      "assessment": "Assessment",
+      "step": "Current step",
+      "signer": "Current signer",
+      "due": "Due",
+      "closedAt": "Closed on"
+    }
+  },
+  "stage": {
+    "filling": "Filling in",
+    "signing": "Signing",
+    "closed": "Closed"
+  },
+  "noYears": "No annual cycle has been launched yet",
+  "empty": "No assessments match (the tracking overview is for audit administrators, viewers and plant coordinators)",
+  "cell": {
+    "step": "Step {{position}}/{{count}} {{name}}",
+    "stageProgress": "{{stage}} · {{progress}}",
+    "branches": "{{done}}/{{total}} units approved",
+    "days_one": "{{count}} day at this step",
+    "days_other": "{{count}} days at this step",
+    "closed": "Closed",
+    "notLaunched": "Not launched",
+    "notApplicable": "Not applicable",
+    "closedShare": "{{closed}}/{{total}} closed"
+  },
+  "export": "Export to Excel",
+  "exportFailed": "Excel export failed: {{message}}",
+  "fileName": "tracking_{{year}}.xlsx",
+  "excel": {
+    "overviewSheet": "Overview",
+    "detailSheet": "Details",
+    "year": "Year",
+    "company": "Company",
+    "plant": "Plant",
+    "factoryCode": "Plant code",
+    "templateCode": "Template code",
+    "templateName": "Template name",
+    "status": "Status",
+    "stepPosition": "Current step",
+    "stepCount": "Steps",
+    "stepName": "Step name",
+    "signerEmpId": "Signer ID",
+    "signerName": "Signer name",
+    "enteredAt": "Entered this step (Taipei time)",
+    "days": "Days at step",
+    "closedAt": "Closed on",
+    "dueDate": "Due date"
+  },
+  "unassigned": "To be assigned"
+}

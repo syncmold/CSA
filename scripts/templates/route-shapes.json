@@ -1,0 +1,6617 @@
+{
+  "_comment": "每份範本照 Word 原檔簽核欄排出的流程形狀（npm run templates:signatures 產生，請勿手改；換算規則見 scripts/templates/signatures.mjs 開頭，Q143）。word 是原檔讀到的職稱，供核對。",
+  "shapes": {
+    "CF-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-03.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員",
+          "廠區經理人"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-10.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "CF-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-03.4": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-10.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FF-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-03.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員",
+          "廠區經理人"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司廠區擔當稽核"
+        ]
+      }
+    },
+    "FQ-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-10.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "FQ-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-01.4": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-03.5": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-10.2": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GH-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "GT-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-03.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員",
+          "執行副總",
+          "廠長"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-10": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-12": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-13": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-14": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠長",
+        "執行副總"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "執行副總",
+          "廠長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "GT-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "JS-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-03.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員",
+          "廠區經理人"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-10.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "JS-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-01.3": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-03.3": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-10.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KH-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-01.2": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-03.2": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-10.3": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-10.4": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "KS-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-01": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-03": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-05.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-05.2-沖壓": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-05.2-組裝": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-10": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-12": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-13": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-14": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "LH-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LH-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-01": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-03": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-5.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-5.2": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-10": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LS-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "LT-01": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-03": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-10": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "LT-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SAMOA-01": {
+      "branchManager": "相關所屬主管(審核)",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "相關所屬主管(審核)",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SAMOA-02": {
+      "branchManager": "相關所屬主管(審核)",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "相關所屬主管(審核)",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SF-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-03.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員",
+          "廠區經理人"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-10.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SF-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "SH-01": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-03": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-09": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-10": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "總經理"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SH-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "SY-01": {
+      "branchManager": "部門主管",
+      "merged": [
+        "執行副總經理",
+        "總經理"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "零組件事業群",
+          "部門主管",
+          "自行檢查人員",
+          "總經理",
+          "執行副總經理"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "執行副總經理",
+        "總經理"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "零組件事業群",
+          "部門主管",
+          "自行檢查人員",
+          "總經理",
+          "執行副總經理"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-03": {
+      "branchManager": "部門主管",
+      "merged": [
+        "執行副總經理",
+        "總經理"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "零組件事業群",
+          "部門主管",
+          "自行檢查人員",
+          "總經理",
+          "執行副總經理"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "執行副總經理",
+        "總經理"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "零組件事業群",
+          "部門主管",
+          "自行檢查人員",
+          "總經理",
+          "執行副總經理"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "執行副總經理",
+        "總經理"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "零組件事業群",
+          "部門主管",
+          "自行檢查人員",
+          "總經理",
+          "執行副總經理"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-06": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-07": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-08": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-09": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-10": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-11": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-12": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-13": {
+      "branchManager": null,
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-14": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-15": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-16": {
+      "branchManager": null,
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-17": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-18": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-19": {
+      "branchManager": "部門主管",
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-20": {
+      "branchManager": null,
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-21": {
+      "branchManager": null,
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-22": {
+      "branchManager": null,
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "SY-D": {
+      "branchManager": null,
+      "merged": [
+        "董事長"
+      ],
+      "audit": [
+        "subsidiary",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "董事長"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員"
+        ]
+      }
+    },
+    "TC-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-03.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員",
+          "廠區經理人",
+          "副總經理"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-10": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "擔當稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司稽核人員"
+        ]
+      }
+    },
+    "TC-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "副總經理",
+        "廠區經理人"
+      ],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "副總經理",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TC-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "subsidiary",
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核"
+        ]
+      }
+    },
+    "TH-01": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-03": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-10": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "TH-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-01.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-02": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-03.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "部門主管",
+          "自行檢查人員",
+          "廠區經理人"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-04": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-05": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-06": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-07": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-08": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-09": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-10.1": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-11": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-15": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司稽核人員",
+          "從缺"
+        ]
+      }
+    },
+    "VN-A": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-B": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-C": {
+      "branchManager": "部門主管",
+      "merged": [
+        "廠區經理人"
+      ],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [
+          "廠區經理人",
+          "部門主管",
+          "自行檢查人員"
+        ],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    },
+    "VN-D": {
+      "branchManager": null,
+      "merged": [],
+      "audit": [
+        "taipei_auditor",
+        "audit_chief"
+      ],
+      "word": {
+        "plant": [],
+        "audit": [
+          "稽核主管",
+          "台北稽核人員",
+          "子公司擔當稽核",
+          "從缺"
+        ]
+      }
+    }
+  }
+}

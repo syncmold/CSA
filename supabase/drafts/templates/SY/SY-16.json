@@ -1,0 +1,60 @@
+{
+  "kind": "template",
+  "generatedBy": "npm run templates:convert 從 Word 原檔「16~控制活動~薪資報酬委員會運作管理辦法..doc」產生，請勿手改",
+  "code": "SY-16",
+  "name": "薪資報酬委員會運作管理辦法",
+  "layout": "control_activity",
+  "allPlants": false,
+  "factoryCodes": [
+    "SY"
+  ],
+  "sections": [
+    {
+      "name": "薪資報酬委員會運作管理辦法",
+      "controlPoints": [
+        {
+          "text": "是否依規設置薪資報酬委員會，並訂定薪資報酬委員會組織規程？",
+          "assessingUnits": [
+            "待指定單位"
+          ]
+        },
+        {
+          "text": "委員會之召開是否符合「薪資報酬委員會組織規程」及相關法令所規定之每年應召開次數？",
+          "assessingUnits": [
+            "待指定單位"
+          ]
+        },
+        {
+          "text": "委員會議案是否於召開前備妥相關資料供委員查考？",
+          "assessingUnits": [
+            "待指定單位"
+          ]
+        },
+        {
+          "text": "委員會成員資格是否符合相關法令規定，另該成員是否由董事會決議委任之",
+          "assessingUnits": [
+            "待指定單位"
+          ]
+        },
+        {
+          "text": "委員會議事錄是否依「薪資報酬委員會組織規程」及相關法令所規定詳載各項內容，並依規定時間內妥善保存備查？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        },
+        {
+          "text": "委員會決議通過之議案是否將所提建議提交董事會討論？",
+          "assessingUnits": [
+            "待指定單位"
+          ]
+        },
+        {
+          "text": "委員會決議時，除法令或本公司章程另有規定外，是否有全體成員二分之ㄧ以上同意？",
+          "assessingUnits": [
+            "待指定單位"
+          ]
+        }
+      ]
+    }
+  ]
+}

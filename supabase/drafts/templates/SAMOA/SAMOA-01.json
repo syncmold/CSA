@@ -1,0 +1,108 @@
+{
+  "kind": "template",
+  "generatedBy": "npm run templates:convert 從 Word 原檔「01~控制活動~XXX(samoa)~(銷售及收款循環、採購及付款循環).doc」產生，請勿手改",
+  "code": "SAMOA-01",
+  "name": "銷售及收款循環、採購及付款循環",
+  "layout": "control_activity",
+  "allPlants": false,
+  "factoryCodes": [
+    "OTHER"
+  ],
+  "sections": [
+    {
+      "name": "銷售及收款循環",
+      "controlPoints": []
+    },
+    {
+      "level": 2,
+      "name": "應收帳款作業",
+      "controlPoints": [
+        {
+          "code": "1",
+          "text": "會計單位是否按月編制〝應收帳款匯總表〞入帳？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        },
+        {
+          "code": "2",
+          "text": "會計單位是否定期編製應收帳款帳齡分析表，供業務單位催收帳款使用？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        },
+        {
+          "code": "3",
+          "text": "對於逾期之帳款是否瞭解原因、擬訂對策，並詳加跟催處理？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        }
+      ]
+    },
+    {
+      "level": 2,
+      "name": "收款作業",
+      "controlPoints": [
+        {
+          "code": "1",
+          "text": "出納人員接獲客戶繳交貨款之支票或匯入款時，是否填具〝收款單〞？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        },
+        {
+          "code": "2",
+          "text": "會計人員根據〝收款單〞沖銷應收帳款後是否簽章，連同傳票存檔？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        },
+        {
+          "code": "3",
+          "text": "出納人員是否將所收之支票，均於當日繳存銀行？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "採購及付款循環",
+      "controlPoints": []
+    },
+    {
+      "level": 2,
+      "name": "應付帳款作業",
+      "controlPoints": [
+        {
+          "code": "1",
+          "text": "各項請款及帳列憑證是否符合請款規定？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        },
+        {
+          "code": "2",
+          "text": "廠商請款資料與帳列所載內容是否均相符合？",
+          "assessingUnits": [
+            "資材單位"
+          ]
+        }
+      ]
+    },
+    {
+      "level": 2,
+      "name": "付款作業",
+      "controlPoints": [
+        {
+          "code": "1",
+          "text": "匯款憑證是否均經適當程序核准？",
+          "assessingUnits": [
+            "財會單位"
+          ]
+        }
+      ]
+    }
+  ]
+}

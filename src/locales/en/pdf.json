@@ -1,0 +1,9 @@
+{
+  "export": "Export PDF",
+  "exporting": "Generating…",
+  "exportTip": "Builds an A4 landscape PDF from the current answers and sign-offs. With sign-off times: each signature also shows its time and sign-off number, followed by the sign-off history page (plan A: sign-offs are system records). Without sign-off times: names only and no sign-off history page, so the PDF carries no sign-off evidence; the system records stand",
+  "withSignedAt": "With sign-off times",
+  "withoutSignedAt": "Without sign-off times",
+  "failed": "Couldn't generate the PDF: {{error}}",
+  "notFound": "This assessment can't be read. Refresh the page."
+}

@@ -1,0 +1,300 @@
+{
+  "nav": "權限管理",
+  "title": "權限管理",
+  "accessAllWarning": "本機放行全開中（CSA_ACCESS_ALL=true）：名單目前不生效，任何 OMS 帳號都能登入。角色與檢視廠區照常生效。",
+  "tabs": {
+    "members": "人員",
+    "log": "異動紀錄",
+    "guide": "權限說明"
+  },
+  "role": {
+    "signer": "一般使用者",
+    "viewer": "檢視者",
+    "coordinator": "廠區管理員",
+    "audit_staff": "稽核人員",
+    "audit_admin": "稽核主管",
+    "system_maintainer": "系統維護員"
+  },
+  "roleHint": {
+    "signer": "只看得到自己被排到關卡的自評表",
+    "viewer": "高階主管：唯讀查看指定廠區的全部自評表、追蹤總覽與匯出",
+    "audit_staff": "沒負責廠區時同一般使用者；擔任廠區管理員時，連動那一廠流程的台北稽核人員關卡、可匯出 Excel，並能維護那一廠的範本與流程",
+    "audit_admin": "全公司剛好一位：維護範本、流程、年度發起、追蹤總覽，以及一般使用者、檢視者與稽核人員的權限；設定新的一位，前一位自動降為一般使用者",
+    "system_maintainer": "全部功能：稽核主管能做的，加上設定稽核主管與系統維護員"
+  },
+  "search": "搜尋工號或姓名",
+  "allRoles": "全部角色",
+  "add": "加入人員",
+  "count": "共 {{count}} 人",
+  "empty": "名單上沒有符合條件的人（只有稽核主管與系統維護員看得到權限管理）",
+  "column": {
+    "empId": "工號",
+    "name": "姓名",
+    "role": "系統角色",
+    "lastLogin": "最後登入",
+    "actions": "操作",
+    "plant": "廠區",
+    "plantRights": "廠區權限"
+  },
+  "byCommand": "部署指令",
+  "byAdminAccount": "管理員帳號",
+  "neverLoggedIn": "尚未登入",
+  "unknownName": "（姓名待第一次登入更新）",
+  "edit": "編輯",
+  "form": {
+    "empIds": "工號",
+    "empIdsPlaceholder": "可一次貼多個，以逗號、頓號或換行分隔",
+    "role": "角色",
+    "viewerPlants": "檢視廠區",
+    "viewerPlantsHint": "可多選，只能選廠區主檔；預設帶 OMS 廠區",
+    "viewerPlantsRequired": "檢視者至少要有一個檢視廠區",
+    "note": "備註",
+    "notePlaceholder": "例如：新任稽核、福清廠長",
+    "batchShared": "同一批共用角色、檢視廠區與備註",
+    "takeover": "{{plant}} 目前由 {{from}} 負責，儲存後改由 {{to}} 負責，{{from}} 卸任。",
+    "maintainerStepsDown": "{{plants}} 目前由他負責：改成系統維護員後一併卸任，這些廠區變成「未指定」，直到再指定一位。"
+  },
+  "plan": {
+    "looking": "向 OMS 查詢中…",
+    "add": "加入",
+    "not_in_oms": "OMS 查不到這個工號，不加入",
+    "already_listed": "已在名單，略過",
+    "lookupFailed": "沒辦法向 OMS 查詢：{{message}}",
+    "stillLooking": "還在向 OMS 查詢，請稍候再按",
+    "nothingToAdd": "沒有可以加入的工號",
+    "departed": "OMS 記錄已離職，不加入",
+    "on_leave": "OMS 記錄留職停薪，不加入",
+    "transferred": "OMS 記錄這是轉調前的舊工號，不加入，請改用新工號",
+    "noCsa": "OMS 授權頁還沒勾 CSA（或沒有啟用的帳號），請 OMS 管理員開通",
+    "lookupErrors": {
+      "not_signed_in": "登入已過期，請重新登入",
+      "not_allowed": "你不能用工號查人",
+      "oms_not_configured": "這個環境還沒設定 OMS 通道的金鑰，請洽系統維護員",
+      "oms_key_rejected": "OMS 不接受這個環境的通道金鑰（可能已換新或作廢），請洽系統維護員",
+      "oms_rate_limited": "OMS 今天的查詢量已到上限，請明天再試",
+      "oms_match_failed": "OMS 沒有回應",
+      "other": "查詢服務沒有回應：{{code}}",
+      "too_many": "一次查的工號太多，請分批貼上",
+      "lookup_failed": "CSA 的查詢服務出錯，請稍後再試"
+    },
+    "no_csa": "OMS 授權頁還沒勾 CSA，不加入，請 OMS 管理員開通"
+  },
+  "addTitle": "加入人員",
+  "addOk": "加入 {{count}} 人",
+  "added": "已加入 {{added}} 人",
+  "skipped": "，略過 {{count}} 人（已在名單）：{{ids}}",
+  "editTitle": "編輯 {{name}}",
+  "saved": "已儲存",
+  "removeTitle": "移除 {{name}}？",
+  "removeIntro": "移出放行名單，同時改回一般使用者、清空檢視廠區、卸任負責的廠區；簽核歷程與追蹤總覽仍會顯示他的姓名。對方在下次續期（約 45 分鐘內）換證時登出，之後無法再登入。",
+  "removeSelf": "你正在移除自己：移除後你將無法再進入權限管理。",
+  "removePlants": "他是 {{plants}} 的廠區管理員：移除後這些廠區變成「未指定」，直到再指定一位。",
+  "impactLoading": "查詢他在流程上的關卡…",
+  "impactNone": "他目前不在任何簽核中自評表或簽核流程的關卡上。",
+  "impactWarning": "他還在下列關卡上。移除不會擋，但輪到這些關卡時沒有人能簽：廠區端請廠區管理員換人；稽核室的關卡請修改流程，已發出的自評表要等換人功能上線（#13）。他在廠區端還有沒結案的自評表時，移除後仍可以登入。",
+  "impact": {
+    "current": "簽核中自評表：目前輪到他",
+    "later": "簽核中自評表：之後輪到他",
+    "route": "簽核流程"
+  },
+  "impactStep": "{{year}} {{template}} × {{plant}}：第 {{position}} 關 {{step}}",
+  "impactRouteStep": "{{template}} × {{plant}}：第 {{position}} 關 {{step}}",
+  "removeOk": "移除",
+  "removed": "已移除 {{name}}",
+  "errors": {
+    "lastAdmin": "至少要留一位稽核主管：請先把另一個人設為稽核主管",
+    "notListed": "這個人已不在放行名單上（可能剛被別人移除），請重新整理",
+    "plant": "選了不在廠區主檔裡的廠區，請重新整理後再選",
+    "lastMaintainer": "至少要留一位系統維護員：請先把另一個人設為系統維護員",
+    "maintainerOnly": "稽核主管與系統維護員只有系統維護員能設定、修改或移除",
+    "maintainerNotCoordinator": "系統維護員不能當廠區管理員（他已經能分派、換人全部廠區）",
+    "singleAdmin": "稽核主管剛好一位，一次只能加入一位"
+  },
+  "log": {
+    "time": "時間",
+    "actor": "操作者",
+    "target": "對象",
+    "content": "內容",
+    "empty": "還沒有任何權限異動",
+    "none": "（無）",
+    "plants": "檢視廠區 {{plants}}",
+    "note": "備註 {{note}}",
+    "action": {
+      "added": "加入",
+      "removed": "移除",
+      "role": "角色",
+      "audit_admin_replaced": "接任稽核主管",
+      "viewer_plants": "檢視廠區",
+      "note": "備註",
+      "coordinator_assigned": "指定為廠區管理員",
+      "coordinator_replaced": "接任廠區管理員",
+      "coordinator_removed": "卸任廠區管理員",
+      "step_assigned": "分派",
+      "step_reassigned": "換人",
+      "step_vacated": "從缺",
+      "step_carried": "帶入去年",
+      "route_step_assigned": "流程分派",
+      "route_step_reassigned": "流程換人"
+    },
+    "search": "搜尋對象或操作者",
+    "allActions": "全部動作",
+    "limit": "最近 {{count}} 筆",
+    "replaced": "{{plant}}（前任：{{previous}}）",
+    "footnote": "紀錄只能新增，任何人都不能改或刪。更換廠區管理員、換稽核主管與換人只記一筆，在接手的人身上，前一位寫在內容裡。",
+    "step": "{{year}} {{template}} × {{plant}}：{{step}}",
+    "reassigned": "{{where}}（前一位：{{previous}}）",
+    "carried": "{{year}} × {{plant}}：共 {{steps}} 關",
+    "adminReplaced": "前任：{{previous}}，已降為一般使用者",
+    "routeStep": "{{template}} × {{plant}} 簽核流程：{{step}}"
+  },
+  "source": {
+    "added": "{{at}} 加入・{{by}}"
+  },
+  "plants": {
+    "title": "廠區管理員",
+    "summary": "{{count}} 廠",
+    "missing": "{{count}} 個未指定",
+    "clickHint": "點選可指定或更換",
+    "none": "未指定",
+    "viewers": "檢視者：{{names}}",
+    "search": "搜尋代碼或廠名",
+    "allOwners": "全部管理員",
+    "owner": "{{name}}（{{count}}）",
+    "noneRun": "{{name}} 沒有負責的廠區",
+    "noMatch": "沒有符合的廠區"
+  },
+  "coordinator": {
+    "assignTitle": "指定 {{plant}} 的廠區管理員",
+    "replaceTitle": "更換 {{plant}} 的廠區管理員",
+    "pick": "從放行名單選",
+    "pickPlaceholder": "搜尋工號或姓名",
+    "samePlant": "本廠（{{code}}）",
+    "otherPlants": "其他廠區",
+    "runs": "已負責 {{plants}}",
+    "replaceWarning": "{{name}} 會卸任，之後看不到 {{plant}} 的自評表；新的人是稽核人員或稽核主管時，還沒簽的台北稽核人員關卡跟著換給他，{{name}} 其餘在流程上的關卡照舊。",
+    "assignOk": "指定",
+    "replaceOk": "更換",
+    "remove": "移除廠區管理員",
+    "removeConfirm": "移除後 {{plant}} 沒有廠區管理員，直到再指定一位；{{name}} 仍在放行名單上。",
+    "saved": "已指定 {{name}} 為 {{plant}} 的廠區管理員",
+    "removed": "已移除 {{plant}} 的廠區管理員",
+    "pickRequired": "請選一位",
+    "cancel": "取消",
+    "staffGroup": "稽核人員、稽核主管",
+    "notLinked": "這一廠的台北稽核人員將不連動，需在流程裡設定",
+    "chiefBoth": "稽核主管擔任廠區管理員時，這一廠的台北稽核人員也連動他：台北稽核人員與稽核主管兩關是同一人，各簽一次"
+  },
+  "guide": {
+    "rule": "作答、送出、核准、退回只看流程上的關卡，和這裡的角色無關：輪到誰的關卡誰就能做，稽核主管也不能代簽。一個人可以同時有多個身分，看得到的廠區合在一起算；只有追蹤總覽的匯出 Excel 例外：只以廠區端廠區管理員身分看得到的廠區不能匯出，稽核人員負責的廠區可以。",
+    "matrixTitle": "角色與權限",
+    "operation": "功能／操作",
+    "scopeTitle": "資料可見範圍",
+    "cell": {
+      "turn": "僅輪到的關卡",
+      "own": "僅自己的",
+      "viewPlants": "指定廠區",
+      "runPlants": "負責的廠區",
+      "editRun": "改負責的廠區，看全部"
+    },
+    "group": {
+      "assessment": "自評表",
+      "assign": "分派填寫人",
+      "tracking": "追蹤",
+      "settings": "系統設定"
+    },
+    "row": {
+      "ownAssessments": "看自己被排到關卡的自評表",
+      "act": "作答、送出、核准、退回",
+      "allAnswers": "看全部自評表與答案",
+      "pdf": "匯出 PDF",
+      "assign": "分派填寫人與廠區經理人",
+      "replace": "替還沒簽的關卡換人",
+      "tracking": "追蹤總覽、首頁各廠填單進度",
+      "excel": "匯出 Excel",
+      "templates": "範本、自評單位（稽核人員只能新增單位）",
+      "flows": "簽核流程（多一關、不適用、稽核室三關）",
+      "launch": "年度發起",
+      "access": "權限管理（一般使用者、檢視者、稽核人員、廠區管理員）、異動紀錄",
+      "accessAdmins": "設定稽核主管與系統維護員"
+    },
+    "card": {
+      "signer": {
+        "points": [
+          "只看得到自己被排到關卡的自評表",
+          "其他單位的答案，自己的單位送出後才看得到",
+          "看不到追蹤總覽"
+        ],
+        "note": "怎麼進來：放行名單，或被分派時自動放行"
+      },
+      "viewer": {
+        "points": [
+          "指定廠區的全部自評表與答案",
+          "這些廠區的追蹤總覽",
+          "唯讀，不能改任何東西"
+        ],
+        "note": "只給高階主管（指定廠區）"
+      },
+      "coordinator": {
+        "points": [
+          "負責廠區的全部自評表與答案",
+          "這些廠區的追蹤總覽（不能匯出 Excel）",
+          "分派填寫人、替沒簽的關卡換人"
+        ],
+        "note": "廠區端的人。一廠一位，同一人可負責多廠，不設代理；不連動流程關卡"
+      },
+      "audit_staff": {
+        "points": [
+          "沒負責廠區時，同一般使用者",
+          "負責廠區時：該廠的全部自評表與答案、追蹤總覽，分派填寫人、替沒簽的關卡換人，並可匯出 Excel",
+          "連動那一廠每條流程的「台北稽核人員」關卡",
+          "範本與簽核流程：看得到全部廠區，只有負責廠區的能新增、修改、刪除；自評單位清單只能新增",
+          "不能發起、補發年度作業"
+        ],
+        "note": "多位；由稽核主管或系統維護員設定，指定為廠區管理員才有負責的廠區"
+      },
+      "audit_admin": {
+        "points": [
+          "全部廠區、全部自評表",
+          "範本、流程、發起；一般使用者、檢視者與稽核人員的權限",
+          "連動每條流程最後一關「稽核主管」；擔任廠區管理員時，也連動那一廠的「台北稽核人員」；不能代簽別人的關卡"
+        ],
+        "note": "剛好一位；設定新的，前一位自動降為一般使用者"
+      },
+      "system_maintainer": {
+        "points": [
+          "全部功能：範本、流程、發起、分派、換人",
+          "全部廠區的自評表、答案、追蹤總覽與匯出",
+          "權限管理的全部，含稽核主管與系統維護員"
+        ],
+        "note": "至少要留一位；不能當廠區管理員"
+      }
+    },
+    "coordinatorRule": "廠區管理員一廠一位，同一人可負責多廠，系統不設代理；只能從放行名單選，移出名單會一併卸任。預設從稽核人員選，稽核主管也可以；選廠區端的人也可以，但那一廠的台北稽核人員關卡就不連動。"
+  },
+  "plantRights": "廠區權限",
+  "removeFromList": "從名單移除",
+  "people": {
+    "title": "人員權限",
+    "footHint": "點選姓名，可查看右側負責的廠區",
+    "shown": "顯示 {{shown}} / {{count}} 人"
+  },
+  "created": {
+    "title": "建立資訊",
+    "added": "加入名單",
+    "lastLogin": "最後登入"
+  },
+  "rights": {
+    "title": "編輯廠區權限",
+    "who": "所屬廠區：{{plant}}　角色：{{role}}",
+    "view": "勾選的是檢視廠區：這位檢視者看得到哪些廠區的自評表與追蹤總覽，至少一個。",
+    "run": "勾選的是管理的廠區：擔任該廠的廠區管理員，一廠一位；勾了別人在管的廠區，儲存後改由他負責。",
+    "fixed": "系統維護員看得到全部廠區，也不擔任廠區管理員，這裡不用設定。",
+    "all": "全部廠區（目前 {{count}} 個）",
+    "clear": "清除選取",
+    "count": "已選 {{count}} / {{total}} 個廠區",
+    "runBy": "目前 {{name}}",
+    "close": "關閉",
+    "viewerRuns": "他也是 {{plants}} 的廠區管理員：管理的廠區請在右邊的廠區格子更換。"
+  },
+  "allPlants": "全部廠區"
+}

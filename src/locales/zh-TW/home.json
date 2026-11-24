@@ -1,0 +1,48 @@
+{
+  "mine": {
+    "title": "我的自評表",
+    "tabs": {
+      "todo": "待處理",
+      "all": "我參與的"
+    },
+    "empty": {
+      "todo": "目前沒有等你填寫或簽核的自評表",
+      "all": "目前沒有你在流程上的當期自評表"
+    },
+    "assessment": "自評表",
+    "heading": "{{year}}　{{plant}}　{{code}} {{name}}",
+    "action": "操作",
+    "status": "狀態",
+    "progress": "我的填寫進度",
+    "actions": {
+      "start": "開始填寫",
+      "continue": "繼續填寫",
+      "sign": "前往簽核"
+    },
+    "statuses": {
+      "my_turn": "等我處理",
+      "upcoming": "尚未輪到我",
+      "done": "我的部分已完成",
+      "closed": "已結案"
+    },
+    "answered": "已答 {{answered}}／{{total}} 題",
+    "notStarted": "尚未開始",
+    "overdue": "逾期 {{count}} 天",
+    "dueToday": "今天截止",
+    "dueIn": "{{count}} 天後",
+    "pastClosed": "往年已結案的 {{count}} 張在「自評表紀錄」→"
+  },
+  "plants": {
+    "title": "{{year}} 各廠填單進度",
+    "titleNoYear": "各廠填單進度",
+    "toTracking": "追蹤總覽",
+    "filling": "填寫中",
+    "signing": "簽核中",
+    "closed": "結案",
+    "ofTotalClosed": "／{{total}} 結案",
+    "plantAria": "{{plant}}：結案 {{closed}}／{{total}} 張",
+    "overdueFilling": "逾期還在填寫：{{count}} 張",
+    "noOverdue": "沒有逾期還在填寫的自評表",
+    "empty": "這個年度還沒有發出自評表"
+  }
+}

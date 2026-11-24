@@ -1,0 +1,71 @@
+{
+  "editingNote": "It is your turn to answer the control points and overall conclusion of {{unit}}; other units are read-only. Save as you go and submit when everything is complete.",
+  "design": "Control design",
+  "execution": "Control execution",
+  "satisfaction": "Effectiveness satisfaction",
+  "improvement": "Improvement actions / other considerations",
+  "remark": "Remarks",
+  "assessmentResult": "Assessment result",
+  "optionLabel": "Section {{section}} item {{number}} {{unit}} {{field}}: {{option}}",
+  "optionLabelNoUnit": "Section {{section}} item {{number}} {{field}}: {{option}}",
+  "freeTextLabel": "Section {{section}} item {{number}} {{unit}} {{field}}",
+  "freeTextLabelNoUnit": "Section {{section}} item {{number}} {{field}}",
+  "exceptionsLabel": "Explanation of the overall conclusion of {{unit}}",
+  "designs": {
+    "has_rule": "Documented",
+    "no_rule": "Not documented"
+  },
+  "executions": {
+    "yes": "Yes",
+    "no": "No",
+    "not_applicable": "N/A",
+    "no_case": "No occurrence"
+  },
+  "satisfactions": {
+    "very_satisfied": "Very satisfied",
+    "satisfied": "Satisfied",
+    "adequate": "Adequate",
+    "needs_improvement": "Needs improvement",
+    "dissatisfied": "Dissatisfied"
+  },
+  "conclusionTitle": "Overall conclusion",
+  "conclusions": {
+    "satisfied": "Satisfactory",
+    "satisfied_except": "Satisfactory except for the following"
+  },
+  "exceptions": "Explanation",
+  "notAnswered": "Not answered",
+  "save": "Save",
+  "submit": "Submit",
+  "saved": "Saved",
+  "submitConfirm": "You cannot change this step after submitting. Submit now?",
+  "submitted": "Submitted; the assessment moved to step {{position}}",
+  "submittedBranch": "Submitted; this unit moved on to step {{position}}",
+  "submittedWaiting": "Submitted; the assessment moves on once every other unit is done",
+  "unsaved": "You have unsaved changes",
+  "onlyMine": "Only my questions",
+  "progress": "{{answered}} of {{total}} answered",
+  "nextUnanswered": "Next unanswered ↓",
+  "toConclusion": "To the overall conclusion ↓",
+  "hiddenRows_one": "{{count}} question of other units hidden",
+  "hiddenRows_other": "{{count}} questions of other units hidden",
+  "sectionFolded_one": "None of your questions ({{count}} question, folded)",
+  "sectionFolded_other": "None of your questions ({{count}} questions, folded)",
+  "violationsTitle": "{{count}} item(s) still need attention; the assessment was not submitted",
+  "violationPoint": "Section {{section}}, control point {{position}}: {{rule}}",
+  "violationPointCode": "Control point {{position}}: {{rule}}",
+  "violationConclusion": "{{unit}} overall conclusion: {{rule}}",
+  "rules": {
+    "unanswered": "Not fully answered",
+    "improvement_required": "Improvement actions are required when No, Not documented, Needs improvement or Dissatisfied is ticked",
+    "explanation_required": "An explanation is required for \"except for the following\"",
+    "remark_required": "Remarks are required when No, Needs improvement or Dissatisfied is ticked"
+  },
+  "errors": {
+    "forbidden": "You are not allowed to change this (the assessment may have moved on); please reload",
+    "not_self_check_step": "This step does not take answers",
+    "invalid": "An answer is not one of this questionnaire's options; please choose again",
+    "stale": "This page is out of date (the assessment or the app has been updated); reload it and answer again",
+    "no_next_step": "There is no step after this one, so it cannot be submitted; ask the audit admin to check the approval route"
+  }
+}

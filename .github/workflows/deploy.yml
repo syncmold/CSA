@@ -1,0 +1,61 @@
+name: Deploy
+
+# 手動部署：到 Actions → Deploy → Run workflow，選 test 或 prod。
+# 設定放在 GitHub 的 Environments（test、production 各一組 secrets），不放在任何人的電腦。
+# production 這個 Environment 請設「Required reviewers」，部署前要有人按核准。
+# 這份是草稿：還沒有在組織 repo 實際跑過，第一次請先用 test 驗證（見 docs/部署與切換手冊.md）。
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 要部署的環境
+        type: choice
+        options: [test, prod]
+        required: true
+      steps:
+        description: 部署步驟（日常用 update；第一次建環境用 all）
+        type: choice
+        options: [update, all, check]
+        default: update
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: deploy ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Environment 名稱：test → test，prod → production
+    environment: ${{ inputs.environment == 'prod' && 'production' || 'test' }}
+    concurrency: deploy-${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Deploy
+        run: npm run deploy -- ${{ inputs.environment }} ${{ inputs.steps }}
+        env:
+          # 資料庫與換證（secrets）
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          CSA_JWT_SECRET: ${{ secrets.CSA_JWT_SECRET }}
+          OMS_CHANNEL_KEY: ${{ secrets.OMS_CHANNEL_KEY }}
+          # 部署工具的登入（secrets）
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          # 非機密設定（variables）
+          CSA_SITE_URL: ${{ vars.CSA_SITE_URL }}
+          CSA_VERCEL_PROJECT: ${{ vars.CSA_VERCEL_PROJECT }}
+          CSA_REQUIRE_OMS_AUTH: ${{ vars.CSA_REQUIRE_OMS_AUTH }}
+          VITE_OMS_URL: ${{ vars.VITE_OMS_URL }}
+          VITE_OMS_ANON_KEY: ${{ vars.VITE_OMS_ANON_KEY }}
+          # 第一次初始化才需要（all／seed）
+          CSA_SEED_AUDIT_CHIEF: ${{ vars.CSA_SEED_AUDIT_CHIEF }}
+          CSA_SEED_MAINTAINERS: ${{ vars.CSA_SEED_MAINTAINERS }}
+          CSA_SEED_ALLOWLIST: ${{ vars.CSA_SEED_ALLOWLIST }}

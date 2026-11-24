@@ -1,0 +1,234 @@
+/* The browser's own margin around the page; colours and type come from the theme (src/theme.ts, antd's App). */
+html,
+body {
+  margin: 0;
+}
+/*
+ * Keep the scrollbar's room even when a page is too short to scroll, so switching to a shorter list (another 廠區 in
+ * 範本管理, #84) does not widen the page by the scrollbar and shift every column.
+ */
+html {
+  scrollbar-gutter: stable;
+}
+
+/*
+ * Tables run to their card's edges (使用者 2026-10-22, Q108): give the table className="csa-edge-table". Inside a card it
+ * steps back over the card's padding (--csa-card-pad-lg / -sm come from the theme through AppShell; small cards use
+ * the smaller one), so the header row and row lines reach both edges, while the first and last cells keep that padding
+ * and their text still lines up with the rest of the card. Outside a card it changes nothing.
+ * A row that continues a merged (rowSpan) cell has a single cell, which is neither the first nor the last column, so
+ * the padding only goes to cells that share their row. !important because antd's own small-table selector is more
+ * specific.
+ */
+.ant-card {
+  --csa-card-pad: var(--csa-card-pad-lg, 0px);
+}
+.ant-card-small {
+  --csa-card-pad: var(--csa-card-pad-sm, 0px);
+}
+.ant-card .csa-edge-table {
+  margin-inline: calc(-1 * var(--csa-card-pad));
+  /* antd caps a table wrapper at 100%, which would leave the right edge short. */
+  width: calc(100% + 2 * var(--csa-card-pad)) !important;
+  max-width: none !important;
+}
+.ant-card .csa-edge-table .ant-table-thead > tr > th:first-child:not(:last-child),
+.ant-card .csa-edge-table .ant-table-tbody > tr > td:first-child:not(:last-child) {
+  padding-inline-start: var(--csa-card-pad) !important;
+}
+.ant-card .csa-edge-table .ant-table-thead > tr > th:last-child:not(:first-child),
+.ant-card .csa-edge-table .ant-table-tbody > tr > td:last-child:not(:first-child) {
+  padding-inline-end: var(--csa-card-pad) !important;
+}
+/*
+ * The same edges for a row that is not a table (方向 A, #124: the add row above 自評單位清單's table): it steps back over
+ * the card's padding and takes it inside, so a line under it spans the card.
+ */
+.ant-card .csa-edge-row {
+  margin-inline: calc(-1 * var(--csa-card-pad));
+  padding-inline: var(--csa-card-pad);
+}
+/*
+ * And for a row of tabs (方向 A, #120: EdgeTabs): its line spans the card. The tabs keep the card's padding through a
+ * gap at each end the row brings itself, which antd measures when folding tabs into 「⋯」.
+ */
+.ant-card .csa-edge-tabs > .ant-tabs-nav {
+  margin-inline: calc(-1 * var(--csa-card-pad));
+}
+/*
+ * The 廠區 band at the top of a list's card (方向 A, #120: PlantPicker): a pale grey row of borderless
+ * buttons, code in bold and name in grey, the chosen one filled purple, set apart from the white underlined 組成要素
+ * tabs below. On a narrow screen the buttons stay on one line and scroll sideways. The colours come from theme.ts
+ * through the custom properties PlantPicker sets, the font sizes from its own styles (textSize, Q108).
+ */
+.csa-plant-band {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-block: 10px;
+  background: var(--csa-plant-band);
+  border-bottom: 1px solid var(--csa-plant-line);
+}
+.csa-plant-label {
+  flex-shrink: 0;
+  line-height: 28px;
+  color: var(--csa-plant-name);
+}
+.csa-plant-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  min-width: 0;
+}
+.csa-plant-option {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--csa-plant-text);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.csa-plant-option b {
+  font-weight: 600;
+}
+.csa-plant-option .csa-plant-name {
+  color: var(--csa-plant-name);
+}
+.csa-plant-option:hover {
+  background: var(--csa-plant-hover);
+}
+.csa-plant-option:focus-visible {
+  outline: 2px solid var(--csa-plant-on);
+  outline-offset: 1px;
+}
+.csa-plant-option[aria-pressed='true'] {
+  background: var(--csa-plant-on);
+  color: var(--csa-plant-on-text);
+}
+.csa-plant-option[aria-pressed='true'] .csa-plant-name {
+  color: inherit;
+}
+@media (max-width: 767px) {
+  .csa-plant-options {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    /* Room for the scrollbar under the buttons rather than over them. */
+    padding-bottom: 6px;
+  }
+}
+/*
+ * A table whose header is white like its rows (方向 A, #120: ComponentGroups): a darker line under the header sets it
+ * off, the same line as under the tabs above. The colour comes from theme.ts through --csa-head-line.
+ */
+.ant-card .csa-plain-head .ant-table-thead > tr > th {
+  border-bottom-color: var(--csa-head-line);
+}
+/* A table that ends its card (方向 A, #124): the last row's line would sit on the card's own edge and read double. */
+.ant-card .csa-edge-table.csa-edge-bottom .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+/*
+ * A table whose card box scrolls it (the 簽核歷程 beside the 簽核流程, #97): the header row stays at the top of that box.
+ * The box is the nearest scrolling ancestor, so the table must not get antd's own `scroll` (its wrapper would scroll
+ * instead).
+ */
+.csa-sticky-head .ant-table-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/*
+ * The 自評表's option cells (AnswerSheet, #133): on the row being answered the option's label covers the whole cell,
+ * however tall the control point's text makes the row, so a click anywhere in it picks the option. The hover colour
+ * comes from src/theme.ts through --csa-choice-hover. Read-only rows have no label.
+ */
+.csa-choice-cell {
+  position: relative;
+}
+.csa-choice {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.csa-choice:hover {
+  background: var(--csa-choice-hover);
+}
+
+/*
+ * A table that ends its card and fills it without padding around it (方向 A, #131: the 自評表's matrix, which pads its
+ * own outer columns): the last row's line would sit on the card's own edge and read double.
+ */
+.ant-card .csa-flush-bottom .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+/*
+ * 各廠區負責人's cells (方向 A, #127: PlantCoordinators): white or a striped row's grey, a darker grey under the mouse,
+ * and a purple ring for the keyboard. The colours come from theme.ts through the custom properties the cell sets.
+ */
+.csa-plant-cell {
+  background: var(--csa-plant-cell-bg);
+}
+.csa-plant-cell:hover {
+  background: var(--csa-plant-cell-hover);
+}
+.csa-plant-cell:focus-visible {
+  outline: 2px solid var(--csa-plant-cell-focus);
+  outline-offset: -2px;
+}
+/*
+ * 權限管理's 人員 table (#215): it scrolls inside its card, so the header sticks to the top of the scrolling box; the
+ * person picked by name is pale purple (the colour comes from the box's --csa-focus-bg).
+ */
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-tbody > tr.csa-access-focus > td {
+  background: var(--csa-focus-bg);
+}
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-thead > tr > th:first-child,
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-tbody > tr > td:first-child {
+  padding-inline-start: 20px;
+}
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-thead > tr > th:last-child,
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-tbody > tr > td:last-child {
+  padding-inline-end: 20px;
+}
+/* Low rows, so more people fit (使用者 2026-11-23). */
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-tbody > tr > td {
+  padding-block: 5px;
+}
+/* Sorting by a column does not grey it: the arrow in its header already says so. */
+.csa-access-scroll .ant-table-wrapper .ant-table .ant-table-tbody > tr > td.ant-table-column-sort {
+  background: transparent;
+}
+
+/*
+ * The side menu's 發出表單 steps (AppShell): a thin line joining their numbers, from the first number's centre to the
+ * last's. Drawn on the group's list, not in each entry, whose hidden overflow would cut it into pieces. The numbers sit
+ * 19px in and halfway down their 40px rows; they stack above the line. The colour comes from theme.ts through
+ * --csa-step-line.
+ */
+.csa-nav-steps .ant-menu-item-group-list {
+  position: relative;
+}
+.csa-nav-steps .ant-menu-item-group-list::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 18.5px;
+  top: 20px;
+  bottom: 20px;
+  width: 1px;
+  background: var(--csa-step-line);
+}
