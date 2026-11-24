@@ -93,7 +93,9 @@ const projectRef = decodeURIComponent(dbUrl.username).split('.')[1]
 if (!projectRef) fail('SUPABASE_DB_URL 要用 Session pooler 那一串（帳號是 postgres.<專案代碼>）；Direct connection 只有 IPv6，多半連不到')
 if (dbUrl.password.includes('YOUR-PASSWORD')) fail('SUPABASE_DB_URL 裡的 [YOUR-PASSWORD] 還沒換成資料庫密碼')
 const projectUrl = `https://${projectRef}.supabase.co`
-const vercelProject = config.CSA_VERCEL_PROJECT || `csa-${envName}`
+// 不給預設值：專案名稱一錯，`web` 會在 Vercel 上建出一個新專案，網址與換證允許的來源都會跟著錯。
+if (!config.CSA_VERCEL_PROJECT) fail('設定沒有 CSA_VERCEL_PROJECT（前端託管的專案名稱，例如 csa-demo-test）')
+const vercelProject = config.CSA_VERCEL_PROJECT
 /** The production URL people open; the exchange only answers this origin (CORS). */
 const siteOrigin = (config.CSA_SITE_URL || `https://${vercelProject}.vercel.app`).replace(/\/$/, '')
 // The pooler's certificate is signed by Supabase's own CA, which Node does not trust by default.

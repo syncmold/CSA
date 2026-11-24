@@ -29,7 +29,9 @@
     "templates:signatures": "node scripts/templates/signatures.mjs",
     "drafts:write": "node scripts/drafts/write.mjs",
     "deploy": "node scripts/deploy/deploy.mjs",
-    "db:sync-plants": "node scripts/master/sync-plants.mjs"
+    "db:sync-plants": "node scripts/master/sync-plants.mjs",
+    "deploy:verify": "node scripts/deploy/verify.mjs",
+    "deploy:push-config": "node scripts/deploy/push-config.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
