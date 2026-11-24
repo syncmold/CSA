@@ -51,3 +51,7 @@ Thumbs.db
 
 # AI 工具的本機設定
 .claude/
+
+# 部署設定與備份（不進版控）
+csa-deploy/
+*.dump
