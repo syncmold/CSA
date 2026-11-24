@@ -24,7 +24,7 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 
 function sendExchangeResult(res: ServerResponse, result: ExchangeResult) {
   if (!result.ok) return sendJson(res, result.status, { error: result.error })
-  return sendJson(res, 200, { csa_token: result.csaToken, expires_at: result.expiresAt, employee: result.employee })
+  return sendJson(res, 200, { csa_token: result.csaToken, expires_at: result.expiresAt, employee: result.employee, csa_enabled: result.csaEnabled })
 }
 
 /** POST handler taking one string field from the JSON body; 400 on bad JSON or a missing field. */
@@ -48,13 +48,13 @@ function postStringField(field: string, run: (value: string, res: ServerResponse
   }
 }
 
-/** HTTP handler: POST { oms_token } → { csa_token, expires_at, employee } or { error }. */
+/** HTTP handler: POST { oms_token } → { csa_token, expires_at, employee, csa_enabled } or { error }. */
 export function createExchangeHandler(deps: ExchangeDeps) {
   const post = postStringField('oms_token', async (omsToken, res) => sendExchangeResult(res, await exchange(omsToken, deps)))
   return async (req: IncomingMessage, res: ServerResponse) => {
     // GET reports the admission mode so the login page can warn when 放行全開 is on,
-    // and whether 開發期直接登入 (Q82) is available, so it can offer it.
-    if (req.method === 'GET') return sendJson(res, 200, { access_all: deps.config.accessAll, dev_login: deps.config.devLogin })
+    // and whether 開發期直接登入 (Q82) is available, so it can offer it; csa_required is CSA_REQUIRE_OMS_AUTH, as web.ts.
+    if (req.method === 'GET') return sendJson(res, 200, { access_all: deps.config.accessAll, dev_login: deps.config.devLogin, csa_required: deps.config.csaRequired })
     return post(req, res)
   }
 }

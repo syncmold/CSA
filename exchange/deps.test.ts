@@ -21,6 +21,17 @@ function depsAnswering(status: number, body: unknown) {
   return { deps: depsFromEnv(env, fetchImpl), calls }
 }
 
+describe('config.csaRequired', () => {
+  const env = (value?: string) =>
+    readExchangeEnv({ CSA_REST_URL: 'http://rest.test', CSA_JWT_SECRET: 'x'.repeat(32), CSA_ACCESS_ALL: 'true', ...(value === undefined ? {} : { CSA_REQUIRE_OMS_AUTH: value }) })
+
+  it('is CSA_REQUIRE_OMS_AUTH, off unless it says true (Q133 (4))', () => {
+    expect(depsFromEnv(env()).config.csaRequired).toBe(false)
+    expect(depsFromEnv(env('false')).config.csaRequired).toBe(false)
+    expect(depsFromEnv(env(' TRUE ')).config.csaRequired).toBe(true)
+  })
+})
+
 describe('getAccess', () => {
   it("POSTs to OMS's oms_my_access with the person's own token and answers their row", async () => {
     const { deps, calls } = depsAnswering(200, [ROW])

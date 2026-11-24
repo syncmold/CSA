@@ -31,6 +31,7 @@
       "account_disabled": "This account is disabled, please contact DTO",
       "profile_not_found": "Account profile not found, please contact DTO",
       "not_authorized": "This account is not enabled for the audit system, please contact the system maintainer",
+      "csa_not_enabled": "This account is not authorized for CSA, please ask an administrator to enable it in OMS",
       "oms_token_invalid": "Your sign-in has expired, please sign in again",
       "exchange_failed": "Could not establish the audit system session, please try again later",
       "dev_login_disabled": "Dev login is not enabled (CSA_DEV_LOGIN)",

@@ -40,8 +40,11 @@ describe('omsIdentityProvider.renew', () => {
   it('is rejected when the exchange refuses the person, and only unavailable when the exchange is down', async () => {
     exchangeOmsToken.mockResolvedValue({ ok: false, error: 'not_authorized' })
     expect(await omsIdentityProvider.renew(HELD)).toEqual({ kind: 'rejected' })
+    // OMS 取消勾選 CSA: the next renewal ends the session (Q133 (1)).
+    exchangeOmsToken.mockResolvedValue({ ok: false, error: 'csa_not_enabled' })
+    expect(await omsIdentityProvider.renew(HELD)).toEqual({ kind: 'rejected' })
     exchangeOmsToken.mockResolvedValue({ ok: false, error: 'exchange_failed' })
     expect(await omsIdentityProvider.renew(HELD)).toEqual({ kind: 'unavailable' })
-    expect(exchangeOmsToken).toHaveBeenCalledTimes(2)
+    expect(exchangeOmsToken).toHaveBeenCalledTimes(3)
   })
 })

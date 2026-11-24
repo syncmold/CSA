@@ -122,6 +122,7 @@ export function depsFromEnv(env: ExchangeEnv, fetchImpl: typeof fetch = fetch): 
       accessAll,
       jwtSecret: env.CSA_JWT_SECRET,
       tokenTtlSeconds: Number(env.CSA_TOKEN_TTL_SECONDS) || 3600,
+      csaRequired: csaRequiredIn(env),
       devLogin,
     },
   }
@@ -172,7 +173,10 @@ export function omsPeopleDepsFromEnv(env: ExchangeEnv, fetchImpl: typeof fetch =
   }
 }
 
-/** CSA_REQUIRE_OMS_AUTH (Q133 (4)): whether someone OMS has not let use CSA is refused, or only pointed out. */
+/**
+ * CSA_REQUIRE_OMS_AUTH (Q133 (4)): whether someone OMS has not let use CSA is refused, or only pointed out. One switch
+ * for signing in (core.ts), 匯入分派表 and bringing someone in by 工號.
+ */
 const csaRequiredIn = (env: ExchangeEnv): boolean => env.CSA_REQUIRE_OMS_AUTH.trim().toLowerCase() === 'true'
 
 /** Keeps names in CSA's 員工參照 (record_people) with a short service token; only the backend can. */

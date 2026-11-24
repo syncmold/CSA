@@ -51,7 +51,7 @@ function fakeDeps(
       },
       isAdmitted: async (empId) => allowlist.includes(empId),
     },
-    config: { accessAll: true, jwtSecret: SECRET, tokenTtlSeconds: 3600, devLogin: false, ...config },
+    config: { accessAll: true, jwtSecret: SECRET, tokenTtlSeconds: 3600, devLogin: false, csaRequired: false, ...config },
     now: () => NOW,
   }
   return { deps, recorded }
@@ -139,6 +139,56 @@ describe('exchange', () => {
   })
 })
 
+/** OMS's oms_my_access answering these 系統代號 for the person signing in. */
+const accessWith = (systems: unknown, more: Partial<OmsAccess> = {}) => ({
+  getAccess: async (): Promise<OmsAccess> => ({ emp_id: 'FQ0123', name: '王小明', factory_code: 'FQ', active: true, systems: systems as OmsAccess['systems'], ...more }),
+})
+
+describe('with CSA_REQUIRE_OMS_AUTH on, the CSA tick on the OMS 授權頁 decides who signs in (Q133 (2)(4))', () => {
+  it('refuses someone OMS has not ticked CSA for, on the 放行名單 or not, 全開 or not, and records nothing', async () => {
+    for (const accessAll of [true, false]) {
+      const { deps, recorded } = fakeDeps(accessWith(['OMS']), { csaRequired: true, accessAll }, ['FQ0123'])
+      expect(await exchange('good-oms-token', deps)).toEqual({ ok: false, status: 403, error: 'csa_not_enabled' })
+      expect(recorded).toEqual([])
+    }
+  })
+
+  it('lets in someone OMS has ticked CSA for without asking the 放行名單, which only carries roles now', async () => {
+    const { deps, recorded } = fakeDeps(accessWith(['OMS', 'CSA']), { csaRequired: true, accessAll: false }, [])
+    deps.csa.isAdmitted = async () => {
+      throw new Error('must not be asked')
+    }
+    const result = await exchange('good-oms-token', deps)
+    expect(result).toMatchObject({ ok: true, csaEnabled: true })
+    expect(recorded).toEqual([{ emp_id: 'FQ0123', name: '王小明', factory_code: 'FQ' }])
+  })
+
+  it('reads the 系統代號 loosely (case, spaces, a list or one delimited text), and anything else is no tick, never an error', async () => {
+    for (const systems of [['csa'], [' CSA '], ['SOP', 'Csa'], 'OMS,CSA', 'oms; csa']) {
+      expect((await exchange('good-oms-token', fakeDeps(accessWith(systems), { csaRequired: true }).deps)).ok).toBe(true)
+    }
+    for (const systems of [null, undefined, [], ['CSA2'], ['OMS-CSA'], 'OMSCSA', { CSA: true }, 7, [null, 3]]) {
+      const refused = await exchange('good-oms-token', fakeDeps(accessWith(systems), { csaRequired: true }).deps)
+      expect(refused).toEqual({ ok: false, status: 403, error: 'csa_not_enabled' })
+    }
+  })
+
+  it('still says a disabled account is disabled, ticked or not', async () => {
+    const { deps } = fakeDeps(accessWith(['CSA'], { active: false }), { csaRequired: true })
+    expect(await exchange('good-oms-token', deps)).toEqual({ ok: false, status: 403, error: 'account_disabled' })
+  })
+})
+
+describe('with CSA_REQUIRE_OMS_AUTH off', () => {
+  it('the 放行名單 decides as before, and the tick only rides along in the answer so an environment can be checked first', async () => {
+    const unticked = await exchange('good-oms-token', fakeDeps(accessWith([]), { accessAll: false }, ['FQ0123']).deps)
+    expect(unticked).toMatchObject({ ok: true, csaEnabled: false })
+    const ticked = await exchange('good-oms-token', fakeDeps(accessWith(['CSA']), { accessAll: false }, ['FQ0123']).deps)
+    expect(ticked).toMatchObject({ ok: true, csaEnabled: true })
+    expect(await exchange('good-oms-token', fakeDeps(accessWith(['CSA']), { accessAll: false }, []).deps)).toEqual({ ok: false, status: 403, error: 'not_authorized' })
+  })
+})
+
 // 管理員帳號 (Q122 (5), #161): OMS's 系統管理帳號 has no 工號 there; it is known by its Email, as GHG does.
 describe('the 管理員帳號', () => {
   /** OMS's row for it: no 工號 (its oms_my_access answer is not seen yet, only its synchub_profiles row of 2026-11-11). */
@@ -166,6 +216,11 @@ describe('the 管理員帳號', () => {
     })
     expect(result.employee).toEqual({ emp_id: 'admin', name: '管理員帳號', factory_code: null })
     expect(recorded).toEqual([])
+  })
+
+  it('is not asked for the 系統代號 with CSA_REQUIRE_OMS_AUTH on: OMS ticks systems for employees (待 OMS 確認, Q133 (2))', async () => {
+    const { deps } = fakeDeps(adminAccount(), { csaRequired: true, accessAll: false }, [])
+    expect((await exchange('good-oms-token', deps)).ok).toBe(true)
   })
 
   it('is known by the Email OMS verified, whatever its case', async () => {
@@ -239,5 +294,16 @@ describe('devLoginAs', () => {
       expect(await devLoginAs('FQ0123', gone.deps), status).toEqual({ ok: false, status: 403, error: 'profile_not_found' })
     }
     expect(recorded).toEqual([])
+  })
+})
+
+describe('devLoginAs with CSA_REQUIRE_OMS_AUTH on', () => {
+  it("asks the same of a 工號 as of a password: the channel's answer about the CSA tick", async () => {
+    const unticked = fakeDeps({ channel: channelOf({ csa: false }) }, { devLogin: true, csaRequired: true })
+    expect(await devLoginAs('FQ0123', unticked.deps)).toEqual({ ok: false, status: 403, error: 'csa_not_enabled' })
+    expect(unticked.recorded).toEqual([])
+    expect(await devLoginAs('FQ0123', fakeDeps({}, { devLogin: true, csaRequired: true }).deps)).toMatchObject({ ok: true, csaEnabled: true })
+    // Off, the tick is not asked.
+    expect((await devLoginAs('FQ0123', fakeDeps({ channel: channelOf({ csa: false }) }, { devLogin: true }).deps)).ok).toBe(true)
   })
 })

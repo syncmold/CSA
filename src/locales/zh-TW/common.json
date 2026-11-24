@@ -31,6 +31,7 @@
       "account_disabled": "此帳號已停用，請洽 DTO",
       "profile_not_found": "找不到帳號設定檔，請洽 DTO",
       "not_authorized": "此帳號尚未開放使用稽核系統，請洽系統維護員",
+      "csa_not_enabled": "此帳號未授權 CSA，請洽管理員於 OMS 開通",
       "oms_token_invalid": "登入已失效，請重新登入",
       "exchange_failed": "無法建立稽核系統連線，請稍後再試",
       "dev_login_disabled": "開發期直接登入未啟用（CSA_DEV_LOGIN）",

@@ -31,8 +31,9 @@ export function createWebExchangeHandler(deps: ExchangeDeps, options: WebExchang
       new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
 
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors })
-    // The login page asks whether 放行全開 is on (to warn) and whether dev login is offered (never, here).
-    if (req.method === 'GET') return json(200, { access_all: deps.config.accessAll, dev_login: false })
+    // The login page asks whether 放行全開 is on (to warn) and whether dev login is offered (never, here); the deploy
+    // reads csa_required to see that the environment runs the CSA_REQUIRE_OMS_AUTH its settings ask for.
+    if (req.method === 'GET') return json(200, { access_all: deps.config.accessAll, dev_login: false, csa_required: deps.config.csaRequired })
     if (req.method !== 'POST') return json(405, { error: 'POST only' })
 
     if (new URL(req.url).pathname.endsWith('/oms-match')) {
@@ -56,7 +57,7 @@ export function createWebExchangeHandler(deps: ExchangeDeps, options: WebExchang
     try {
       const result = await exchange(omsToken, deps)
       if (!result.ok) return json(result.status, { error: result.error })
-      return json(200, { csa_token: result.csaToken, expires_at: result.expiresAt, employee: result.employee })
+      return json(200, { csa_token: result.csaToken, expires_at: result.expiresAt, employee: result.employee, csa_enabled: result.csaEnabled })
     } catch (error) {
       console.error('[csa-exchange]', error)
       return json(502, { error: 'exchange_failed' })

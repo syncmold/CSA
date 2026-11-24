@@ -11,6 +11,7 @@ const REJECTING_EXCHANGE_ERRORS = new Set([
   'account_disabled',
   'profile_not_found',
   'not_authorized',
+  'csa_not_enabled',
   'dev_login_disabled',
 ])
 

@@ -353,6 +353,7 @@ const steps = {
     step('Edge Function csa-exchange')
     if (!siteOrigin) fail('function 需要 CSA_SITE_URL（或 CSA_VERCEL_PROJECT）：換證只回應這個網址的來源')
     requireOms('function')
+    const csaRequired = (config.CSA_REQUIRE_OMS_AUTH || 'false').trim().toLowerCase() === 'true'
     // 匯入分派表的 OMS 比對要這把（Q133 (6)）。沒有時照樣部署（換證與其他修正不該被它擋下），也不寫空值，
     // 以免蓋掉 Supabase 上已經設好的那一把；只提醒。
     if (!config.OMS_CHANNEL_KEY) console.warn(`  ⚠ ${configFile} 沒有 OMS_CHANNEL_KEY：secrets 裡原本有就沿用，沒有的話匯入分派表會說「還沒設定 OMS 通道」`)
@@ -365,7 +366,7 @@ const steps = {
       `CSA_TOKEN_TTL_SECONDS=${process.env.CSA_TOKEN_TTL_SECONDS || 3600}`,
       `CSA_ALLOWED_ORIGINS=${allowedOrigins.join(',')}`,
       ...(config.OMS_CHANNEL_KEY ? [`OMS_CHANNEL_KEY=${config.OMS_CHANNEL_KEY}`] : []),
-      `CSA_REQUIRE_OMS_AUTH=${config.CSA_REQUIRE_OMS_AUTH || 'false'}`,
+      `CSA_REQUIRE_OMS_AUTH=${csaRequired}`,
     ].join('\n'))
     try {
       supabase(['secrets', 'set', '--project-ref', projectRef, '--env-file', secretsFile])
@@ -373,10 +374,18 @@ const steps = {
       removeTemp(dirname(secretsFile))
     }
     supabase(['functions', 'deploy', 'csa-exchange', '--project-ref', projectRef, '--no-verify-jwt', '--use-api'])
-    const r = await fetch(`${projectUrl}/functions/v1/csa-exchange`, { headers: { Origin: siteOrigin } })
-    const body = await r.json().catch(() => null)
+    // The function that answers right after a deploy can still be the old one, or on the old secrets: ask until the
+    // answer is the one the settings call for (Q133 (13): the CSA_REQUIRE_OMS_AUTH it runs must be the one asked for).
+    let r, body
+    for (let attempt = 0; attempt < 15; attempt++) {
+      r = await fetch(`${projectUrl}/functions/v1/csa-exchange`, { headers: { Origin: siteOrigin } })
+      body = await r.json().catch(() => null)
+      if (r.ok && body?.access_all === false && body?.dev_login === false && body?.csa_required === csaRequired) break
+      await new Promise((done) => setTimeout(done, 2000))
+    }
     if (!r.ok || body?.access_all !== false || body?.dev_login !== false) fail(`換證回應不對：HTTP ${r.status} ${JSON.stringify(body)}`)
-    console.log('  換證上線：放行全開關閉、沒有開發期直接登入')
+    if (body?.csa_required !== csaRequired) fail(`換證的 CSA_REQUIRE_OMS_AUTH 是 ${body?.csa_required}，設定檔要的是 ${csaRequired}`)
+    console.log(`  換證上線：放行全開關閉、沒有開發期直接登入；OMS 授權關卡${csaRequired ? '打開（沒勾 CSA 的人登不進來）' : '關著（登入照放行名單）'}`)
     // 實際走一次換證：假的 OMS token 要被 OMS 拒絕（401）。502 表示換證連不到 OMS（設定錯），那樣沒有人能登入。
     for (const origin of allowedOrigins) {
       const probe = await fetch(`${projectUrl}/functions/v1/csa-exchange`, {
