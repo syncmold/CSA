@@ -3,10 +3,9 @@ import type { ExchangeResponse } from '../api/exchange'
 import type { OmsTokens } from '../api/omsAuth'
 import type { StoredSession } from './types'
 
-// Renewing an OMS session (#218): one exchange per renewal, marked as one, so the exchange does not spend a lookup of
-// OMS's channel (5,000 工號 a day) on someone it already knows.
+// Renewing an OMS session (#218): one exchange per renewal (an OMS refresh token works once).
 
-const exchangeOmsToken = vi.fn<(token: string, options?: { renewal?: boolean }) => Promise<ExchangeResponse>>()
+const exchangeOmsToken = vi.fn<(token: string) => Promise<ExchangeResponse>>()
 const omsRefresh = vi.fn()
 vi.mock('../api/exchange', () => ({ exchangeOmsToken: (...args: Parameters<typeof exchangeOmsToken>) => exchangeOmsToken(...args), devLoginAs: vi.fn() }))
 vi.mock('../api/omsAuth', () => ({ omsRefresh: (...args: unknown[]) => omsRefresh(...args), omsPasswordLogin: vi.fn() }))
@@ -28,10 +27,10 @@ beforeEach(() => {
 })
 
 describe('omsIdentityProvider.renew', () => {
-  it('exchanges the refreshed OMS token once, as a renewal, and keeps the new tokens', async () => {
+  it('exchanges the refreshed OMS token once and keeps the new tokens', async () => {
     exchangeOmsToken.mockResolvedValue({ ok: true, csaToken: 'new-csa', expiresAt: '2026-11-23T11:00:00Z', employee: EMPLOYEE })
     const outcome = await omsIdentityProvider.renew(HELD)
-    expect(exchangeOmsToken.mock.calls).toEqual([['new-access', { renewal: true }]])
+    expect(exchangeOmsToken.mock.calls).toEqual([['new-access']])
     expect(outcome).toMatchObject({
       kind: 'renewed',
       session: { oms: { accessToken: 'new-access', refreshToken: 'new-refresh' }, csa: { token: 'new-csa' }, employee: EMPLOYEE },

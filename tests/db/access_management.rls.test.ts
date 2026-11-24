@@ -29,7 +29,7 @@ const EMP = {
 const FACTORY_1 = `${RUN}P1`
 const ID: Record<string, string> = {}
 
-/** What the page sends for each pasted 工號 found in OMS employees_picker. */
+/** What the page sends for each pasted 工號 OMS's channel found (#218). */
 const person = (empId: string, name = `${empId}姓名`, factoryCode = 'FQ') => ({ emp_id: empId, name, factory_code: factoryCode })
 
 beforeAll(async () => {

@@ -45,18 +45,16 @@ export function createWebExchangeHandler(deps: ExchangeDeps, options: WebExchang
     }
 
     let omsToken = ''
-    let renewal = false
     try {
       const body = (await req.json()) as Record<string, unknown>
       omsToken = typeof body.oms_token === 'string' ? body.oms_token : ''
-      renewal = body.renewal === true
     } catch {
       return json(400, { error: 'invalid json' })
     }
     if (!omsToken) return json(400, { error: 'missing oms_token' })
 
     try {
-      const result = await exchange(omsToken, deps, { renewal })
+      const result = await exchange(omsToken, deps)
       if (!result.ok) return json(result.status, { error: result.error })
       return json(200, { csa_token: result.csaToken, expires_at: result.expiresAt, employee: result.employee })
     } catch (error) {

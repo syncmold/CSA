@@ -164,7 +164,8 @@ function serviceToken() {
 function runDbScript(script, scriptArgs = []) {
   const r = spawnSync(process.execPath, [script, ...scriptArgs], {
     stdio: 'inherit',
-    env: { ...process.env, CSA_DB_URL: sslDbUrl, CSA_DB_ADMIN_URL: sslDbUrl },
+    // OMS_CHANNEL_KEY for any db script that asks OMS's channel; today only demo:build does, for the names it lacks (Q133 (10)).
+    env: { ...process.env, CSA_DB_URL: sslDbUrl, CSA_DB_ADMIN_URL: sslDbUrl, ...(config.OMS_CHANNEL_KEY ? { OMS_CHANNEL_KEY: config.OMS_CHANNEL_KEY } : {}) },
   })
   if (r.status !== 0) fail(`${script} 失敗`)
 }

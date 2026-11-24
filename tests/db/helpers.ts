@@ -55,8 +55,8 @@ export function depsFor(empId: string, name: string, accessAll = true): Exchange
     ...real,
     oms: {
       getUser: async () => ({ id: fakeUserId(empId), email: `${empId.toLowerCase()}@id.syncmold.com.tw` }),
-      getProfile: async () => ({ emp_id: empId, name, active: true, role: 'viewer' }),
-      // OMS's channel knows them as 在職 at FQ (#218).
+      // OMS's oms_my_access row for them: 在職 at FQ (Q133 (5)); the channel knows them the same way (#218).
+      getAccess: async () => ({ emp_id: empId, name, factory_code: 'FQ', active: true, systems: ['OMS'] }),
       channel: async (ids) =>
         new Map(ids.map((id) => [id.trim().toUpperCase(), {
           asked: id.trim().toUpperCase(), found: true, emp_id: empId, status: '在職', factory_code: 'FQ', posting_factory: null,
@@ -84,7 +84,7 @@ export function exchangeAsAdminAccount() {
     ...depsFor('UNUSED', 'unused'),
     oms: {
       getUser: async () => ({ id: fakeUserId('admin'), email: ADMIN_EMAIL }),
-      getProfile: async () => ({ emp_id: null, name: 'DTO', active: true, role: 'admin' }),
+      getAccess: async () => ({ emp_id: null, name: 'DTO', factory_code: null, active: true, systems: ['OMS'] }),
       channel: async () => {
         throw new Error('not an employee: must not be looked up')
       },

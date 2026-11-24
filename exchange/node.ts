@@ -27,21 +27,20 @@ function sendExchangeResult(res: ServerResponse, result: ExchangeResult) {
   return sendJson(res, 200, { csa_token: result.csaToken, expires_at: result.expiresAt, employee: result.employee })
 }
 
-/** POST handler taking one string field from the JSON body (and the rest of it); 400 on bad JSON or a missing field. */
-function postStringField(field: string, run: (value: string, res: ServerResponse, body: Record<string, unknown>) => Promise<void>) {
+/** POST handler taking one string field from the JSON body; 400 on bad JSON or a missing field. */
+function postStringField(field: string, run: (value: string, res: ServerResponse) => Promise<void>) {
   return async (req: IncomingMessage, res: ServerResponse) => {
     if (req.method !== 'POST') return sendJson(res, 405, { error: 'POST only' })
     let value = ''
-    let body: Record<string, unknown> = {}
     try {
-      body = (await readJsonBody(req)) as Record<string, unknown>
+      const body = (await readJsonBody(req)) as Record<string, unknown>
       value = typeof body[field] === 'string' ? (body[field] as string) : ''
     } catch {
       return sendJson(res, 400, { error: 'invalid json' })
     }
     if (!value) return sendJson(res, 400, { error: `missing ${field}` })
     try {
-      await run(value, res, body)
+      await run(value, res)
     } catch (error) {
       console.error('[csa-exchange]', error)
       return sendJson(res, 502, { error: 'exchange_failed' })
@@ -49,11 +48,9 @@ function postStringField(field: string, run: (value: string, res: ServerResponse
   }
 }
 
-/** HTTP handler: POST { oms_token, renewal? } → { csa_token, expires_at, employee } or { error }. */
+/** HTTP handler: POST { oms_token } → { csa_token, expires_at, employee } or { error }. */
 export function createExchangeHandler(deps: ExchangeDeps) {
-  const post = postStringField('oms_token', async (omsToken, res, body) =>
-    sendExchangeResult(res, await exchange(omsToken, deps, { renewal: body.renewal === true })),
-  )
+  const post = postStringField('oms_token', async (omsToken, res) => sendExchangeResult(res, await exchange(omsToken, deps)))
   return async (req: IncomingMessage, res: ServerResponse) => {
     // GET reports the admission mode so the login page can warn when 放行全開 is on,
     // and whether 開發期直接登入 (Q82) is available, so it can offer it.

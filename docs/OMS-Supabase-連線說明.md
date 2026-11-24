@@ -36,7 +36,11 @@ Content-Type: application/json
    body: { "email": "...", "password": "..." }
    ```
    成功回 `access_token`（JWT）、`refresh_token`、`user`。400／401 一律顯示「帳號或密碼錯誤」。
-3. **讀權威角色**：帶 JWT 查 `synchub_profiles?id=eq.<user.id>`，取得 `username`、`name`、`role`、`factories`、`bu`、`emp_id`、`active`。
+3. **讀自己的授權**：帶 JWT 呼叫 `POST /rest/v1/rpc/oms_my_access`（body `{}`），只回登入者自己那一筆（2026-11-24 實測）：
+   ```
+   [{ "emp_id": "SSA78", "name": "…", "factory_code": "SY", "active": true, "systems": ["OMS", "QMS", …] }]
+   ```
+   沒有 `role`。CSA 的換證自 2026-11-24 改用它（原本讀 `synchub_profiles`，OMS 已改名、舊名只是暫時的替身；Q133 (5)）。`systems` 含 `CSA` 才算 OMS 授權頁勾了 CSA，等開關 `CSA_REQUIRE_OMS_AUTH` 做好後才用（Q133 (4)）。
    - `active === false` → 清掉 session、顯示「此帳號已停用，請洽 DTO」。
    - 查不到 profile → 「找不到帳號設定檔，請洽 DTO」。
 4. **強制改密**：`user.user_metadata.must_change === true`（初始密碼 `oms12345` 或被重設）→ 先跳改密視窗，規則：至少 8 碼、含英文與數字、不可等於 `oms12345`。改密走 `PUT /auth/v1/user`，body `{ "password": ..., "data": { "must_change": false } }`。
@@ -56,10 +60,10 @@ JWT（JSON Web Token）＝Supabase 簽過章的身分證，內含使用者 ID、
 | `oms_roster` | `synchub_profiles` 精簡 view（id, username, emp_id, role, factories, bu, systems, active…） | ⛔ 2026-11-19 收回，不登入讀回 401 |
 | `system_access` | 各員工可用系統授權矩陣（factory_code, emp_id, name, eng_name, dept, title, email, systems[]） | ⛔ 2026-11-17 收回（Q133 (1)） |
 | `employees` | 完整員工主檔（蛇形欄位：emp_id, factory_code, department, join_date, birth…） | ⛔ 200 但空陣列（RLS 擋，需 JWT） |
-| `synchub_profiles` | 帳號正本 | ⛔ 空陣列（需 JWT）；登入後讀自己那筆（換證用）。OMS 之後會改名 `oms_profiles`，日期未定、拆換前先通知（Q133 (9)） |
+| `synchub_profiles` | 帳號正本 | ⛔ 2026-11-20 OMS 改名 `oms_profiles`，舊名只是暫時的替身、近期移除；**CSA 不再讀**（換證改呼叫 `rpc/oms_my_access`，2026-11-24） |
 | `change_log` | 人員異動紀錄 | 需 JWT |
-| `functions/v1/csa-channel` | **CSA 專用逐人查詢通道**（Edge Function，2026-11-23 開通）：送工號，逐人回在職狀態、主檔／派駐／兼管廠區、姓名、帳號、有沒有勾 CSA | 不用 anon key：只認 `x-channel-code` 金鑰，只能從伺服器呼叫；CSA 的分派表匯入在用（需求決策紀錄 Q133 (10)、Q130 (6)） |
-| `factories` | 廠區清單（廠區代碼、名稱、事業單位、國家、地址、排序） | ✅ 2026-11-20 OMS 確認仍開放不登入讀，沒排收回時間；`db:sync-plants` 用它（Q107 (2)） |
+| `functions/v1/csa-channel` | **CSA 專用逐人查詢通道**（Edge Function，2026-11-23 開通）：送工號，逐人回在職狀態、主檔／派駐／兼管廠區、姓名、帳號、有沒有勾 CSA | 不用 anon key：只認 `x-channel-code` 金鑰，只能從伺服器呼叫；CSA 的分派表匯入、用工號查人、發出前離職檢查、開發期直接登入與 `demo:build` 補姓名在用（需求決策紀錄 Q133 (10)、Q130 (6)） |
+| `factories` | 廠區清單（廠區代碼、名稱、事業單位、國家、地址、排序） | ✅ 2026-11-20 OMS 確認仍開放不登入讀，沒排收回時間；`db:sync-plants` 用它（Q107 (2)）。CSA 唯一還直接讀的 OMS 資料表 |
 | `oms_users` | 舊表，已淘汰 | 不要用 |
 
 查詢注意：PostgREST 單次最多回 1000 筆，一定要帶 `order=` 再用 `limit/offset` 分頁，否則會漏。
@@ -82,6 +86,6 @@ JWT（JSON Web Token）＝Supabase 簽過章的身分證，內含使用者 ID、
 - [x] ~~工號即時回饋：輸入工號時查 `employees_picker` 顯示姓名與廠區（#2）~~ 2026-11-23 拿掉（Q133 (5)、#218：OMS 已刪 `employees_picker`）
 - [x] 首次登入強制改密：CSA 不做改密視窗，`must_change` 使用者顯示說明並導去 SyncHub（Q69，#2）
 - [x] token 自動續期（45 分鐘）與 sessionStorage 保存（#2；續期時重新打 OMS refresh 並重新換證）
-- [~] 進系統前即時查 profile：每次換證（登入、每 45 分鐘續期、token 將到期時）都重查 `synchub_profiles`；重新整理頁面時沿用 sessionStorage 內未到期的 session，不另查（#2）
+- [~] 進系統前即時查 profile：每次換證（登入、每 45 分鐘續期、token 將到期時）都重查 `oms_my_access`（2026-11-24 前是 `synchub_profiles`）；重新整理頁面時沿用 sessionStorage 內未到期的 session，不另查（#2）
 - [~] 「回 SyncHub 入口」連結已做（`VITE_SYNCHUB_URL`，#2）；SyncHub 大廳卡片待黃裕程（OPEN-2）
 - [x] 權限判斷（#2，換證端 `exchange/core.ts`）：**開發期全開（Q62）**，OMS Auth 通過＋帳號未停用即放行，以設定值 `CSA_ACCESS_ALL=true` 控制；DTO 加上系統代碼後改讀 `system_access.systems`。正式上線前必須關閉全開

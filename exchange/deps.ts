@@ -2,7 +2,7 @@
 // middleware (node.ts) and the demo environments' Supabase Edge Function (web.ts, Deno) share it. Imports carry the
 // `.ts` extension because Deno requires it.
 import { SignJWT } from 'jose'
-import type { EmployeeRef, ExchangeDeps, NameAndPlant, OmsProfile, OmsUser } from './core.ts'
+import type { EmployeeRef, ExchangeDeps, NameAndPlant, OmsAccess, OmsUser } from './core.ts'
 import { omsChannelFromEnv, type PersonName } from './omsChannel.ts'
 import { channelMatcher, type OmsMatchDeps } from './omsMatch.ts'
 import type { OmsPeopleDeps } from './omsPeople.ts'
@@ -63,14 +63,6 @@ export function depsFromEnv(env: ExchangeEnv, fetchImpl: typeof fetch = fetch): 
   const restBase = env.CSA_REST_URL.replace(/\/$/, '')
   const omsHeaders = (token: string) => ({ apikey: env.OMS_ANON_KEY, Authorization: `Bearer ${token}` })
 
-  /** PostgREST query against OMS returning the first row, or null on no row / error. */
-  async function omsFirstRow<T>(pathAndQuery: string, token: string): Promise<T | null> {
-    const r = await fetchImpl(`${env.OMS_URL}/rest/v1/${pathAndQuery}`, { headers: omsHeaders(token) })
-    if (!r.ok) return null
-    const rows = (await r.json()) as T[]
-    return rows[0] ?? null
-  }
-
   /** Headers for the exchange's own service_role calls to the CSA database. */
   async function csaHeaders(): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
@@ -89,11 +81,17 @@ export function depsFromEnv(env: ExchangeEnv, fetchImpl: typeof fetch = fetch): 
         const u = (await r.json()) as { id?: string; email?: string }
         return u.id && u.email ? { id: u.id, email: u.email } : null
       },
-      getProfile(accessToken, userId) {
-        return omsFirstRow<OmsProfile>(
-          `synchub_profiles?select=emp_id,name,active,role&id=eq.${encodeURIComponent(userId)}`,
-          accessToken,
-        )
+      async getAccess(accessToken) {
+        // OMS's own function, answering only the caller's row (Q133 (2)); it replaced reading synchub_profiles.
+        const r = await fetchImpl(`${env.OMS_URL}/rest/v1/rpc/oms_my_access`, {
+          method: 'POST',
+          headers: { ...omsHeaders(accessToken), 'Content-Type': 'application/json' },
+          body: '{}',
+        })
+        // OMS down or refusing is not "no such person": it fails the exchange (502), so a renewal keeps the session.
+        if (!r.ok) throw new Error(`oms_my_access failed: HTTP ${r.status}`)
+        const rows = (await r.json()) as OmsAccess[]
+        return rows[0] ?? null
       },
       channel: omsChannelFromEnv(env, fetchImpl),
     },

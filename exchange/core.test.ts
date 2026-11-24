@@ -1,7 +1,7 @@
 import { jwtVerify } from 'jose'
 import { describe, expect, it } from 'vitest'
 import { ADMIN_EMAIL } from './adminAccount'
-import { devLoginAs, exchange, type ExchangeDeps, type EmployeeRef } from './core'
+import { devLoginAs, exchange, type ExchangeDeps, type EmployeeRef, type OmsAccess } from './core'
 import { OmsChannelError, type ChannelRow, type OmsChannel } from './omsChannel'
 
 // 本機換證 (OPEN-2 / OPEN-4 暫行做法): an OMS access token goes in, an CSA
@@ -37,7 +37,7 @@ function fakeDeps(
   const deps: ExchangeDeps = {
     oms: {
       getUser: async (token) => (token === 'good-oms-token' ? { id: 'uuid-1', email: 'fq0123@id.syncmold.com.tw' } : null),
-      getProfile: async () => ({ emp_id: 'FQ0123', name: '王小明', active: true, role: 'viewer' }),
+      getAccess: async () => ({ emp_id: 'FQ0123', name: '王小明', factory_code: 'FQ', active: true, systems: ['OMS'] }),
       channel: channelOf(),
       ...overrides,
     },
@@ -86,13 +86,13 @@ describe('exchange', () => {
 
   it('blocks a disabled OMS account', async () => {
     const { deps } = fakeDeps({
-      getProfile: async () => ({ emp_id: 'FQ0123', name: '王小明', active: false, role: 'viewer' }),
+      getAccess: async () => ({ emp_id: 'FQ0123', name: '王小明', factory_code: 'FQ', active: false, systems: [] }),
     })
     expect(await exchange('good-oms-token', deps)).toEqual({ ok: false, status: 403, error: 'account_disabled' })
   })
 
-  it('blocks an account with no OMS profile', async () => {
-    const { deps } = fakeDeps({ getProfile: async () => null })
+  it('blocks an account OMS answers no oms_my_access row for', async () => {
+    const { deps } = fakeDeps({ getAccess: async () => null })
     expect(await exchange('good-oms-token', deps)).toEqual({ ok: false, status: 403, error: 'profile_not_found' })
   })
 
@@ -113,67 +113,38 @@ describe('exchange', () => {
     expect((await exchange('good-oms-token', deps)).ok).toBe(true)
   })
 
-  it("takes 姓名 and 廠區 from OMS's 主檔 through the channel, asked once for the profile's 工號 (#218)", async () => {
-    const asked: string[][] = []
+  it("takes 姓名 and 主檔廠區 from OMS's oms_my_access row and never asks the channel (Q133 (5))", async () => {
     const { deps, recorded } = fakeDeps({
-      getProfile: async () => ({ emp_id: 'FQ0123', name: 'Wang', active: true, role: 'viewer' }),
-      channel: async (ids) => (asked.push([...ids]), channelOf({ name: '王小明', factory_code: 'SY' })(ids)),
+      getAccess: async () => ({ emp_id: 'FQ0123', name: '王小明', factory_code: 'SY', active: true, systems: ['OMS'] }),
+      channel: async () => {
+        throw new Error('the channel is not asked at sign-in')
+      },
     })
     const result = await exchange('good-oms-token', deps)
-    expect(asked).toEqual([['FQ0123']])
     expect(result.ok && result.employee).toEqual({ emp_id: 'FQ0123', name: '王小明', factory_code: 'SY' })
     expect(recorded).toEqual([{ emp_id: 'FQ0123', name: '王小明', factory_code: 'SY' }])
   })
 
-  it('a renewal does not ask the channel: the session carries the 姓名 and 廠區 CSA kept at sign-in (Q133 (6))', async () => {
-    let asked = 0
-    const { deps } = fakeDeps({ channel: async (ids) => (asked++, channelOf({ name: '王小明', factory_code: 'SY' })(ids)) })
+  it('a row OMS leaves without 姓名 or 廠區 keeps what CSA already has, in the session too', async () => {
+    let row: OmsAccess = { emp_id: 'FQ0123', name: '王小明', factory_code: 'SY', active: true, systems: [] }
+    const { deps, recorded } = fakeDeps({ getAccess: async () => row })
     await exchange('good-oms-token', deps)
-    const renewed = await exchange('good-oms-token', deps, { renewal: true })
-    expect(asked).toBe(1)
-    if (!renewed.ok) throw new Error(renewed.error)
-    expect(renewed.employee).toEqual({ emp_id: 'FQ0123', name: '王小明', factory_code: 'SY' })
-    const { payload } = await jwtVerify(renewed.csaToken, new TextEncoder().encode(SECRET), { currentDate: NOW })
-    expect(payload.app_metadata).toMatchObject({ factory_code: 'SY' })
-  })
-
-  it('a sign-in the channel cannot answer keeps the 廠區 CSA already has, in the session too', async () => {
-    let failing = false
-    const { deps } = fakeDeps({
-      channel: async (ids) => {
-        if (failing) throw new OmsChannelError('oms_rate_limited')
-        return channelOf({ factory_code: 'SY' })(ids)
-      },
-    })
-    await exchange('good-oms-token', deps)
-    failing = true
-    expect(await exchange('good-oms-token', deps)).toMatchObject({ ok: true, employee: { factory_code: 'SY' } })
-  })
-
-  it('still signs in when OMS does not know the 工號 or the channel cannot answer: the profile name, no 廠區', async () => {
-    const unknown = fakeDeps({ channel: channelOf({ emp_id: 'SOMEONE-ELSE' }) })
-    expect(await exchange('good-oms-token', unknown.deps)).toMatchObject({ ok: true, employee: { emp_id: 'FQ0123', name: '王小明', factory_code: null } })
-
-    for (const code of ['oms_not_configured', 'oms_rate_limited', 'oms_match_failed'] as const) {
-      const failing = fakeDeps({
-        getProfile: async () => ({ emp_id: 'FQ0123', name: 'Wang', active: true, role: 'viewer' }),
-        channel: async () => {
-          throw new OmsChannelError(code)
-        },
-      })
-      const result = await exchange('good-oms-token', failing.deps)
-      expect(result, code).toMatchObject({ ok: true, employee: { emp_id: 'FQ0123', name: 'Wang', factory_code: null } })
-      expect(failing.recorded, code).toEqual([{ emp_id: 'FQ0123', name: 'Wang', factory_code: null }])
-    }
+    row = { ...row, name: ' ', factory_code: null }
+    const again = await exchange('good-oms-token', deps)
+    if (!again.ok) throw new Error(again.error)
+    expect(again.employee).toEqual({ emp_id: 'FQ0123', name: '王小明', factory_code: 'SY' })
+    const { payload } = await jwtVerify(again.csaToken, new TextEncoder().encode(SECRET), { currentDate: NOW })
+    expect(payload.app_metadata).toMatchObject({ name: '王小明', factory_code: 'SY' })
+    expect(recorded[1]).toEqual({ emp_id: 'FQ0123', name: null, factory_code: null })
   })
 })
 
 // 管理員帳號 (Q122 (5), #161): OMS's 系統管理帳號 has no 工號 there; it is known by its Email, as GHG does.
 describe('the 管理員帳號', () => {
-  /** OMS's real row for it (2026-11-11): no 工號, role admin. */
+  /** OMS's row for it: no 工號 (its oms_my_access answer is not seen yet, only its synchub_profiles row of 2026-11-11). */
   const adminAccount = (overrides: Partial<ExchangeDeps['oms']> = {}) => ({
     getUser: async () => ({ id: 'uuid-admin', email: ADMIN_EMAIL }),
-    getProfile: async () => ({ emp_id: null, name: 'DTO', active: true, role: 'admin' }),
+    getAccess: async () => ({ emp_id: null, name: 'DTO', factory_code: null, active: true, systems: ['OMS'] }),
     channel: async () => {
       throw new Error('not an employee: must not be looked up')
     },
@@ -191,7 +162,7 @@ describe('the 管理員帳號', () => {
     const { payload } = await jwtVerify(result.csaToken, new TextEncoder().encode(SECRET), { currentDate: NOW })
     expect(payload.sub).toBe('uuid-admin')
     expect(payload.app_metadata).toEqual({
-      emp_id: 'admin', name: '管理員帳號', factory_code: null, oms_role: 'admin', source: 'oms', admin_account: true,
+      emp_id: 'admin', name: '管理員帳號', factory_code: null, source: 'oms', admin_account: true,
     })
     expect(result.employee).toEqual({ emp_id: 'admin', name: '管理員帳號', factory_code: null })
     expect(recorded).toEqual([])
@@ -202,10 +173,10 @@ describe('the 管理員帳號', () => {
     expect(await exchange('good-oms-token', deps)).toMatchObject({ ok: true, employee: { emp_id: 'admin' } })
   })
 
-  it('is still blocked when OMS disables it or has no profile for it', async () => {
-    const disabled = fakeDeps(adminAccount({ getProfile: async () => ({ emp_id: null, name: 'DTO', active: false, role: 'admin' }) }))
+  it('is still blocked when OMS disables it or answers no oms_my_access row for it', async () => {
+    const disabled = fakeDeps(adminAccount({ getAccess: async () => ({ emp_id: null, name: 'DTO', factory_code: null, active: false, systems: [] }) }))
     expect(await exchange('good-oms-token', disabled.deps)).toEqual({ ok: false, status: 403, error: 'account_disabled' })
-    const missing = fakeDeps(adminAccount({ getProfile: async () => null }))
+    const missing = fakeDeps(adminAccount({ getAccess: async () => null }))
     expect(await exchange('good-oms-token', missing.deps)).toEqual({ ok: false, status: 403, error: 'profile_not_found' })
   })
 
@@ -220,7 +191,7 @@ describe('the 管理員帳號', () => {
   })
 
   it('a 工號 of "admin" from OMS does not make anyone the 管理員帳號', async () => {
-    const { deps } = fakeDeps({ getProfile: async () => ({ emp_id: 'admin', name: '某人', active: true, role: 'viewer' }) }, { accessAll: false }, [])
+    const { deps } = fakeDeps({ getAccess: async () => ({ emp_id: 'admin', name: '某人', factory_code: 'FQ', active: true, systems: [] }) }, { accessAll: false }, [])
     expect(await exchange('good-oms-token', deps)).toEqual({ ok: false, status: 403, error: 'not_authorized' })
   })
 })

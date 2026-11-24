@@ -30,8 +30,12 @@ export interface ChannelRow {
 
 /** Why OMS gave no answer: no key on this backend, a key OMS refuses, OMS's daily limit, or anything else. */
 export class OmsChannelError extends Error {
-  constructor(readonly code: 'oms_not_configured' | 'oms_key_rejected' | 'oms_rate_limited' | 'oms_match_failed', detail = '') {
+  // A plain field, not a constructor parameter property: Node's type stripping refuses those, and scripts/demo imports
+  // this file without a build step.
+  readonly code: 'oms_not_configured' | 'oms_key_rejected' | 'oms_rate_limited' | 'oms_match_failed'
+  constructor(code: OmsChannelError['code'], detail = '') {
     super(detail ? `${code}: ${detail}` : code)
+    this.code = code
   }
 }
 

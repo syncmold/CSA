@@ -83,8 +83,8 @@ export const omsIdentityProvider: IdentityProvider = {
       const { status } = refreshed.failure
       return status === 400 || status === 401 || status === 403 ? { kind: 'rejected' } : { kind: 'unavailable' }
     }
-    // One exchange, marked a renewal: it does not ask OMS's channel again (#218).
-    const exchanged = await exchangeOmsToken(refreshed.tokens.access_token, { renewal: true })
+    // One exchange per renewal (#218): the refreshed OMS token is exchanged once, not twice.
+    const exchanged = await exchangeOmsToken(refreshed.tokens.access_token)
     if (!exchanged.ok) {
       return REJECTING_EXCHANGE_ERRORS.has(exchanged.error) ? { kind: 'rejected' } : { kind: 'unavailable' }
     }

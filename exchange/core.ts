@@ -14,11 +14,18 @@ export interface OmsUser {
   email: string
 }
 
-export interface OmsProfile {
+/**
+ * The signed-in person's own row of OMS's `oms_my_access` (Q133 (2)(5)), as OMS answered it on 2026-11-24:
+ * `[{ emp_id, name, factory_code, active, systems }]`. It replaced reading `synchub_profiles` (renamed by OMS).
+ */
+export interface OmsAccess {
   emp_id: string | number | null
   name: string | null
+  /** 主檔廠區. */
+  factory_code: string | null
   active: boolean | null
-  role: string | null
+  /** The 系統代號 OMS's 授權頁 has ticked for them; CSA's own is `CSA` (read once CSA_REQUIRE_OMS_AUTH is built, Q133 (4)). */
+  systems: string[] | null
 }
 
 /** A person as the screens show one: 工號, 姓名 and 主檔廠區 (once the row of OMS's old `employees_picker`). */
@@ -42,9 +49,9 @@ export interface ExchangeDeps {
   oms: {
     /** Verify the token with OMS Auth; null when OMS rejects it. Read only. */
     getUser(accessToken: string): Promise<OmsUser | null>
-    /** `synchub_profiles` row for the user, read with the user's own token. */
-    getProfile(accessToken: string, userId: string): Promise<OmsProfile | null>
-    /** OMS's CSA 專用查詢通道 (#218): 姓名 and 主檔廠區 of a 工號, asked with the backend's own key. */
+    /** The user's own `oms_my_access` row, asked with the user's own token; null when OMS answers none, throws when OMS fails. */
+    getAccess(accessToken: string): Promise<OmsAccess | null>
+    /** OMS's CSA 專用查詢通道 (#218), asked with the backend's own key: only 開發期直接登入 uses it, having no OMS token. */
     channel: OmsChannel
   }
   csa: {
@@ -66,6 +73,7 @@ export interface ExchangeDeps {
 
 export type ExchangeError =
   | 'oms_token_invalid'
+  /** OMS has no `oms_my_access` row (or no 工號) for them; the name is older than oms_my_access and kept for the browser. */
   | 'profile_not_found'
   | 'account_disabled'
   | 'not_authorized'
@@ -76,66 +84,42 @@ export type ExchangeResult =
   | { ok: true; csaToken: string; expiresAt: string; employee: EmployeeRef }
   | { ok: false; status: 401 | 403 | 404 | 502; error: ExchangeError }
 
-export interface ExchangeOptions {
-  /**
-   * The browser's 45-minute renewal of a session it already has: OMS's channel is not asked (it counts 5,000 工號 a
-   * day, Q133 (6)), and the session carries the 姓名 and 廠區 CSA kept at the last real sign-in. It only saves a
-   * lookup, so it is fine that the browser is the one saying so.
-   */
-  renewal?: boolean
-}
-
-export async function exchange(omsAccessToken: string, deps: ExchangeDeps, options: ExchangeOptions = {}): Promise<ExchangeResult> {
+export async function exchange(omsAccessToken: string, deps: ExchangeDeps): Promise<ExchangeResult> {
   const user = await deps.oms.getUser(omsAccessToken)
   if (!user) return { ok: false, status: 401, error: 'oms_token_invalid' }
 
-  const profile = await deps.oms.getProfile(omsAccessToken, user.id)
+  const access = await deps.oms.getAccess(omsAccessToken)
   const adminAccount = user.email.trim().toLowerCase() === ADMIN_EMAIL
-  if (!profile || (!adminAccount && (profile.emp_id == null || profile.emp_id === ''))) {
+  if (!access || (!adminAccount && (access.emp_id == null || access.emp_id === ''))) {
     return { ok: false, status: 403, error: 'profile_not_found' }
   }
-  if (profile.active === false) return { ok: false, status: 403, error: 'account_disabled' }
+  if (access.active === false) return { ok: false, status: 403, error: 'account_disabled' }
 
   if (adminAccount) {
     // Not on the 放行名單 and never asked (Q122 (5)); the session's admin_account claim is what the database trusts.
     // No employee_ref row is written: it is not an employee, and the database refuses one for its 工號.
     const employee: EmployeeRef = { emp_id: ADMIN_EMP_ID, name: ADMIN_NAME, factory_code: null }
-    const session = await mintSession(employee, user.id, { oms_role: profile.role, source: 'oms', admin_account: true }, deps)
+    const session = await mintSession(employee, user.id, { source: 'oms', admin_account: true }, deps)
     return { ok: true, ...session, employee }
   }
 
-  const empId = String(profile.emp_id)
+  const empId = String(access.emp_id)
   if (!deps.config.accessAll && !(await deps.csa.isAdmitted(empId))) {
     return { ok: false, status: 403, error: 'not_authorized' }
   }
 
-  // 姓名 and 廠區 from OMS's 主檔 (#218), at a real sign-in. Without them (a renewal, or a channel that cannot answer)
-  // CSA keeps what it has, and the profile's name stands in for one it never had.
-  const fromOms = nameAndPlantOf(options.renewal ? undefined : await omsPersonOrNothing(empId, deps))
-  const kept = await deps.csa.recordEmployee({ emp_id: empId, name: fromOms.name ?? profile.name, factory_code: fromOms.factory_code })
+  // 姓名 and 主檔廠區 from OMS's own answer (Q133 (5)), at every exchange: it costs none of the channel's daily 工號.
+  // One OMS leaves empty keeps what CSA has (record_login).
+  const kept = await deps.csa.recordEmployee({ emp_id: empId, ...nameAndPlantOf(access) })
   const employee: EmployeeRef = { emp_id: empId, ...kept }
 
-  const session = await mintSession(employee, user.id, { oms_role: profile.role, source: 'oms' }, deps)
+  const session = await mintSession(employee, user.id, { source: 'oms' }, deps)
   return { ok: true, ...session, employee }
 }
 
 /** 姓名 and 主檔廠區 as OMS's row writes them. */
-function nameAndPlantOf(row: ChannelRow | undefined): NameAndPlant {
+function nameAndPlantOf(row: NameAndPlant | undefined): NameAndPlant {
   return { name: row?.name?.trim() || null, factory_code: row?.factory_code?.trim() || null }
-}
-
-/**
- * OMS's row for one 工號, when it has one. Signing in never fails on the channel (no key here, OMS's daily limit,
- * OMS down): what it would have added is then only missing, and logged without anyone's data.
- */
-async function omsPersonOrNothing(empId: string, deps: ExchangeDeps): Promise<ChannelRow | undefined> {
-  try {
-    const row = (await deps.oms.channel([empId])).get(empId.trim().toUpperCase())
-    return row?.found ? row : undefined
-  } catch (error) {
-    console.error('[csa-exchange] OMS channel:', error instanceof Error ? error.message : error)
-    return undefined
-  }
 }
 
 /**
@@ -161,14 +145,14 @@ export async function devLoginAs(empId: string, deps: ExchangeDeps): Promise<Exc
 
   const recorded: EmployeeRef = { emp_id: row.emp_id?.trim() || wanted, ...nameAndPlantOf(row) }
   const employee: EmployeeRef = { emp_id: recorded.emp_id, ...(await deps.csa.recordEmployee(recorded)) }
-  const session = await mintSession(employee, devSubject(employee.emp_id), { oms_role: null, source: 'dev' }, deps)
+  const session = await mintSession(employee, devSubject(employee.emp_id), { source: 'dev' }, deps)
   return { ok: true, ...session, employee }
 }
 
 async function mintSession(
   employee: EmployeeRef,
   subject: string,
-  extra: { oms_role: string | null; source: 'oms' | 'dev'; admin_account?: true },
+  extra: { source: 'oms' | 'dev'; admin_account?: true },
   deps: ExchangeDeps,
 ): Promise<{ csaToken: string; expiresAt: string }> {
   const now = (deps.now ?? (() => new Date()))()

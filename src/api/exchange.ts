@@ -29,12 +29,8 @@ async function postForSession(url: string, body: Record<string, string | boolean
   return { ok: true, csaToken: payload.csa_token, expiresAt: payload.expires_at, employee: payload.employee }
 }
 
-/**
- * `renewal`: the 45-minute renewal of a session already held, for which the exchange does not ask OMS's channel for
- * 姓名 and 廠區 again (#218); a sign-in leaves it off.
- */
-export function exchangeOmsToken(omsToken: string, { renewal = false } = {}): Promise<ExchangeResponse> {
-  return postForSession(env.exchangeUrl, renewal ? { oms_token: omsToken, renewal: true } : { oms_token: omsToken })
+export function exchangeOmsToken(omsToken: string): Promise<ExchangeResponse> {
+  return postForSession(env.exchangeUrl, { oms_token: omsToken })
 }
 
 /** 開發期直接登入 (Q82): a session for a 工號 OMS has as 在職, no password. The server answers 404 unless CSA_DEV_LOGIN=true. */
