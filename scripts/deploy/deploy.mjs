@@ -6,7 +6,8 @@
 //   2. 沒有那個檔時，讀目前環境變數（GitHub Actions 把 Environment 的 secrets 放進來；變數名稱同檔內鍵名）
 // 必填：SUPABASE_DB_URL、SUPABASE_ANON_KEY、CSA_JWT_SECRET；prod 另外必填 CSA_SITE_URL。
 // 第一次初始化用：CSA_SEED_AUDIT_CHIEF（第一位稽核主管工號）、CSA_SEED_MAINTAINERS（系統維護員工號，逗號分隔）、
-// CSA_SEED_ALLOWLIST（放行名單，逗號分隔）。OMS 網址仍讀本機 .env 的 VITE_OMS_URL／VITE_OMS_ANON_KEY。
+// CSA_SEED_ALLOWLIST（放行名單，逗號分隔）。OMS 專案（登入用）的 VITE_OMS_URL／VITE_OMS_ANON_KEY 也放在部署設定裡（沒有時才看環境變數與本機 .env）；
+// 缺了就拒絕部署換證或 build 前端：少了它，換證會對所有人回 502、前端會把登入送到自己的網址。
 // 步驟（可一次給多個，依序執行）：
 //   check     連得到資料庫、PostgREST 接受自簽的 token
 //   db        套用 migration、建內控文件 bucket 與讀取規則
@@ -17,6 +18,8 @@
 //   function  設定 Edge Function 的 secrets 並部署換證（需要先 npx supabase login）
 //   web       build 前端、檢查沒有金鑰外洩、部署到託管（目前實作為 Vercel；改託管只需改這一步）
 //   pages     build 出可發布到 GitHub Pages 的資料夾（<csa-deploy>/pages-<環境>/，含 404.html、.nojekyll；不推送）
+//   publish   把 pages 的資料夾推到這個 repo 的 gh-pages 分支，並等網站換成新版
+//   update-pages  GitHub Pages 版的 update：db drafts function pages publish
 //   backup    pg_dump 到 <csa-deploy>/backups/（prod 的備份請另外排程存到不是個人電腦的地方）
 //   restore   還原一份 backup（先再備份一次現況）
 //   master    廠區主檔：從 OMS 的 factories 同步廠區與公司
@@ -27,7 +30,7 @@
 // prod 的 reset、restore 要加 --confirm-prod；rebuild 在 prod 不能執行。
 // 會改動環境的步驟只能在 main、沒有未 commit 的修改、和 origin/main 一致時執行；刻意部署別的分支加 --allow-branch。
 import { execFileSync, spawnSync } from 'node:child_process'
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import pg from 'pg'
@@ -45,9 +48,9 @@ const VERCEL_CLI = 'vercel@62.4.0'
 // 內控文件 PDF 的 bucket：畫面已不開這些 PDF（Q127），`docs` 照舊上傳、留給日後恢復畫面時用。
 const BUCKET = 'control-docs'
 const SYNCHUB_URL = 'https://synchub.syncmold.com.tw'
-const ALIASES = { all: ['check', 'db', 'seed', 'docs', 'function', 'web'], update: ['db', 'drafts', 'function', 'web'] }
+const ALIASES = { all: ['check', 'db', 'seed', 'docs', 'function', 'web'], update: ['db', 'drafts', 'function', 'web'], 'update-pages': ['db', 'drafts', 'function', 'pages', 'publish'] }
 /** Steps that change what an environment runs; they must come from main as merged. */
-const FROM_MAIN_ONLY = new Set(['db', 'drafts', 'seed', 'docs', 'function', 'web', 'reset', 'restore', 'master', 'rebuild'])
+const FROM_MAIN_ONLY = new Set(['db', 'drafts', 'seed', 'docs', 'function', 'web', 'pages', 'publish', 'reset', 'restore', 'master', 'rebuild'])
 
 const [envName, ...rest] = process.argv.slice(2)
 const yes = rest.includes('--yes')
@@ -64,7 +67,7 @@ if (asMaintainer && !args.includes('allow')) {
 }
 const environment = ENVIRONMENTS[envName]
 if (!environment || args.length === 0) {
-  console.error('用法：npm run deploy -- <test|prod> <update|all|check|db|drafts|seed|allow 工號... [--maintainer]|docs|function|web|pages|reset|backup|restore 備份檔|rebuild [--dry-run] [--overwrite-edits]|master> [--yes] [--allow-branch]')
+  console.error('用法：npm run deploy -- <test|prod> <update|update-pages|all|check|db|drafts|seed|allow 工號... [--maintainer]|docs|function|web|pages|publish|reset|backup|restore 備份檔|rebuild [--dry-run] [--overwrite-edits]|master> [--yes] [--allow-branch]')
   process.exit(2)
 }
 
@@ -78,7 +81,7 @@ function git(...a) {
 const mainCheckout = dirname(resolve(git('rev-parse', '--path-format=absolute', '--git-common-dir')))
 const deployDir = process.env.CSA_DEPLOY_DIR || join(dirname(mainCheckout), 'csa-deploy')
 const configFile = join(deployDir, `.env.deploy.${envName}`)
-const CONFIG_KEYS = ['SUPABASE_DB_URL', 'SUPABASE_ANON_KEY', 'CSA_JWT_SECRET', 'OMS_CHANNEL_KEY', 'CSA_REQUIRE_OMS_AUTH', 'CSA_SITE_URL', 'CSA_VERCEL_PROJECT', 'CSA_EXTRA_ORIGINS', 'CSA_PAGES_BASE', 'CSA_CUSTOM_DOMAIN', 'CSA_SEED_AUDIT_CHIEF', 'CSA_SEED_MAINTAINERS', 'CSA_SEED_ALLOWLIST']
+const CONFIG_KEYS = ['SUPABASE_DB_URL', 'SUPABASE_ANON_KEY', 'CSA_JWT_SECRET', 'OMS_CHANNEL_KEY', 'CSA_REQUIRE_OMS_AUTH', 'CSA_SITE_URL', 'CSA_VERCEL_PROJECT', 'CSA_EXTRA_ORIGINS', 'CSA_PAGES_BASE', 'CSA_CUSTOM_DOMAIN', 'CSA_SEED_AUDIT_CHIEF', 'CSA_SEED_MAINTAINERS', 'CSA_SEED_ALLOWLIST', 'VITE_OMS_URL', 'VITE_OMS_ANON_KEY']
 const fromEnvVars = !existsSync(configFile)
 // No local file: the environment's own variables (a GitHub Actions job gets the Environment's secrets this way).
 const config = fromEnvVars ? Object.fromEntries(CONFIG_KEYS.filter((k) => process.env[k]).map((k) => [k, process.env[k]])) : parseEnvFile(configFile)
@@ -185,6 +188,18 @@ function extraAdmins() {
   return empIdList(config.CSA_SEED_MAINTAINERS)
 }
 
+/** OMS 專案（登入與查人）：部署設定優先，再看環境變數／本機 .env。 */
+const omsUrl = (config.VITE_OMS_URL || process.env.VITE_OMS_URL || '').replace(/\/$/, '')
+const omsAnonKey = config.VITE_OMS_ANON_KEY || process.env.VITE_OMS_ANON_KEY || ''
+/** 少了 OMS 設定就不部署：換證會對所有人回 502，前端會把登入送到自己的網址（Pages 回 405）。 */
+function requireOms(stepName) {
+  if (!/^https:\/\/\S+$/.test(omsUrl) || !omsAnonKey) {
+    fail(`${stepName} 需要 VITE_OMS_URL 與 VITE_OMS_ANON_KEY：請寫進部署設定（${fromEnvVars ? 'Environment 的 variables' : configFile}）`)
+  }
+}
+/** GitHub Pages 的來源分支。 */
+const PAGES_BRANCH = 'gh-pages'
+
 /** The settings baked into the frontend at build time (VITE_*); base is the path the site is served from. */
 function frontendBuildEnv(base) {
   return {
@@ -196,6 +211,8 @@ function frontendBuildEnv(base) {
     VITE_DEV_LOGIN_URL: '',
     VITE_CSA_ENV_LABEL: environment.badge,
     VITE_SYNCHUB_URL: SYNCHUB_URL,
+    VITE_OMS_URL: omsUrl,
+    VITE_OMS_ANON_KEY: omsAnonKey,
   }
 }
 
@@ -335,13 +352,14 @@ const steps = {
   async function() {
     step('Edge Function csa-exchange')
     if (!siteOrigin) fail('function 需要 CSA_SITE_URL（或 CSA_VERCEL_PROJECT）：換證只回應這個網址的來源')
+    requireOms('function')
     // 匯入分派表的 OMS 比對要這把（Q133 (6)）。沒有時照樣部署（換證與其他修正不該被它擋下），也不寫空值，
     // 以免蓋掉 Supabase 上已經設好的那一把；只提醒。
     if (!config.OMS_CHANNEL_KEY) console.warn(`  ⚠ ${configFile} 沒有 OMS_CHANNEL_KEY：secrets 裡原本有就沿用，沒有的話匯入分派表會說「還沒設定 OMS 通道」`)
     const secretsFile = join(mkdtempSync(join(tmpdir(), 'csa-deploy-')), 'secrets.env')
     writeFileSync(secretsFile, [
-      `VITE_OMS_URL=${process.env.VITE_OMS_URL}`,
-      `VITE_OMS_ANON_KEY=${process.env.VITE_OMS_ANON_KEY}`,
+      `VITE_OMS_URL=${omsUrl}`,
+      `VITE_OMS_ANON_KEY=${omsAnonKey}`,
       `CSA_JWT_SECRET=${config.CSA_JWT_SECRET}`,
       'CSA_ACCESS_ALL=false',
       `CSA_TOKEN_TTL_SECONDS=${process.env.CSA_TOKEN_TTL_SECONDS || 3600}`,
@@ -359,9 +377,22 @@ const steps = {
     const body = await r.json().catch(() => null)
     if (!r.ok || body?.access_all !== false || body?.dev_login !== false) fail(`換證回應不對：HTTP ${r.status} ${JSON.stringify(body)}`)
     console.log('  換證上線：放行全開關閉、沒有開發期直接登入')
+    // 實際走一次換證：假的 OMS token 要被 OMS 拒絕（401）。502 表示換證連不到 OMS（設定錯），那樣沒有人能登入。
+    for (const origin of allowedOrigins) {
+      const probe = await fetch(`${projectUrl}/functions/v1/csa-exchange`, {
+        method: 'POST',
+        headers: { Origin: origin, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oms_token: 'deploy-probe-not-a-token' }),
+      })
+      const answer = await probe.json().catch(() => null)
+      if (probe.status !== 401) fail(`換證連不到 OMS（${origin}）：HTTP ${probe.status} ${JSON.stringify(answer)}；現在沒有人能登入，請檢查 VITE_OMS_URL／VITE_OMS_ANON_KEY 後重跑 function`)
+      if (probe.headers.get('access-control-allow-origin') !== origin) fail(`換證沒有允許來源 ${origin}（CORS）`)
+    }
+    console.log(`  換證連得到 OMS，允許的來源：${allowedOrigins.join('、')}`)
   },
 
   async web() {
+    requireOms('web')
     if (!vercelProject) fail('web 需要 CSA_VERCEL_PROJECT（前端託管的專案名稱，例如 csa-demo-test）；用 GitHub Pages 請改跑 pages')
     // The folder's name is the Vercel project's name: `vercel deploy --yes` in an unlinked folder links to (or, the
     // first time, creates) the project of that name.
@@ -398,6 +429,7 @@ ${r.stderr}`
   //   404.html：Pages 不認得前端路由，重新整理或直接開 /CSA/admin 會 404；把 index.html 複製成 404.html 讓前端接手
   //   .nojekyll：關掉 Pages 的 Jekyll 處理；CNAME：CSA_CUSTOM_DOMAIN 有填才寫
   async pages() {
+    requireOms('pages')
     if (!siteUrl) fail('pages 需要 CSA_SITE_URL（例如 https://<帳號>.github.io/CSA，或自訂網域 https://csa.example.com）')
     const base = (config.CSA_PAGES_BASE || new URL(siteUrl).pathname).replace(/\/?$/, '/')
     if (!base.startsWith('/')) fail(`CSA_PAGES_BASE 要以 / 開頭：${base}`)
@@ -413,6 +445,52 @@ ${r.stderr}`
     console.log(`  可以發布了：${outDir}`)
     console.log(`  網址：${siteUrl}`)
     console.log(`  換證允許的來源：${allowedOrigins.join('、')}（要和這個網址一致；不一致請設 CSA_SITE_URL 或 CSA_EXTRA_ORIGINS 後跑 function）`)
+  },
+
+  // 把 pages 產生的資料夾推到這個 repo 的 gh-pages 分支（GitHub Pages 的來源），再等網站換成新版。
+  // gh-pages 只有 build 出來的檔案，和 main 沒有共同歷史。第一次要到 repo 的 Settings → Pages 把來源設成 gh-pages。
+  async publish() {
+    const outDir = join(deployDir, `pages-${envName}`)
+    if (!existsSync(join(outDir, 'index.html'))) fail(`找不到 ${join(outDir, 'index.html')}：先跑 pages`)
+    const remote = git('remote', 'get-url', 'origin')
+    const work = join(mkdtempSync(join(tmpdir(), 'csa-pages-')), PAGES_BRANCH)
+    const gitIn = (...a) => execFileSync('git', ['-C', work, ...a], { encoding: 'utf8' }).trim()
+    step(`發布到 ${remote} 的 ${PAGES_BRANCH} 分支`)
+    try {
+      const exists = spawnSync('git', ['ls-remote', '--exit-code', '--heads', remote, PAGES_BRANCH], { stdio: 'ignore' }).status === 0
+      if (exists) run('git', ['clone', '--quiet', '--depth', '1', '--branch', PAGES_BRANCH, '--single-branch', remote, work])
+      else {
+        mkdirSync(work, { recursive: true })
+        gitIn('init', '--quiet', '-b', PAGES_BRANCH)
+        gitIn('remote', 'add', 'origin', remote)
+      }
+      for (const entry of readdirSync(work)) if (entry !== '.git') rmSync(join(work, entry), { recursive: true, force: true })
+      cpSync(outDir, work, { recursive: true })
+      gitIn('add', '-A')
+      if (!gitIn('status', '--porcelain')) console.log('  內容和線上的一樣，沒有東西要發布')
+      else {
+        // 用這個 repo 設定的作者（不要落到全域設定的個人信箱）。
+        const who = ['user.name', 'user.email'].flatMap((k) => ['-c', `${k}=${git('config', k)}`])
+        gitIn(...who, 'commit', '--quiet', '-m', `Deploy ${envName} ${git('rev-parse', '--short', 'HEAD')}`)
+        run('git', ['-C', work, 'push', '--quiet', 'origin', PAGES_BRANCH])
+        console.log('  已推送')
+      }
+    } finally {
+      removeTemp(dirname(work))
+    }
+    if (!siteUrl) return
+    // Pages 換版要一兩分鐘：等到線上的 index.html 指向這次 build 的那支 js。
+    const entry = /assets\/index-[\w-]+\.js/.exec(readFileSync(join(outDir, 'index.html'), 'utf8'))?.[0]
+    step(`等 ${siteUrl}/ 換成新版（${entry}）`)
+    for (let i = 0; i < 30; i++) {
+      const html = await fetch(`${siteUrl}/?v=${Date.now()}`).then((r) => r.text()).catch(() => '')
+      if (entry && html.includes(entry)) {
+        console.log('  線上已經是新版')
+        return
+      }
+      await new Promise((r) => setTimeout(r, 10000))
+    }
+    fail(`等了 5 分鐘，${siteUrl}/ 還不是新版：到 repo 的 Settings → Pages 確認來源是 ${PAGES_BRANCH} 分支、Actions 頁的 pages build 有沒有失敗`)
   },
 
   async reset() {
