@@ -59,7 +59,7 @@ function target(name) {
     config: { connectionString: url.toString(), ssl: { rejectUnauthorized: false } },
     supabase: {
       projectUrl: `https://${ref}.supabase.co`,
-      siteOrigin: (cfg.CSA_SITE_URL || (vercelProject ? `https://${vercelProject}.vercel.app` : '')).replace(/\/$/, ''),
+      siteOrigin: (() => { const u = (cfg.CSA_SITE_URL || (vercelProject ? `https://${vercelProject}.vercel.app` : '')).replace(/\/$/, ''); return u ? new URL(u).origin : '' })(),
     },
   }
 }

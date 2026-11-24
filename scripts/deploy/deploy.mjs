@@ -16,6 +16,7 @@
 //   docs      上傳內控文件 PDF（CSA_CONTROL_DOC_DIR）到 bucket
 //   function  設定 Edge Function 的 secrets 並部署換證（需要先 npx supabase login）
 //   web       build 前端、檢查沒有金鑰外洩、部署到託管（目前實作為 Vercel；改託管只需改這一步）
+//   pages     build 出可發布到 GitHub Pages 的資料夾（<csa-deploy>/pages-<環境>/，含 404.html、.nojekyll；不推送）
 //   backup    pg_dump 到 <csa-deploy>/backups/（prod 的備份請另外排程存到不是個人電腦的地方）
 //   restore   還原一份 backup（先再備份一次現況）
 //   master    廠區主檔：從 OMS 的 factories 同步廠區與公司
@@ -26,7 +27,7 @@
 // prod 的 reset、restore 要加 --confirm-prod；rebuild 在 prod 不能執行。
 // 會改動環境的步驟只能在 main、沒有未 commit 的修改、和 origin/main 一致時執行；刻意部署別的分支加 --allow-branch。
 import { execFileSync, spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import pg from 'pg'
@@ -63,7 +64,7 @@ if (asMaintainer && !args.includes('allow')) {
 }
 const environment = ENVIRONMENTS[envName]
 if (!environment || args.length === 0) {
-  console.error('用法：npm run deploy -- <test|prod> <update|all|check|db|drafts|seed|allow 工號... [--maintainer]|docs|function|web|reset|backup|restore 備份檔|rebuild [--dry-run] [--overwrite-edits]|master> [--yes] [--allow-branch]')
+  console.error('用法：npm run deploy -- <test|prod> <update|all|check|db|drafts|seed|allow 工號... [--maintainer]|docs|function|web|pages|reset|backup|restore 備份檔|rebuild [--dry-run] [--overwrite-edits]|master> [--yes] [--allow-branch]')
   process.exit(2)
 }
 
@@ -77,7 +78,7 @@ function git(...a) {
 const mainCheckout = dirname(resolve(git('rev-parse', '--path-format=absolute', '--git-common-dir')))
 const deployDir = process.env.CSA_DEPLOY_DIR || join(dirname(mainCheckout), 'csa-deploy')
 const configFile = join(deployDir, `.env.deploy.${envName}`)
-const CONFIG_KEYS = ['SUPABASE_DB_URL', 'SUPABASE_ANON_KEY', 'CSA_JWT_SECRET', 'OMS_CHANNEL_KEY', 'CSA_REQUIRE_OMS_AUTH', 'CSA_SITE_URL', 'CSA_VERCEL_PROJECT', 'CSA_SEED_AUDIT_CHIEF', 'CSA_SEED_MAINTAINERS', 'CSA_SEED_ALLOWLIST']
+const CONFIG_KEYS = ['SUPABASE_DB_URL', 'SUPABASE_ANON_KEY', 'CSA_JWT_SECRET', 'OMS_CHANNEL_KEY', 'CSA_REQUIRE_OMS_AUTH', 'CSA_SITE_URL', 'CSA_VERCEL_PROJECT', 'CSA_EXTRA_ORIGINS', 'CSA_PAGES_BASE', 'CSA_CUSTOM_DOMAIN', 'CSA_SEED_AUDIT_CHIEF', 'CSA_SEED_MAINTAINERS', 'CSA_SEED_ALLOWLIST']
 const fromEnvVars = !existsSync(configFile)
 // No local file: the environment's own variables (a GitHub Actions job gets the Environment's secrets this way).
 const config = fromEnvVars ? Object.fromEntries(CONFIG_KEYS.filter((k) => process.env[k]).map((k) => [k, process.env[k]])) : parseEnvFile(configFile)
@@ -93,11 +94,13 @@ const projectRef = decodeURIComponent(dbUrl.username).split('.')[1]
 if (!projectRef) fail('SUPABASE_DB_URL 要用 Session pooler 那一串（帳號是 postgres.<專案代碼>）；Direct connection 只有 IPv6，多半連不到')
 if (dbUrl.password.includes('YOUR-PASSWORD')) fail('SUPABASE_DB_URL 裡的 [YOUR-PASSWORD] 還沒換成資料庫密碼')
 const projectUrl = `https://${projectRef}.supabase.co`
-// 不給預設值：專案名稱一錯，`web` 會在 Vercel 上建出一個新專案，網址與換證允許的來源都會跟著錯。
-if (!config.CSA_VERCEL_PROJECT) fail('設定沒有 CSA_VERCEL_PROJECT（前端託管的專案名稱，例如 csa-demo-test）')
-const vercelProject = config.CSA_VERCEL_PROJECT
-/** The production URL people open; the exchange only answers this origin (CORS). */
-const siteOrigin = (config.CSA_SITE_URL || `https://${vercelProject}.vercel.app`).replace(/\/$/, '')
+// Vercel 專案名稱不給預設值：名稱一錯，`web` 會在 Vercel 上建出一個新專案，網址與換證允許的來源都會跟著錯。只有 `web` 需要。
+const vercelProject = config.CSA_VERCEL_PROJECT || ''
+/** The URL people open; it may carry a path (https://<帳號>.github.io/CSA). 沒填 CSA_SITE_URL 時，Vercel 專案推得出網址。 */
+const siteUrl = (config.CSA_SITE_URL || (vercelProject ? `https://${vercelProject}.vercel.app` : '')).replace(/\/$/, '')
+/** Browsers send only scheme + host as Origin, never the path; the exchange answers these origins only (CORS). */
+const siteOrigin = siteUrl ? new URL(siteUrl).origin : ''
+const allowedOrigins = [...new Set([siteOrigin, ...(config.CSA_EXTRA_ORIGINS ?? '').split(/[\s,]+/).map((o) => o.replace(/\/$/, ''))].filter(Boolean))]
 // The pooler's certificate is signed by Supabase's own CA, which Node does not trust by default.
 const sslDbUrl = withSslMode('no-verify')
 /**
@@ -179,6 +182,20 @@ function empIdList(value) {
 /** 第一次初始化時設為系統維護員的人（CSA_SEED_MAINTAINERS）；平常在「權限管理」頁維護。 */
 function extraAdmins() {
   return empIdList(config.CSA_SEED_MAINTAINERS)
+}
+
+/** The settings baked into the frontend at build time (VITE_*); base is the path the site is served from. */
+function frontendBuildEnv(base) {
+  return {
+    ...process.env,
+    VITE_BASE: base,
+    VITE_SUPABASE_URL: projectUrl,
+    VITE_SUPABASE_ANON_KEY: config.SUPABASE_ANON_KEY,
+    VITE_EXCHANGE_URL: `${projectUrl}/functions/v1/csa-exchange`,
+    VITE_DEV_LOGIN_URL: '',
+    VITE_CSA_ENV_LABEL: environment.badge,
+    VITE_SYNCHUB_URL: SYNCHUB_URL,
+  }
 }
 
 // ---- 步驟 ----
@@ -316,6 +333,7 @@ const steps = {
 
   async function() {
     step('Edge Function csa-exchange')
+    if (!siteOrigin) fail('function 需要 CSA_SITE_URL（或 CSA_VERCEL_PROJECT）：換證只回應這個網址的來源')
     // 匯入分派表的 OMS 比對要這把（Q133 (6)）。沒有時照樣部署（換證與其他修正不該被它擋下），也不寫空值，
     // 以免蓋掉 Supabase 上已經設好的那一把；只提醒。
     if (!config.OMS_CHANNEL_KEY) console.warn(`  ⚠ ${configFile} 沒有 OMS_CHANNEL_KEY：secrets 裡原本有就沿用，沒有的話匯入分派表會說「還沒設定 OMS 通道」`)
@@ -326,7 +344,7 @@ const steps = {
       `CSA_JWT_SECRET=${config.CSA_JWT_SECRET}`,
       'CSA_ACCESS_ALL=false',
       `CSA_TOKEN_TTL_SECONDS=${process.env.CSA_TOKEN_TTL_SECONDS || 3600}`,
-      `CSA_ALLOWED_ORIGINS=${siteOrigin}`,
+      `CSA_ALLOWED_ORIGINS=${allowedOrigins.join(',')}`,
       ...(config.OMS_CHANNEL_KEY ? [`OMS_CHANNEL_KEY=${config.OMS_CHANNEL_KEY}`] : []),
       `CSA_REQUIRE_OMS_AUTH=${config.CSA_REQUIRE_OMS_AUTH || 'false'}`,
     ].join('\n'))
@@ -343,20 +361,12 @@ const steps = {
   },
 
   async web() {
+    if (!vercelProject) fail('web 需要 CSA_VERCEL_PROJECT（前端託管的專案名稱，例如 csa-demo-test）；用 GitHub Pages 請改跑 pages')
     // The folder's name is the Vercel project's name: `vercel deploy --yes` in an unlinked folder links to (or, the
     // first time, creates) the project of that name.
     const outDir = join(mkdtempSync(join(tmpdir(), 'csa-web-')), vercelProject)
     step('build 前端')
-    const buildEnv = {
-      ...process.env,
-      VITE_BASE: '/',
-      VITE_SUPABASE_URL: projectUrl,
-      VITE_SUPABASE_ANON_KEY: config.SUPABASE_ANON_KEY,
-      VITE_EXCHANGE_URL: `${projectUrl}/functions/v1/csa-exchange`,
-      VITE_DEV_LOGIN_URL: '',
-      VITE_CSA_ENV_LABEL: environment.badge,
-      VITE_SYNCHUB_URL: SYNCHUB_URL,
-    }
+    const buildEnv = frontendBuildEnv('/')
     try {
       run('npx', ['vite', 'build', '--outDir', outDir, '--emptyOutDir'], buildEnv)
       // Files first, then every other path is the app, so deep links and reloads work.
@@ -379,6 +389,29 @@ ${r.stderr}`
     } finally {
       removeTemp(dirname(outDir))
     }
+  },
+
+  // GitHub Pages：只在本機 build 出一個可以直接發布的資料夾（<csa-deploy>/pages-<環境>/），不推送任何東西。
+  // 發布方式由你決定：把這個資料夾的內容推到 Pages 用的分支（例如 gh-pages），或交給 actions/deploy-pages。
+  //   base 路徑：CSA_PAGES_BASE，沒填就取 CSA_SITE_URL 的路徑（https://x.github.io/CSA → /CSA/；自訂網域 → /）
+  //   404.html：Pages 不認得前端路由，重新整理或直接開 /CSA/admin 會 404；把 index.html 複製成 404.html 讓前端接手
+  //   .nojekyll：關掉 Pages 的 Jekyll 處理；CNAME：CSA_CUSTOM_DOMAIN 有填才寫
+  async pages() {
+    if (!siteUrl) fail('pages 需要 CSA_SITE_URL（例如 https://<帳號>.github.io/CSA，或自訂網域 https://csa.example.com）')
+    const base = (config.CSA_PAGES_BASE || new URL(siteUrl).pathname).replace(/\/?$/, '/')
+    if (!base.startsWith('/')) fail(`CSA_PAGES_BASE 要以 / 開頭：${base}`)
+    const outDir = join(deployDir, `pages-${envName}`)
+    step(`build 前端（base ${base}）→ ${outDir}`)
+    rmSync(outDir, { recursive: true, force: true })
+    run('npx', ['vite', 'build', '--outDir', outDir, '--emptyOutDir'], frontendBuildEnv(base))
+    copyFileSync(join(outDir, 'index.html'), join(outDir, '404.html'))
+    writeFileSync(join(outDir, '.nojekyll'), '')
+    if (config.CSA_CUSTOM_DOMAIN) writeFileSync(join(outDir, 'CNAME'), `${config.CSA_CUSTOM_DOMAIN.trim()}
+`)
+    scanForSecrets(outDir)
+    console.log(`  可以發布了：${outDir}`)
+    console.log(`  網址：${siteUrl}`)
+    console.log(`  換證允許的來源：${allowedOrigins.join('、')}（要和這個網址一致；不一致請設 CSA_SITE_URL 或 CSA_EXTRA_ORIGINS 後跑 function）`)
   },
 
   async reset() {
