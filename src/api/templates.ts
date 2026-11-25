@@ -48,6 +48,8 @@ export interface ControlPointRow {
   /** 原檔題號; null: numbered by the page within its card (domain/outline, Q125). */
   code: string | null
   text: string
+  /** 反向題目 (Q148): 執行情形「是」, not 「否」, asks for 改善措施／補充說明. */
+  is_reverse: boolean
   /** In answering order (#46); empty only on 要素類 (Q83(3)). */
   control_point_unit: ControlPointUnitRow[]
 }
@@ -68,7 +70,7 @@ export interface TemplateTree extends TemplateSummary {
 }
 
 const SUMMARY = 'id,code,name,layout,component,status,all_plants,in_use,control_point_count,content_fingerprint,updated_at,updated_by,updated_by_name,template_plant(factory_code)'
-const TREE = `${SUMMARY},template_section(id,position,level,code,name,control_point(id,position,code,text,control_point_unit(position,assessing_unit_id,assessing_unit(name))))`
+const TREE = `${SUMMARY},template_section(id,position,level,code,name,control_point(id,position,code,text,is_reverse,control_point_unit(position,assessing_unit_id,assessing_unit(name))))`
 
 export async function fetchTemplates(): Promise<TemplateSummary[]> {
   const { data, error } = await supabase.from('questionnaire_template').select(SUMMARY).order('code').returns<TemplateSummary[]>()
@@ -165,20 +167,39 @@ export interface ControlPointInput {
   text: string
   /** In answering order; at least one for 控制活動類, any number for 要素類 (enforced by the database, #46). */
   assessing_unit_ids: string[]
+  /** 反向題目 (Q148). */
+  is_reverse: boolean
 }
 
 /** Appended after the last control point of the section, with its 自評單位, in one transaction. */
 export function createControlPoint(sectionId: string, input: ControlPointInput) {
   return check(
-    supabase.rpc('create_control_point', { p_section_id: sectionId, p_text: input.text, p_unit_ids: input.assessing_unit_ids, p_code: input.code }),
+    supabase.rpc('create_control_point', {
+      p_section_id: sectionId,
+      p_text: input.text,
+      p_unit_ids: input.assessing_unit_ids,
+      p_code: input.code,
+      p_is_reverse: input.is_reverse,
+    }),
   )
 }
 
 /** Text and 自評單位 together, in one transaction; the units are replaced as a whole, in the given order. */
 export function updateControlPoint(id: string, input: ControlPointInput) {
   return check(
-    supabase.rpc('update_control_point', { p_control_point_id: id, p_text: input.text, p_unit_ids: input.assessing_unit_ids, p_code: input.code }),
+    supabase.rpc('update_control_point', {
+      p_control_point_id: id,
+      p_text: input.text,
+      p_unit_ids: input.assessing_unit_ids,
+      p_code: input.code,
+      p_is_reverse: input.is_reverse,
+    }),
   )
+}
+
+/** 範本管理's 反向題目 tick box (Q148): only that, nothing else of the control point. */
+export function setControlPointReverse(id: string, isReverse: boolean) {
+  return check(supabase.rpc('set_control_point_reverse', { p_control_point_id: id, p_is_reverse: isReverse }))
 }
 
 export function deleteControlPoint(id: string) {

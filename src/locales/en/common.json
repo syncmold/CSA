@@ -190,6 +190,10 @@
     "deleteControlPointConfirm": "Delete this control point?",
     "chooseUnit": "Choose an assessing unit",
     "elementUnitHint": "Optional outside control activities, and there may be several; to have one self-checker answer it, give every control point of the template the same assessing unit.",
+    "reverse": "Reverse question",
+    "reverseTag": "Reverse",
+    "reverseHint": "The question is worded in the negative, so No is the good answer. When ticked, answering Yes needs improvement actions or remarks, and No does not.",
+    "reverseLabel": "{{section}}: mark question {{number}} as a reverse question",
     "units": {
       "title": "Assessing units",
       "hint": "Shared across the group and unrelated to OMS departments; control points pick their assessing unit from here (required under control activities, optional for the other components).",

@@ -1,5 +1,5 @@
 import { ArrowDownOutlined, ArrowUpOutlined, HolderOutlined, PlusOutlined } from '@ant-design/icons'
-import { Alert, Button, Divider, Flex, Form, Input, Modal, Radio, Select, Space, Switch, Typography } from 'antd'
+import { Alert, Button, Checkbox, Divider, Flex, Form, Input, Modal, Radio, Select, Space, Switch, Typography } from 'antd'
 import type { Rule } from 'antd/es/form'
 import type { TFunction } from 'i18next'
 import { useState, type ReactNode } from 'react'
@@ -296,8 +296,10 @@ export function ControlPointModal({
   return (
     <FormModal<ControlPointInput>
       title={t(initial ? 'templates.editControlPoint' : 'templates.addControlPoint')}
-      initialValues={initial ?? { code: null, text: '', assessing_unit_ids: [] }}
-      onSave={(v) => onSave({ code: codeOf(v.code), text: v.text.trim(), assessing_unit_ids: v.assessing_unit_ids ?? [] })}
+      initialValues={initial ?? { code: null, text: '', assessing_unit_ids: [], is_reverse: false }}
+      onSave={(v) =>
+        onSave({ code: codeOf(v.code), text: v.text.trim(), assessing_unit_ids: v.assessing_unit_ids ?? [], is_reverse: v.is_reverse ?? false })
+      }
       onClose={onClose}
       testId="control-point-modal"
     >
@@ -314,6 +316,10 @@ export function ControlPointModal({
         extra={required ? t('templates.unitsOrderHint') : `${t('templates.elementUnitHint')}${t('templates.unitsOrderHint')}`}
       >
         <UnitList names={new Map((units.data ?? []).map((u) => [u.id, u.name]))} loading={units.isPending} />
+      </Form.Item>
+      {/* Q148: the same setting as 範本管理's 反向題目 column. */}
+      <Form.Item name="is_reverse" valuePropName="checked" extra={t('templates.reverseHint')} style={{ marginBottom: 0 }}>
+        <Checkbox data-testid="control-point-reverse">{t('templates.reverse')}</Checkbox>
       </Form.Item>
     </FormModal>
   )

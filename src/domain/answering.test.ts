@@ -41,6 +41,7 @@ const point = (id: string, position: number, units: string[]) => ({
   position,
   code: null,
   text: `第 ${position} 題`,
+  is_reverse: false,
   assessment_control_point_unit: units.map((assessing_unit_name, i) => ({ position: i + 1, assessing_unit_name, assessment_answer: null })),
 })
 const section = (position: number, points: ReturnType<typeof point>[]) => ({

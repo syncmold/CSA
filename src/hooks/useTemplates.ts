@@ -11,6 +11,7 @@ import {
   updateSection,
   reorderControlPoints,
   reorderSections,
+  setControlPointReverse,
   updateControlPoint,
   updateTemplateHeader,
   type SectionInput,
@@ -77,6 +78,7 @@ export function useTemplateEditing(templateId: string) {
     }, [tree]),
     createControlPoint: useWrite(createControlPoint, [tree]),
     updateControlPoint: useWrite(updateControlPoint, [tree]),
+    setControlPointReverse: useWrite(setControlPointReverse, [tree]),
     deleteControlPoint: useWrite(deleteControlPoint, [tree]),
     reorderControlPoints: useWrite((sectionId: string, ids: string[]) => {
       showOrder((t) => ({

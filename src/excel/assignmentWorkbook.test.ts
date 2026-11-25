@@ -84,4 +84,39 @@ describe('assignmentWorkbook', () => {
     expect(cells.filter((c) => c.open).map((c) => c.ref).sort()).toEqual(['C4', 'D4', 'E5', 'F4', 'F5'])
     expect(cells.filter((c) => c.row <= 3 || /^[AB]\d/.test(c.ref)).every((c) => !c.open)).toBe(true)
   })
+
+  it('boxes every cell of the header and the rows, the ones under a merged header too', async () => {
+    const read = await unzipped()
+    const styles = read('xl/styles.xml')
+    const borders = [...styles.match(/<borders[^>]*>(.*)<\/borders>/)![1]!.matchAll(/<border>.*?<\/border>/g)].map((m) => m[0])
+    const xfs = [...styles.match(/<cellXfs[^>]*>(.*)<\/cellXfs>/)![1]!.matchAll(/<xf [^>]*>/g)].map((m) => m[0])
+    const boxed = (s: string) => {
+      const border = borders[Number(/borderId="(\d+)"/.exec(xfs[Number(s)]!)?.[1] ?? 0)]!
+      return ['left', 'right', 'top', 'bottom'].every((side) => border.includes(`<${side} style="thin">`))
+    }
+    const sheet = read('xl/worksheets/sheet1.xml')
+    const cells = [...sheet.matchAll(/<c r="([A-Z]+)(\d+)"(?: s="(\d+)")?/g)].map(([, col, row, s]) => ({ ref: `${col}${row}`, row: Number(row), s: s ?? '0' }))
+    // Rows 2-3 (the header, A3, B3 and F3 under merges) and the rows of 工號, A to F.
+    const below = cells.filter((c) => c.row >= 2)
+    expect(below.map((c) => c.ref)).toEqual(expect.arrayContaining(['A3', 'B3', 'D2', 'F3']))
+    expect(below.filter((c) => !boxed(c.s)).map((c) => c.ref)).toEqual([])
+  })
+
+  it('widens a column so its 關卡, and its 自評單位 over all its columns, show on one line', async () => {
+    const form: AssignmentForm = {
+      ...FORMS[0]!,
+      assessment_step: [
+        step('a', 1, '自行檢查人員－業務單位', '業務單位', null), step('b', 2, '部門主管－業務單位', '業務單位', null),
+        step('c', 3, '自行檢查人員－中央消防暨工業安全處', '中央消防暨工業安全處', null),
+        step('d', 4, '廠區經理人', null, null), step('e', 5, '子公司擔當稽核', null, null),
+      ],
+    }
+    const sheet = assignmentSheet({ factoryCode: 'SY', plantName: '台北總公司' }, 2026, [formSheetEntry(form)], new Date(2026, 10, 25))
+    const files = unzipSync(new Uint8Array(await (await assignmentWorkbook(sheet)).arrayBuffer()))
+    const cols = strFromU8(files['xl/worksheets/sheet1.xml']!).match(/<cols>(.*)<\/cols>/)![1]!
+    const widths = [...cols.matchAll(/<col min="(\d+)"[^>]*width="(\d+)"/g)].map(([, , w]) => Number(w)).slice(2)
+    // 自行檢查人員 15 (6 CJK characters), 部門主管 keeps 13; 中央消防暨工業安全處 (10) is wider than its one column's
+    // 15, so that column takes 23; 廠區經理人 keeps 13; 子公司擔當稽核 (7) 17.
+    expect(widths).toEqual([15, 13, 23, 13, 17])
+  })
 })

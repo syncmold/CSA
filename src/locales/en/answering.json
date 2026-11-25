@@ -59,7 +59,9 @@
     "unanswered": "Not fully answered",
     "improvement_required": "Improvement actions are required when No, Not documented, Needs improvement or Dissatisfied is ticked",
     "explanation_required": "An explanation is required for \"except for the following\"",
-    "remark_required": "Remarks are required when No, Needs improvement or Dissatisfied is ticked"
+    "remark_required": "Remarks are required when No, Needs improvement or Dissatisfied is ticked",
+    "improvement_required_reverse": "On a reverse question, improvement actions are required when Yes, Not documented, Needs improvement or Dissatisfied is ticked",
+    "remark_required_reverse": "On a reverse question, remarks are required when Yes, Needs improvement or Dissatisfied is ticked"
   },
   "errors": {
     "forbidden": "You are not allowed to change this (the assessment may have moved on); please reload",

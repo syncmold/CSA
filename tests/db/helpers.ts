@@ -407,6 +407,7 @@ export async function withSuperuser<T>(run: (sql: pg.Client) => Promise<T>): Pro
  *  28000 audit_link_sync（連動關卡的發起帶入與換人同步，#190）
  *  29000 people_lookup（用工號查人與姓名的保密規則，#218）
  *  30000 e2e/assign-before-launch（發出前分派到發出後換人的完整流程，#223）
+ *  31000 reverse_question（反向題目，#233）
  *  99000 records（自評表紀錄，#164）：首頁只留「最新年度」，所以要是全庫最大的年度，放在最上面
- * 新測試檔請挑一個沒人用的 1000 年區間（下一個是 31000），並補進上表。
+ * 新測試檔請挑一個沒人用的 1000 年區間（下一個是 32000），並補進上表。
  */

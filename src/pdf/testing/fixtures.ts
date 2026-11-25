@@ -17,6 +17,7 @@ export function point(id: string, position: number, text: string, units: [string
     position,
     code: null,
     text,
+    is_reverse: false,
     assessment_control_point_unit: units.map(([assessing_unit_name, assessment_answer], i) => ({ position: i + 1, assessing_unit_name, assessment_answer })),
   }
 }

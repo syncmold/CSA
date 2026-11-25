@@ -17,13 +17,44 @@ import {
 } from '../domain/assignmentSheet'
 import { saveBlob } from './saveBlob'
 
-const COLOR = { header: '#E7E2F6', title: '#F3F0FB', titleText: '#5A3CAC', grey: '#D9D9D9', greyText: '#8A8A8A', empty: '#FFFBE6', manager: '#F6F3FD' }
+const COLOR = {
+  header: '#E7E2F6', title: '#F3F0FB', titleText: '#5A3CAC', grey: '#D9D9D9', greyText: '#8A8A8A', empty: '#FFFBE6', manager: '#F6F3FD', line: '#A6A6A6',
+}
+
+/**
+ * Every cell of the header and the rows is boxed (使用者 2026-11-25: without lines between the columns a 關卡 was
+ * left out). The cells a merged header covers stay null: write-excel-file gives them the merge's style, lines too.
+ */
+const BOXED: Partial<CellObject> = { borderStyle: 'thin', borderColor: COLOR.line }
 
 /** A 工號 cell: text format (so 00123 stays 00123) and, through the feature below, unlocked. Only these use format @. */
-const idCell = (value: string, backgroundColor?: string): Cell => ({ type: String, format: '@', value: value || undefined, backgroundColor })
+const idCell = (value: string, backgroundColor?: string): Cell => ({ type: String, format: '@', value: value || undefined, backgroundColor, ...BOXED })
+/** A header cell; `wrap` only in case a name still outgrows the width columnWidths gives it. */
 const header = (value: string, extra: Partial<CellObject> = {}): Cell => ({
-  value, fontWeight: 'bold', backgroundColor: COLOR.header, align: 'center', alignVertical: 'center', ...extra,
+  value, fontWeight: 'bold', backgroundColor: COLOR.header, align: 'center', alignVertical: 'center', wrap: true, ...BOXED, ...extra,
 })
+
+/** Excel's column width (in characters) that shows `text` on one line: a CJK character takes about two, plus a margin. */
+const fitWidth = (text: string) => [...text].reduce((w, ch) => w + (/[\u2E80-\uFFEF]/.test(ch) ? 2 : 1), 0) + 3
+/** The width a 關卡 column always had. */
+const STEP_MIN_WIDTH = 13
+
+/**
+ * The 關卡 columns' widths, so every header shows on one line (使用者 2026-11-25: 子公司擔當稽核 was cut): each at least
+ * STEP_MIN_WIDTH and wide enough for its 關卡 name; a 自評單位 whose name is wider than its columns together widens its
+ * last one. Wrapping is no way out there: Excel does not grow a row for a merged cell.
+ */
+function columnWidths(columns: AssignmentSheet['layout']['columns']): number[] {
+  const widths = columns.map((c) => Math.max(STEP_MIN_WIDTH, fitWidth(c.step)))
+  columns.forEach((column, i) => {
+    if (column.unit === null || columns[i + 1]?.unit === column.unit) return
+    let first = i
+    while (first > 0 && columns[first - 1]!.unit === column.unit) first--
+    const short = fitWidth(column.unit) - widths.slice(first, i + 1).reduce((a, b) => a + b, 0)
+    if (short > 0) widths[i]! += short
+  })
+  return widths
+}
 
 function mainSheet(sheet: AssignmentSheet): SheetData {
   const { columns } = sheet.layout
@@ -48,10 +79,10 @@ function mainSheet(sheet: AssignmentSheet): SheetData {
     steps.push(header(column.step, { fontWeight: undefined }))
   })
   const rows = sheet.rows.map((row) => [
-    { value: row.code } as Cell,
-    { value: row.name } as Cell,
+    { value: row.code, ...BOXED } as Cell,
+    { value: row.name, ...BOXED } as Cell,
     ...row.cells.map((value, i): Cell => {
-      if (value === null) return { value: NOT_HERE, backgroundColor: COLOR.grey, textColor: COLOR.greyText, align: 'center' }
+      if (value === null) return { value: NOT_HERE, backgroundColor: COLOR.grey, textColor: COLOR.greyText, align: 'center', ...BOXED }
       return idCell(value, columns[i]!.unit === null ? COLOR.manager : COLOR.empty)
     }),
   ])
@@ -121,7 +152,7 @@ export function assignmentWorkbook(sheet: AssignmentSheet): Promise<Blob> {
       {
         sheet: SHEET_NAMES.main,
         data: mainSheet(sheet),
-        columns: [{ width: 14 }, { width: 30 }, ...sheet.layout.columns.map(() => ({ width: 13 }))],
+        columns: [{ width: 14 }, { width: 30 }, ...columnWidths(sheet.layout.columns).map((width) => ({ width }))],
         stickyRowsCount: HEADER_ROWS,
         stickyColumnsCount: 2,
       },

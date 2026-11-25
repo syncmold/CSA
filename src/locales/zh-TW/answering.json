@@ -69,7 +69,9 @@
     "unanswered": "未作答完整",
     "improvement_required": "勾選「否」「無內控規範」「需要加強」或「不滿意」時須填改善措施",
     "explanation_required": "選「除下列事項外」時須填說明",
-    "remark_required": "勾選「否」「需要加強」或「不滿意」時須填補充說明"
+    "remark_required": "勾選「否」「需要加強」或「不滿意」時須填補充說明",
+    "improvement_required_reverse": "反向題勾選「是」「無內控規範」「需要加強」或「不滿意」時須填改善措施",
+    "remark_required_reverse": "反向題勾選「是」「需要加強」或「不滿意」時須填補充說明"
   },
   "errors": {
     "forbidden": "你沒有權限修改這些內容（可能已輪到下一關），請重新整理",

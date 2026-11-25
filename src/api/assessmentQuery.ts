@@ -5,7 +5,7 @@ export const ASSESSMENT_TREE =
   'id,template_code,template_name,template_layout,status,current_step_position,my_current_steps,can_approve,' +
   'plant(factory_code,name),annual_cycle(year,due_date),' +
   'assessment_section(id,position,level,code,name,' +
-  'assessment_control_point(id,position,code,text,' +
+  'assessment_control_point(id,position,code,text,is_reverse,' +
   'assessment_control_point_unit(position,assessing_unit_name,assessment_answer(design,execution,satisfaction,improvement)))),' +
   'assessment_step(id,position,name,step_group,signer_emp_id,editable_unit_name,branch_unit_name,state),' +
   'assessment_conclusion(assessing_unit_name,conclusion,exceptions)'

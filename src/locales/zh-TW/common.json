@@ -190,6 +190,10 @@
     "deleteControlPointConfirm": "刪除這個控制要點？",
     "chooseUnit": "選擇自評單位",
     "elementUnitHint": "控制作業以外的組成要素可以不指定，也可以指定多個；要交給某個自行檢查人員作答，整份控制要點就指定同一個自評單位。",
+    "reverse": "反向題目",
+    "reverseTag": "反向題",
+    "reverseHint": "題目帶否定語意，答「否」才是好的。勾選後，評估結果答「是」要填改善措施或補充說明，答「否」不用填。",
+    "reverseLabel": "{{section}} 第 {{number}} 題設為反向題目",
     "units": {
       "title": "自評單位清單",
       "hint": "集團共用，與 OMS 部門無關；控制要點從這裡選擇自評單位（控制作業必填，其他組成要素選填）。",

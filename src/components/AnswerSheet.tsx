@@ -26,7 +26,8 @@ import { cardNumber, cardTitle, isSubheading, numberColumnWidth, outline, outlin
 import { advanceMessageKey, myAnswerStep } from '../domain/signoff'
 import { useAnswering } from '../hooks/useAnswering'
 import { holdReloadsWhile } from '../loadChunk'
-import { CARD_HEADER_STYLE, CARD_STYLE, INK, palette, POINT_TEXT_STYLE, SHEET, subheadingNameStyle, subheadingStyle, textSize } from '../theme'
+import { PointText } from './PointText'
+import { CARD_HEADER_STYLE, CARD_STYLE, INK, palette, SHEET, subheadingNameStyle, subheadingStyle, textSize } from '../theme'
 
 type Notify = ReturnType<typeof message.useMessage>[0]
 
@@ -172,6 +173,11 @@ export function AnswerSheet({ assessment: a, notify }: { assessment: AssessmentV
   )
   const codedPoints = useMemo(
     () => new Set(a.assessment_section.flatMap((s) => s.assessment_control_point.filter((p) => p.code).map((p) => p.id))),
+    [a.assessment_section],
+  )
+  // 反向題 (Q148): their 送出 messages name 「是」 where the others name 「否」.
+  const reversePoints = useMemo(
+    () => new Set(a.assessment_section.flatMap((s) => s.assessment_control_point.filter((p) => p.is_reverse).map((p) => p.id))),
     [a.assessment_section],
   )
   // What the database has now. The editable unit's inputs start from it once; the other units' rows keep showing it,
@@ -331,13 +337,16 @@ export function AnswerSheet({ assessment: a, notify }: { assessment: AssessmentV
 
   const index = indexViolations(violations)
   const ruleText = useCallback(
-    // 要素類 calls the free-text column 補充說明, not 改善措施.
-    (rule: ViolationRule) => t(rule === 'improvement_required' && !isControlActivity ? 'rules.remark_required' : `rules.${rule}`),
+    (rule: ViolationRule, isReverse = false) => {
+      if (rule !== 'improvement_required') return t(`rules.${rule}`)
+      // 要素類 calls the free-text column 補充說明, not 改善措施; a 反向題 asks for it on 「是」 (Q148).
+      return t(`rules.${isControlActivity ? 'improvement_required' : 'remark_required'}${isReverse ? '_reverse' : ''}`)
+    },
     [t, isControlActivity],
   )
   const violationPointText = (v: Extract<Violation, { kind: 'control_point' }>) => {
     const label = pointLabels.get(v.control_point_id)
-    const rule = ruleText(v.rule)
+    const rule = ruleText(v.rule, reversePoints.has(v.control_point_id))
     if (label && codedPoints.has(v.control_point_id)) return t('violationPointCode', { position: label.number, rule })
     return t('violationPoint', { section: label?.section ?? v.section_position, position: label?.number ?? v.position, rule })
   }
@@ -385,7 +394,7 @@ export function AnswerSheet({ assessment: a, notify }: { assessment: AssessmentV
           )}
           {brokenRules(r)?.map((rule) => (
             <Typography.Text key={rule} type="danger" data-testid="answer-violation">
-              {ruleText(rule)}
+              {ruleText(rule, r.point.is_reverse)}
             </Typography.Text>
           ))}
         </Flex>
@@ -445,7 +454,13 @@ export function AnswerSheet({ assessment: a, notify }: { assessment: AssessmentV
         onCell: (r) => ({ rowSpan: r.span, style: CARD_START }),
         render: (_, r) => numberOf(r),
       },
-      { title: tc('assessments.controlPoint'), key: 'text', ...merged, render: (_, r) => <span style={POINT_TEXT_STYLE}>{r.point.text}</span> },
+      {
+        title: tc('assessments.controlPoint'),
+        key: 'text',
+        ...merged,
+        // 「反向題」 after the text (Q148), as in 範本管理; nothing else on the row changes.
+        render: (_, r) => <PointText text={r.point.text} isReverse={r.point.is_reverse} />,
+      },
       // A line before 自評單位 too, so a long control point's text does not run into the unit name (2026-11-11).
       ...(withUnitColumn
         ? [edgeBefore({ title: tc('assessments.assessingUnit'), key: 'unit', width: 88, ...unitCell, render: (_: unknown, r: AnswerRow) => r.unit ?? '—' })]

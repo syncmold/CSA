@@ -27,6 +27,8 @@ export interface AssessmentControlPoint {
   /** 原檔題號, frozen at launch; null: numbered by the page (domain/outline, Q125). */
   code: string | null
   text: string
+  /** 反向題目, frozen at launch (Q148): 執行情形「是」, not 「否」, asks for 改善措施／補充說明. */
+  is_reverse: boolean
   /** In answering order; empty for a 要素類 control point nobody answers (Q83(3)). */
   assessment_control_point_unit: AssessmentPointUnit[]
 }

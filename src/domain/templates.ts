@@ -168,6 +168,12 @@ export function shownSections(sections: readonly TemplateSectionRow[]): ShownSec
     level: s.level,
     code: s.code,
     name: s.name,
-    points: s.control_point.map((p) => ({ id: p.id, code: p.code, text: p.text, units: p.control_point_unit.map((u) => u.assessing_unit.name) })),
+    points: s.control_point.map((p) => ({
+      id: p.id,
+      code: p.code,
+      text: p.text,
+      is_reverse: p.is_reverse,
+      units: p.control_point_unit.map((u) => u.assessing_unit.name),
+    })),
   }))
 }

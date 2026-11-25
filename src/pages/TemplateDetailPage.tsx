@@ -1,7 +1,7 @@
 import { HolderOutlined } from '@ant-design/icons'
-import { Alert, Breadcrumb, Button, Card, Flex, Popconfirm, Spin, Table, Tooltip, Typography } from 'antd'
+import { Alert, Breadcrumb, Button, Card, Checkbox, Flex, Popconfirm, Spin, Table, Tooltip, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { useState, type HTMLAttributes } from 'react'
+import { useEffect, useState, type HTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import type { ControlPointRow, TemplateSectionRow, TemplateTree } from '../api/templates'
@@ -12,6 +12,7 @@ import type { InfoItem } from '../components/InfoStrip'
 import { LastModifiedLine } from '../components/LastModified'
 import { NextLaunchNote } from '../components/NextLaunchNote'
 import { PageHeader } from '../components/PageHeader'
+import { PointText } from '../components/PointText'
 import { ControlPointModal, SectionModal, TemplateHeaderModal } from '../components/TemplateEditModals'
 import { TemplateStatusTag, TemplateUsageTag } from '../components/TemplateStatusTag'
 import { greyHandle, useDragReorder } from '../components/useDragReorder'
@@ -43,7 +44,7 @@ import { useSettingsRights } from '../hooks/useMyAuditRole'
 import { usePlants } from '../hooks/usePlants'
 import { useTemplateEditing, useTemplateTree } from '../hooks/useTemplates'
 import { NO_WRAP } from '../components/tableColumns'
-import { CARD_BODY_STYLE, CARD_STYLE, LINK_BUTTON, NOTE_BOX, palette, POINT_TEXT_STYLE, subheadingNameStyle, subheadingStyle, TABLE_MIN_WIDTH, textSize } from '../theme'
+import { CARD_BODY_STYLE, CARD_STYLE, LINK_BUTTON, NOTE_BOX, palette, subheadingNameStyle, subheadingStyle, TABLE_MIN_WIDTH, textSize } from '../theme'
 
 type Dialog =
   | { kind: 'header' }
@@ -179,6 +180,7 @@ export function TemplateDetailPage({ editing: editPage = false }: { editing?: bo
                   onDelete={() => withToast(edit.deleteSection.run(part.section.id))}
                   onAddPoint={() => setDialog({ kind: 'addPoint', section: part.section })}
                   onEditPoint={(point) => setDialog({ kind: 'editPoint', point })}
+                  onToggleReverse={(point, isReverse) => withToast(edit.setControlPointReverse.run(point.id, isReverse))}
                   onDeletePoint={(point) => withToast(edit.deleteControlPoint.run(point.id))}
                   onReorderPoints={(ids) => void withToast(edit.reorderControlPoints.run(part.section.id, ids))}
                 />
@@ -289,7 +291,12 @@ function DialogFor({
       return (
         <ControlPointModal
           layout={tpl.layout}
-          initial={{ code: dialog.point.code, text: dialog.point.text, assessing_unit_ids: dialog.point.control_point_unit.map((u) => u.assessing_unit_id) }}
+          initial={{
+            code: dialog.point.code,
+            text: dialog.point.text,
+            assessing_unit_ids: dialog.point.control_point_unit.map((u) => u.assessing_unit_id),
+            is_reverse: dialog.point.is_reverse,
+          }}
           onSave={(input) => edit.updateControlPoint.run(dialog.point.id, input)}
           onClose={onClose}
         />
@@ -342,7 +349,7 @@ function TemplateCard({ card }: { card: OutlineCard<ShownSection> }) {
       key: 'text',
       // A 分段列's name runs over the 自評單位 column; a 第三層's sits further in.
       onCell: (row) => (isSubheading(row) ? { colSpan: 2, style: subheadingNameStyle(row.subheading.level) } : merged(row)),
-      render: (_: unknown, row) => (isSubheading(row) ? row.subheading.section.name : <span style={POINT_TEXT_STYLE}>{row.point.text}</span>),
+      render: (_: unknown, row) => (isSubheading(row) ? row.subheading.section.name : <PointText text={row.point.text} isReverse={row.point.is_reverse} />),
     },
     // Both layouts: 要素類 may carry 自評單位 too (Q83(3), #46).
     {
@@ -393,6 +400,7 @@ function SectionCard({
   onDelete,
   onAddPoint,
   onEditPoint,
+  onToggleReverse,
   onDeletePoint,
   onReorderPoints,
 }: {
@@ -408,6 +416,8 @@ function SectionCard({
   onDelete: () => void
   onAddPoint: () => void
   onEditPoint: (point: ControlPointRow) => void
+  /** 反向題目's tick box (Q148): saved at once, as dragging is; resolves false when the write was refused. */
+  onToggleReverse: (point: ControlPointRow, isReverse: boolean) => Promise<boolean>
   onDeletePoint: (point: ControlPointRow) => void
   onReorderPoints: (ids: string[]) => void
 }) {
@@ -419,6 +429,7 @@ function SectionCard({
     onReorderPoints,
   )
   const merged = { onCell: mergedCell(section.control_point.at(-1)?.id) }
+  const reverse = useReverseTicks(section.control_point, onToggleReverse)
 
   const columns: ColumnsType<UnitRow<ControlPointRow>> = [
     {
@@ -430,9 +441,30 @@ function SectionCard({
       ),
     },
     { title: '#', key: 'number', width: numberColumnWidth(numbers.values(), 50), align: 'right', ...merged, render: (_: unknown, row) => numbers.get(row.point.id) },
-    { title: t('templates.controlPoint'), key: 'text', ...merged, render: (_: unknown, row) => <span style={POINT_TEXT_STYLE}>{row.point.text}</span> },
+    {
+      title: t('templates.controlPoint'),
+      key: 'text',
+      ...merged,
+      render: (_: unknown, row) => <PointText text={row.point.text} isReverse={row.point.is_reverse} />,
+    },
     // Both layouts: 要素類 may carry 自評單位 too (Q83(3), #46).
     { title: t('templates.assessingUnit'), key: 'unit', ...NO_WRAP, render: (_: unknown, row) => row.unit ?? '—' },
+    {
+      key: 'reverse',
+      title: t('templates.reverse'),
+      width: 96,
+      align: 'center',
+      ...merged,
+      render: (_: unknown, row) => (
+        <Checkbox
+          checked={reverse.checked(row.point)}
+          disabled={reverse.saving(row.point)}
+          onChange={(e) => reverse.toggle(row.point, e.target.checked)}
+          aria-label={t('templates.reverseLabel', { section: section.name, number: numbers.get(row.point.id) })}
+          data-testid="reverse-checkbox"
+        />
+      ),
+    },
     {
       key: 'actions',
       title: t('templates.units.actions'),
@@ -523,4 +555,34 @@ function SectionCard({
       )}
     </Card>
   )
+}
+
+/**
+ * 反向題目's tick boxes (Q148): a tick shows at once and the box waits until the template read back has it (or the write
+ * was refused, which puts it back), so a second click never sends the value the page has not caught up with yet.
+ */
+function useReverseTicks(points: readonly ControlPointRow[], save: (point: ControlPointRow, isReverse: boolean) => Promise<boolean>) {
+  const [wanted, setWanted] = useState<ReadonlyMap<string, boolean>>(new Map())
+  const drop = (id: string) =>
+    setWanted((m) => {
+      const next = new Map(m)
+      next.delete(id)
+      return next
+    })
+  // Done once the data agrees; a point that is gone needs no tick either.
+  useEffect(() => {
+    const now = new Map(points.map((p) => [p.id, p.is_reverse]))
+    setWanted((m) => {
+      const left = [...m].filter(([id, value]) => now.has(id) && now.get(id) !== value)
+      return left.length === m.size ? m : new Map(left)
+    })
+  }, [points])
+  return {
+    checked: (p: ControlPointRow) => wanted.get(p.id) ?? p.is_reverse,
+    saving: (p: ControlPointRow) => wanted.has(p.id),
+    toggle: (p: ControlPointRow, isReverse: boolean) => {
+      setWanted((m) => new Map(m).set(p.id, isReverse))
+      void save(p, isReverse).then((ok) => ok || drop(p.id))
+    },
+  }
 }

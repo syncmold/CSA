@@ -153,6 +153,8 @@ export interface ShownPoint {
   /** 原檔題號; null: numbered by the page within its card. */
   code: string | null
   text: string
+  /** 反向題目 (Q148). */
+  is_reverse: boolean
   /** The 自評單位 in answering order; empty on 要素類 without any. */
   units: string[]
 }
