@@ -172,28 +172,6 @@ describe('changeText', () => {
     const several = row({ action: 'audit_admin_replaced', before: { emp_id: 'FQ0050', name: '何欣怡', others: [{ emp_id: 'SY0001', name: null }] }, after: 'audit_admin' })
     expect(changeText(several, t, PLANTS).after).toBe('access:log.adminReplaced(何欣怡（FQ0050）、SY0001)')
   })
-
-  it('words 分派, 換人 and 從缺 by the 自評表 and 關卡, naming whom a 換人 replaced', () => {
-    const where = { year: 2026, plant: 'FQ', template: 'FQ-01.1', step: '部門主管－業務單位', branch: '業務單位' }
-    const place = 'access:log.step(2026|FQ-01.1|FQ 福清富群|業務單位・部門主管)'
-    expect(changeText(row({ action: 'step_assigned', after: where }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.step_assigned', before: '', after: place })
-    expect(changeText(row({ action: 'step_vacated', after: where }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.step_vacated', before: '', after: place })
-    expect(changeText(row({ action: 'step_carried', after: { year: 2026, plant: 'FQ', steps: 12 } }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.step_carried', before: '', after: 'access:log.carried(2026|FQ 福清富群|12)' })
-    expect(changeText(row({ action: 'step_reassigned', before: { emp_id: 'FQ4007', name: '蔡宛儒' }, after: where }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.step_reassigned', before: '', after: `access:log.reassigned(${place}|蔡宛儒（FQ4007）)` })
-  })
-
-  it('says which route and 關卡 a 分派 before the launch was on, without a 年度 (Q147)', () => {
-    const onRoute = { plant: 'FQ', template: 'FQ-01.1', step: '部門主管', branch: '財務部' }
-    const routePlace = 'access:log.routeStep(FQ-01.1|FQ 福清富群|財務部・部門主管)'
-    expect(changeText(row({ action: 'route_step_assigned', after: onRoute }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.route_step_assigned', before: '', after: routePlace })
-    expect(changeText(row({ action: 'route_step_reassigned', before: { emp_id: 'FQ4007', name: '蔡宛儒' }, after: onRoute }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.route_step_reassigned', before: '', after: `access:log.reassigned(${routePlace}|蔡宛儒（FQ4007）)` })
-  })
 })
 
 describe('filterLog', () => {
@@ -227,13 +205,6 @@ describe('filterLog', () => {
     expect(filterLog([replaced], { query: '陳大文', action: 'audit_admin_replaced' }).map((r) => r.id)).toEqual([6])
   })
 
-  it('finds a 換人 by the person replaced too', () => {
-    const reassigned: ChangeLogRow = {
-      id: 5, changed_at: '', actor_emp_id: 'FQ0050', actor_name: '何欣怡', target_emp_id: 'FQ3019', target_name: '謝承恩',
-      action: 'step_reassigned', before: { emp_id: 'FQ4007', name: '蔡宛儒' }, after: { year: 2026, plant: 'FQ', template: 'FQ-01.1', step: '關卡', branch: null },
-    }
-    expect(filterLog([reassigned], { query: '蔡宛儒', action: null }).map((r) => r.id)).toEqual([5])
-  })
 })
 
 describe('exportablePlants', () => {

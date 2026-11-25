@@ -128,24 +128,14 @@
       "note": "Note",
       "coordinator_assigned": "Became plant coordinator",
       "coordinator_replaced": "Took over as plant coordinator",
-      "coordinator_removed": "Stepped down as plant coordinator",
-      "step_assigned": "Assigned",
-      "step_reassigned": "Reassigned",
-      "step_vacated": "Vacant",
-      "step_carried": "Carried over",
-      "route_step_assigned": "Assigned on route",
-      "route_step_reassigned": "Replaced on route"
+      "coordinator_removed": "Stepped down as plant coordinator"
     },
     "search": "Search person or operator",
     "allActions": "All actions",
     "limit": "Latest {{count}}",
     "replaced": "{{plant}} (replacing {{previous}})",
-    "footnote": "The log can only grow: nobody can change or delete it. Replacing a plant coordinator or the audit administrator and reassigning a step each leave one row, on the person taking over, with the predecessor in its content.",
-    "step": "{{year}} {{template}} × {{plant}}: {{step}}",
-    "reassigned": "{{where}} (previously {{previous}})",
-    "carried": "{{year}} × {{plant}}: {{steps}} steps",
-    "adminReplaced": "Replaced: {{previous}}, now a user",
-    "routeStep": "{{template}} × {{plant}} approval route: {{step}}"
+    "footnote": "The log can only grow: nobody can change or delete it. Replacing a plant coordinator or the audit administrator leaves one row, on the person taking over, with the predecessor in its content.",
+    "adminReplaced": "Replaced: {{previous}}, now a user"
   },
   "source": {
     "added": "Added {{at}} · {{by}}"

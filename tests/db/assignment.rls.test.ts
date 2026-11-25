@@ -6,7 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { selectTracking, type TrackingRow } from '../../src/api/trackingQuery'
 import type { LaunchCheck } from '../../src/api/approvalRoutes'
-import { admin, depsFor, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
+import { admin, depsFor, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
 
 const RUN = `A${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -80,10 +80,6 @@ async function trackingRow(assessmentId: string): Promise<TrackingRow | undefine
   return (ok(await selectTracking(chief, YEAR)) as TrackingRow[]).find((r) => r.assessment_id === assessmentId)
 }
 
-async function logOf(target: string) {
-  const rows = ok(await chief.from('access_change_log').select('actor_emp_id,target_emp_id,target_name,action,before,after').eq('target_emp_id', target).order('id'))
-  return rows as { actor_emp_id: string; target_name: string | null; action: string; before: Record<string, unknown> | null; after: Record<string, unknown> }[]
-}
 
 /** 這支測試的廠區的待辦列。 */
 async function todoOf(client: SupabaseClient) {
@@ -197,23 +193,14 @@ describe('發出前在流程上分派（Q147）', () => {
     expect(await todoOf(chief)).toEqual([])
   })
 
-  it('廠區管理員在流程上分派、換人，記進權限異動紀錄（哪個範本哪一關、給誰）', async () => {
+  it('廠區管理員在流程上分派、換人；權限異動紀錄只記人員異動，不記分派（Q149）', async () => {
     const checker = await routeStepNamed(ID.main!, `自行檢查人員－${UNITS.sales}`)
     ok(await assignRoute(owner, checker.id, EMP.replacement, '接手的人'))
     ok(await assignRoute(owner, checker.id, EMP.sales, '業務'))
-    expect((await routeStepNamed(ID.main!, checker.name)).signer_emp_id).toBe(EMP.sales)
-    const where = { plant: FACTORY.mine, template: `${RUN}M`, step: checker.name, branch: UNITS.sales }
-    expect(await logOf(EMP.replacement)).toEqual([
-      expect.objectContaining({ actor_emp_id: EMP.owner, target_name: '接手的人', action: 'route_step_assigned', before: null, after: where }),
-    ])
-    expect(await logOf(EMP.sales)).toEqual([
-      expect.objectContaining({
-        actor_emp_id: EMP.owner, target_name: '業務', action: 'route_step_reassigned', before: { emp_id: EMP.replacement, name: null }, after: where,
-      }),
-    ])
-    // 改前的姓名取 CSA 存的（接手的人沒登入過，所以是空的，同 assign_step_signer）。換成同一個人什麼都不做，也不留紀錄。
     ok(await assignRoute(owner, checker.id, EMP.sales))
-    expect(await logOf(EMP.sales)).toHaveLength(1)
+    expect((await routeStepNamed(ID.main!, checker.name)).signer_emp_id).toBe(EMP.sales)
+    expect(await loggedActions(EMP.replacement)).toEqual([])
+    expect(await loggedActions(EMP.sales)).toEqual([])
   })
 
   it('別廠的廠區管理員、一般使用者不能分派；稽核主管可以；連動關卡與空白拒絕', async () => {
@@ -297,25 +284,18 @@ describe('發出後只有稽核主管換人（Q147）', () => {
     }))
   })
 
-  it('換人寫進權限異動紀錄（前一人寫在改前），也寫回流程，明年發出沿用', async () => {
-    const reassigned = (await logOf(EMP.replacement)).filter((r) => r.action === 'step_reassigned')
-    expect(reassigned).toEqual([expect.objectContaining({
-      actor_emp_id: EMP.chief, target_name: '接手的人',
-      before: { emp_id: EMP.newcomer, name: '蔡宛儒' },
-      after: { year: YEAR, plant: FACTORY.mine, template: `${RUN}M`, step: `自行檢查人員－${UNITS.quality}`, branch: UNITS.quality },
-    })])
+  it('換人寫回流程，明年發出沿用；不記權限異動紀錄（Q149）', async () => {
+    expect(await loggedActions(EMP.replacement)).toEqual([])
     expect((await routeStepNamed(ID.main!, `自行檢查人員－${UNITS.quality}`)).signer_emp_id).toBe(EMP.replacement)
     // 其他關卡不動。
     expect((await routeStepNamed(ID.main!, `部門主管－${UNITS.quality}`)).signer_emp_id).toBe(EMP.salesManager)
   })
 
-  it('換成同一個人不留紀錄，只把流程對齊回表上的人；連動關卡不能換', async () => {
+  it('換成同一個人只把流程對齊回表上的人；連動關卡不能換', async () => {
     const step = await stepNamed(ID.mainForm!, `自行檢查人員－${UNITS.quality}`)
-    const count = (await logOf(EMP.replacement)).length
     const onRoute = await routeStepNamed(ID.main!, step.name)
     ok(await assignRoute(owner, onRoute.id, EMP.sales)) // 流程後來又換過
     ok(await assign(chief, step.id, EMP.replacement))
-    expect(await logOf(EMP.replacement)).toHaveLength(count)
     expect((await routeStepNamed(ID.main!, step.name)).signer_emp_id).toBe(EMP.replacement)
     const audit = await stepNamed(ID.mainForm!, '稽核主管')
     expect((await assign(chief, audit.id, EMP.sales)).error).toMatchObject({ code: '23514', hint: 'linked_step' })
@@ -481,7 +461,6 @@ describe('Q147 前發出、還有關卡待分派的舊自評表：稽核主管�
     expect((await stepNamed(ID.auditedForm!, '子公司擔當稽核')).signer_emp_id).toBe(EMP.subsidiaryAuditor)
     expect(await admitted(EMP.subsidiaryAuditor)).toBe(true)
     expect(await todoOf(chief)).toEqual([])
-    const log = (await logOf(EMP.subsidiaryAuditor)).filter((r) => r.action === 'step_assigned')
-    expect(log).toEqual([expect.objectContaining({ actor_emp_id: EMP.chief, before: null })])
+    expect(await loggedActions(EMP.subsidiaryAuditor)).toEqual([])
   })
 })

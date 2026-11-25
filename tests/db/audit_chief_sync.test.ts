@@ -102,20 +102,10 @@ describe('換稽核主管（20261205000000）', () => {
     expect(await routeSigner(ID.first!, 'taipei_auditor')).toBe(EMP.auditor)
   })
 
-  it('每一關在新的人身上記一筆換人，前一位寫在內容裡；接任稽核主管照記', async ({ skip }) => {
+  it('只記接任稽核主管；關卡跟著換不記（Q149）', async ({ skip }) => {
     if (!db) skip()
-    const rows = (await db!.query(`select actor_emp_id, action, before, after from public.access_change_log where target_emp_id = $1 order by id`, [EMP.next])).rows
-    expect(rows.map((r) => r.action).sort()).toEqual(['audit_admin_replaced', 'step_reassigned', 'step_reassigned'])
-    // 依自評表 id 的順序記，與範本編號無關。
-    const steps = rows.filter((r) => r.action === 'step_reassigned').sort((x, y) => x.after.template.localeCompare(y.after.template))
-    expect(steps).toEqual(
-      ['T-01', 'T-02'].map((template) => ({
-        actor_emp_id: EMP.maint,
-        action: 'step_reassigned',
-        before: { emp_id: EMP.routeChief, name: '流程上的人' },
-        after: { year: 2030, plant: 'P1', template, step: '稽核主管', branch: null },
-      })),
-    )
+    const rows = (await db!.query(`select action from public.access_change_log where target_emp_id = $1 order by id`, [EMP.next])).rows
+    expect(rows.map((r) => r.action)).toEqual(['audit_admin_replaced'])
   })
 
   it('流程跟著換不算修改流程：最後修改時間不變', async ({ skip }) => {

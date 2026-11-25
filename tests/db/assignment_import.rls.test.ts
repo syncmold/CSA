@@ -1,12 +1,10 @@
 // 資料 API 接縫: 匯入分派表（工單 #180、#224；Q130、Q147 (6)）。can_assign_plant 是 CSA 後端擋 OMS 比對的依據（這一廠的廠區管理員
 // 與稽核主管，發出前在流程上分派也看它）。發出後：import_assignment 逐格走 assign_step_signer，所以權限（只有稽核主管）、已簽不能換、
-// 異動紀錄、寫回流程都和逐格換人相同；剛簽的跳過，其他拒絕整批不寫。發出前（下次發出）：import_route_assignment 逐格走
-// assign_route_signer，這一廠的廠區管理員與稽核主管都能寫，每一關記一筆異動紀錄，有一格被拒就整批不寫。
+// 寫回流程、不記權限異動紀錄（Q149）都和逐格換人相同；剛簽的跳過，其他拒絕整批不寫。發出前（下次發出）：import_route_assignment
+// 逐格走 assign_route_signer，這一廠的廠區管理員與稽核主管都能寫，有一格被拒就整批不寫。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import {
-  admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest, restClient,
-} from './helpers'
+import { admin, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest, restClient } from './helpers'
 
 const RUN = `I${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -108,14 +106,13 @@ describe('can_assign_plant：誰能為這一廠要 OMS 比對', () => {
 })
 
 describe('import_assignment：確認匯入（發出後換人）', () => {
-  it('稽核主管一次換好幾格，和逐格換人一樣記進異動紀錄，也寫回流程', async () => {
+  it('稽核主管一次換好幾格，和逐格換人一樣寫回流程，不記權限異動紀錄（Q149）', async () => {
     const [manager, financeChief] = await Promise.all([stepNamed('廠區經理人'), stepNamed(`部門主管－${UNITS.finance}`)])
     expect(ok(await chief.rpc('import_assignment', { p_cells: [cell(manager, EMP.replacement), cell(financeChief, EMP.finance)] })))
       .toEqual({ written: 2, skipped: 0 })
     expect((await stepNamed('廠區經理人')).signer_emp_id).toBe(EMP.replacement)
     expect((await stepNamed(financeChief.name)).signer_emp_id).toBe(EMP.finance)
-    const log = ok(await chief.from('access_change_log').select('actor_emp_id,action').eq('target_emp_id', EMP.replacement)) as { actor_emp_id: string; action: string }[]
-    expect(log).toEqual([{ actor_emp_id: EMP.chief, action: 'step_reassigned' }])
+    expect(await loggedActions(EMP.replacement)).toEqual([])
     const route = ok(await admin.from('route_step').select('name,signer_emp_id,approval_route!inner(template_id)').eq('approval_route.template_id', ID.template!).eq('name', '廠區經理人').single())
     expect(route).toMatchObject({ signer_emp_id: EMP.replacement })
   })
@@ -161,12 +158,7 @@ describe('import_route_assignment：確認匯入到簽核流程（下次發出�
   const routeStep = async (name: string) =>
     (ok(await admin.from('route_step').select('id,name,signer_emp_id').eq('route_id', ID.route!)) as RouteStep[]).find((s) => s.name === name)!
   const routeCell = (step: RouteStep, empId: string) => ({ route_step_id: step.id, emp_id: empId })
-  const logOf = async (target: string) =>
-    ok(await chief.from('access_change_log').select('actor_emp_id,action,after').eq('target_emp_id', target).order('id')) as {
-      actor_emp_id: string; action: string; after: Record<string, string | null>
-    }[]
-
-  it('這一廠的廠區管理員一次寫好幾關到流程，每一關記一筆流程換人；已發出的自評表不動', async () => {
+  it('這一廠的廠區管理員一次寫好幾關到流程，不記權限異動紀錄（Q149）；已發出的自評表不動', async () => {
     const [selfCheck, manager] = await Promise.all([routeStep(`自行檢查人員－${UNITS.finance}`), routeStep('廠區經理人')])
     const formBefore = await stepNamed('廠區經理人')
     expect(ok(await owner.rpc('import_route_assignment', { p_cells: [routeCell(selfCheck, EMP.routeSelf), routeCell(manager, EMP.routeManager)] })))
@@ -175,18 +167,16 @@ describe('import_route_assignment：確認匯入到簽核流程（下次發出�
     expect((await routeStep('廠區經理人')).signer_emp_id).toBe(EMP.routeManager)
     // 已發出的自評表照舊：流程上的人下次發出才照抄（發出後換人只有稽核主管，上面那一節）。
     expect((await stepNamed('廠區經理人')).signer_emp_id).toBe(formBefore.signer_emp_id)
-    expect(await logOf(EMP.routeSelf)).toEqual([
-      { actor_emp_id: EMP.owner, action: 'route_step_reassigned', after: { plant: FACTORY.mine, template: `${RUN}M`, step: selfCheck.name, branch: UNITS.finance } },
-    ])
-    expect((await logOf(EMP.routeManager)).map((l) => l.action)).toEqual(['route_step_reassigned'])
+    expect(await loggedActions(EMP.routeSelf)).toEqual([])
+    expect(await loggedActions(EMP.routeManager)).toEqual([])
   })
 
-  it('稽核主管、系統維護員也能匯入；已經是這個人的那一關不再記一筆', async () => {
+  it('稽核主管、系統維護員也能匯入', async () => {
     const chiefStep = await routeStep(`部門主管－${UNITS.sales}`)
     expect(ok(await chief.rpc('import_route_assignment', { p_cells: [routeCell(chiefStep, EMP.routeChief)] }))).toEqual({ written: 1 })
     expect(ok(await maint.rpc('import_route_assignment', { p_cells: [routeCell(chiefStep, EMP.routeChief)] }))).toEqual({ written: 1 })
     expect((await routeStep(chiefStep.name)).signer_emp_id).toBe(EMP.routeChief)
-    expect((await logOf(EMP.routeChief)).map((l) => [l.actor_emp_id, l.action])).toEqual([[EMP.chief, 'route_step_reassigned']])
+    expect(await loggedActions(EMP.routeChief)).toEqual([])
   })
 
   it('別廠的廠區管理員、一般簽核人、沒登入的人被拒絕；有一格不能寫（連動關卡、空白）就整批不寫', async () => {

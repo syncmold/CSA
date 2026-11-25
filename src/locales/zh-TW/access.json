@@ -128,24 +128,14 @@
       "note": "備註",
       "coordinator_assigned": "指定為廠區管理員",
       "coordinator_replaced": "接任廠區管理員",
-      "coordinator_removed": "卸任廠區管理員",
-      "step_assigned": "分派",
-      "step_reassigned": "換人",
-      "step_vacated": "從缺",
-      "step_carried": "帶入去年",
-      "route_step_assigned": "流程分派",
-      "route_step_reassigned": "流程換人"
+      "coordinator_removed": "卸任廠區管理員"
     },
     "search": "搜尋對象或操作者",
     "allActions": "全部動作",
     "limit": "最近 {{count}} 筆",
     "replaced": "{{plant}}（前任：{{previous}}）",
-    "footnote": "紀錄只能新增，任何人都不能改或刪。更換廠區管理員、換稽核主管與換人只記一筆，在接手的人身上，前一位寫在內容裡。",
-    "step": "{{year}} {{template}} × {{plant}}：{{step}}",
-    "reassigned": "{{where}}（前一位：{{previous}}）",
-    "carried": "{{year}} × {{plant}}：共 {{steps}} 關",
-    "adminReplaced": "前任：{{previous}}，已降為一般使用者",
-    "routeStep": "{{template}} × {{plant}} 簽核流程：{{step}}"
+    "footnote": "紀錄只能新增，任何人都不能改或刪。更換廠區管理員與換稽核主管只記一筆，在接手的人身上，前一位寫在內容裡。",
+    "adminReplaced": "前任：{{previous}}，已降為一般使用者"
   },
   "source": {
     "added": "{{at}} 加入・{{by}}"

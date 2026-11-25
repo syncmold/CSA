@@ -382,6 +382,12 @@ export async function withSuperuser<T>(run: (sql: pg.Client) => Promise<T>): Pro
   }
 }
 
+/** 權限異動紀錄裡這個人的動作（依先後），以超級使用者讀、不受讀取規則影響，看得出到底有沒有寫進去（Q149）。 */
+export function loggedActions(target: string): Promise<string[]> {
+  return withSuperuser(async (sql) =>
+    (await sql.query('select action from public.access_change_log where target_emp_id = $1 order by id', [target])).rows.map((r) => r.action as string))
+}
+
 /*
  * 年度區間約定：annual_cycle.year 全庫唯一，各測試檔並行執行，afterAll 依年度刪除。每個會發起年度作業的檔
  * 各佔一個 1000 年的區間，隨機年度（含 YEAR + n 這類衍生年度）不得超出自己的區間；2000–2999 留給真實年度。

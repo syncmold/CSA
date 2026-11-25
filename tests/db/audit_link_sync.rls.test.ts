@@ -173,12 +173,9 @@ describe('換廠區管理員：還沒簽的台北稽核人員跟著換', () => {
     expect((await routeSigners(ID.t1Route!)).audit_chief).toBe(chiefBefore)
     expect(await updatedAt()).toBe(before)
 
+    // 權限異動紀錄只記人員異動：關卡跟著換不記（Q149）。
     const rows = await logSince(since, [EMP.staffA, EMP.staffB])
-    expect(rows.map((r) => [r.target_emp_id, r.action])).toEqual([[EMP.staffB, 'coordinator_replaced'], [EMP.staffB, 'step_reassigned']])
-    expect(rows[1]).toMatchObject({
-      before: { emp_id: EMP.staffA, name: '稽甲' },
-      after: { year: YEAR, plant: FACTORY.one, template: `${RUN}t1`, step: '台北稽核人員', branch: null },
-    })
+    expect(rows.map((r) => [r.target_emp_id, r.action])).toEqual([[EMP.staffB, 'coordinator_replaced']])
   })
 
   it('連動時流程上的台北稽核人員不能在流程裡改；計算欄位 linked_now 是真', async () => {
@@ -229,9 +226,7 @@ describe('廠區管理員在稽核人員與廠區端的人之間切換（#187 �
     expect((await linked(ID.t3Form!)).taipei_auditor!.signer_emp_id).toBe(EMP.plantSide)
     expect((await linked(ID.t2Form!)).taipei_auditor).toMatchObject({ signer_emp_id: EMP.staffA, state: 'done' })
     for (const route of [ID.t1Route!, ID.t2Route!, ID.t3Route!, ID.t5Route!]) expect((await routeSigners(route)).taipei_auditor).toBe(EMP.plantSide)
-    const rows = await logSince(since, [EMP.plantSide])
-    expect(rows.map((r) => r.action)).toEqual(['role', 'step_reassigned', 'step_reassigned'])
-    expect(rows.slice(1).map((r) => [r.before?.emp_id, r.after.plant]).sort()).toEqual([[EMP.staffB, FACTORY.one], [EMP.routeAuditor, FACTORY.two]].sort())
+    expect((await logSince(since, [EMP.plantSide])).map((r) => r.action)).toEqual(['role'])
   })
 
   it('稽核人員的角色被改掉、或卸任廠區管理員：保留原本的人', async () => {

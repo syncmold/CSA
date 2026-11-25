@@ -7,7 +7,7 @@ import { admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditA
 import { actAs, type Person } from './support/mainFlow'
 
 // 分派表匯入到簽核流程（Q147 (6)，#224），對真實的 Postgres＋PostgREST：廠區管理員在分派填寫人的「下次發出」下載本廠流程的
-// 分派表，填好工號再匯入 → 流程上的人寫好、每一關一筆異動紀錄、發起檢查通過；稽核主管在下次發出也能匯入。只有 OMS 比對
+// 分派表，填好工號再匯入 → 流程上的人寫好、發起檢查通過；稽核主管在下次發出也能匯入。只有 OMS 比對
 // （/csa/exchange/oms-match）在瀏覽器裡換成假的：每個工號都對得上。沒有發起年度，所以不用年度區間。
 
 const RUN = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.toUpperCase()
@@ -94,7 +94,7 @@ async function importSheet(page: Page, people: { self?: string; chief?: string; 
   await expect(page.getByTestId('assignment-imported')).toBeVisible()
 }
 
-test('廠區管理員下載下次發出的分派表、填好匯入：寫到流程，每一關一筆異動紀錄，發起檢查通過；稽核主管也能匯入換人', async ({ page }) => {
+test('廠區管理員下載下次發出的分派表、填好匯入：寫到流程，發起檢查通過；稽核主管也能匯入換人', async ({ page }) => {
   await fakeOmsMatch(page)
 
   await actAs(page, PEOPLE.coordinator)
@@ -109,9 +109,6 @@ test('廠區管理員下載下次發出的分派表、填好匯入：寫到流�
   })
   // 畫面跟著重新整理：這條流程分派好了。
   await expect(page.getByTestId(`assignment-form-${RUN}T`)).toContainText('已分派')
-  const log = ok(await chief.from('access_change_log').select('actor_emp_id,target_emp_id,action')
-    .in('target_emp_id', [PEOPLE.checker.empId, PEOPLE.manager.empId, PEOPLE.plantManager.empId]).order('id')) as { actor_emp_id: string; action: string }[]
-  expect(log.map((l) => [l.actor_emp_id, l.action])).toEqual(Array(3).fill([PEOPLE.coordinator.empId, 'route_step_assigned']))
   const route = ok(await chief.from('approval_route').select('launch_check').eq('id', ID.route!).single()) as { launch_check: { ready: boolean } }
   expect(route.launch_check.ready).toBe(true)
 

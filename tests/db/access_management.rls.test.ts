@@ -588,6 +588,20 @@ describe('權限異動紀錄', () => {
     expect((await restClient(async () => null).from('access_change_log').select('id')).error?.code).toBe('42501')
     expect((await admin.from('access_change_log').insert({ target_emp_id: EMP.outsider, action: 'added' })).error?.code).toBe('42501')
   })
+
+  it('is 人員異動 only: 分派 rows written before Q149 stay in the table but nobody reads them', async () => {
+    const shown = (await logOf(EMP.logged)).length
+    await withSuperuser((sql) => sql.query(
+      `insert into public.access_change_log (target_emp_id, action, after) values ($1, 'step_assigned', '{}'), ($1, 'route_step_reassigned', '{}')`,
+      [EMP.logged],
+    ))
+    expect((await logOf(EMP.logged)).length).toBe(shown)
+    const kept = await withSuperuser(async (sql) => (await sql.query(
+      `select count(*)::int as n from public.access_change_log where target_emp_id = $1 and action in ('step_assigned', 'route_step_reassigned')`,
+      [EMP.logged],
+    )).rows[0].n)
+    expect(kept).toBeGreaterThanOrEqual(2)
+  })
 })
 
 describe('最後登入', () => {

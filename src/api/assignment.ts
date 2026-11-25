@@ -169,7 +169,7 @@ export async function fetchMyPlants(empId: string): Promise<Plant[]> {
 
 /**
  * 分派 on the 簽核流程 before the forms go out (Q147): a 稽核主管 or the plant's 廠區管理員 sets or replaces a 關卡's 簽核人,
- * copied onto the 自評表 at the launch. `name` is the OMS name, for the 異動紀錄 of someone who has not logged in yet.
+ * copied onto the 自評表 at the launch. `name` (the OMS name) is no longer used: 分派 is not logged (Q149).
  */
 export function assignRouteStep(stepId: string, empId: string, name: string | null) {
   return check(supabase.rpc('assign_route_signer', { p_route_step_id: stepId, p_emp_id: empId, p_emp_name: name }))
@@ -177,7 +177,7 @@ export function assignRouteStep(stepId: string, empId: string, name: string | nu
 
 /**
  * Replaces the 簽核人 of an issued 自評表's 關卡 (Q147: only a 稽核主管 once the forms are out), and the route's too, for
- * next year; `name` is the OMS name, for the 異動紀錄 of someone who has not logged in yet.
+ * next year; `name` (the OMS name) is no longer used: 分派 is not logged (Q149).
  */
 export function assignStep(stepId: string, empId: string, name: string | null) {
   return check(supabase.rpc('assign_step_signer', { p_step_id: stepId, p_emp_id: empId, p_emp_name: name }))

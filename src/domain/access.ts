@@ -7,7 +7,6 @@ import { bringIn } from './people'
 import type { AccessMember, AccessSnapshot, AuditAdminChange, ChangeAction, ChangeLogRow, CoordinatorChange, RemovalImpactRow } from '../api/accessModel'
 import type { AuditRole } from '../api/employee'
 import type { Plant } from '../api/plants'
-import { stepLabel } from './signoff'
 import { writeErrorMessage } from './templates'
 
 /** The roles kept in employee_ref.audit_role, in the order the dialogs offer them (Q98 (2), Q122 (1), #187). */
@@ -123,10 +122,9 @@ export function accessWriteError(t: TFunction, error: unknown): string {
   return writeErrorMessage(t, error, { '23514': 'access:errors.lastAdmin', P0002: 'access:errors.notListed', '23503': 'access:errors.plant' })
 }
 
-/** Every action of the 權限異動紀錄, in the order its filter offers them. */
+/** Every action of the 權限異動紀錄, in the order its filter offers them: 人員異動 only, no 分派 (Q149). */
 export const CHANGE_ACTIONS: readonly ChangeAction[] = [
   'added', 'removed', 'role', 'audit_admin_replaced', 'viewer_plants', 'note', 'coordinator_assigned', 'coordinator_replaced', 'coordinator_removed',
-  'route_step_assigned', 'route_step_reassigned', 'step_assigned', 'step_reassigned', 'step_vacated', 'step_carried',
 ]
 
 /**
@@ -277,53 +275,18 @@ function snapshotText(s: AccessSnapshot, t: TFunction, plants: Plant[]): string 
   ].filter(Boolean).join('；')
 }
 
-/** Which 自評表 and 關卡 a 分派, 換人 or 從缺 was on (the 分流 is null after the 匯流). */
-interface StepChange {
-  year: number
-  plant: string
-  template: string
-  step: string
-  branch: string | null
-}
-
-/** Which 簽核流程 (範本 × 廠區) and 關卡 a 分派 before the launch was on (Q147): no 年度. */
-type RouteStepChange = Omit<StepChange, 'year'>
-
-/** 帶入去年 (before Q147) is one row per person and plant, however many 關卡 they were carried onto. */
-interface CarriedChange {
-  year: number
-  plant: string
-  steps: number
-}
-
 /**
- * On a 更換, a 換人 and a 換稽核主管 the row is the successor's, and the predecessor is in `before` (the 稽核主管 before the
+ * On a 更換 and a 換稽核主管 the row is the successor's, and the predecessor is in `before` (the 稽核主管 before the
  * 換稽核主管 may be several, where the database had more than one).
  */
 const predecessorOf = (r: ChangeLogRow) =>
-  r.action === 'coordinator_replaced' || r.action === 'step_reassigned' || r.action === 'route_step_reassigned' || r.action === 'audit_admin_replaced'
+  r.action === 'coordinator_replaced' || r.action === 'audit_admin_replaced'
     ? (r.before as AuditAdminChange)
     : null
 
-/** One 異動紀錄 row in words: 動作, 改前, 改後. 廠區負責人 changes name the plant (and, on 更換, the predecessor), 分派 and 換人 the 關卡. */
+/** One 異動紀錄 row in words: 動作, 改前, 改後. 廠區負責人 changes name the plant (and, on 更換, the predecessor). */
 export function changeText(row: ChangeLogRow, t: TFunction, plants: Plant[]): { action: string; before: string; after: string } {
   const action = t(`access:log.action.${row.action}`)
-  if (row.action === 'step_assigned' || row.action === 'step_reassigned' || row.action === 'step_vacated') {
-    const { year, plant, template, step, branch } = (row.after ?? row.before) as StepChange
-    const where = t('access:log.step', { year, template, plant: plantLabel(plant, plants), step: stepLabel({ name: step, branch_unit_name: branch }) })
-    const previous = predecessorOf(row)
-    return { action, before: '', after: previous ? t('access:log.reassigned', { where, previous: personLabel(previous.emp_id ?? '', previous.name) }) : where }
-  }
-  if (row.action === 'route_step_assigned' || row.action === 'route_step_reassigned') {
-    const { plant, template, step, branch } = row.after as RouteStepChange
-    const where = t('access:log.routeStep', { template, plant: plantLabel(plant, plants), step: stepLabel({ name: step, branch_unit_name: branch }) })
-    const previous = predecessorOf(row)
-    return { action, before: '', after: previous ? t('access:log.reassigned', { where, previous: personLabel(previous.emp_id ?? '', previous.name) }) : where }
-  }
-  if (row.action === 'step_carried') {
-    const { year, plant, steps } = row.after as CarriedChange
-    return { action, before: '', after: t('access:log.carried', { year, plant: plantLabel(plant, plants), steps }) }
-  }
   if (row.action === 'audit_admin_replaced') {
     const before = row.before as AuditAdminChange
     const previous = [before, ...(before.others ?? [])].map((p) => personLabel(p.emp_id ?? '', p.name)).join('、')

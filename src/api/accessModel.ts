@@ -25,8 +25,7 @@ export interface AccessMember {
 export type ChangeAction =
   | 'added' | 'removed' | 'role' | 'viewer_plants' | 'note'
   | 'coordinator_assigned' | 'coordinator_replaced' | 'coordinator_removed'
-  | 'step_assigned' | 'step_reassigned' | 'step_vacated' | 'step_carried' | 'audit_admin_replaced'
-  | 'route_step_assigned' | 'route_step_reassigned'
+  | 'audit_admin_replaced'
 
 /** A 廠區負責人 change, by 廠區代碼. 更換 is one row on the successor, whose `before` also names whom they replaced. */
 export interface CoordinatorChange {

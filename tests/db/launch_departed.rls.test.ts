@@ -5,7 +5,7 @@
 // 例子同 Q116 的 mockup：何欣怡是廠區管理員，許文彬是已離職的財務部門主管。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { admin, insertRow, loginAs, makeRoute, makeTemplate, migratedDb, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { admin, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, migratedDb, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
 
 const RUN = `C${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -134,9 +134,8 @@ describe('發出前的離職檢查（Q147 (4)）', () => {
     const issued = ok(await admin.from('assessment_step').select('name,branch_unit_name,signer_emp_id,vacated_emp_id').eq('assessment_id', ID.mainForm!).order('position'))
     expect(issued).toContainEqual({ name: '部門主管', branch_unit_name: UNITS.finance, signer_emp_id: EMP.newcomer, vacated_emp_id: null })
     expect(issued).toContainEqual({ name: '廠區經理人', branch_unit_name: null, signer_emp_id: EMP.salesManager, vacated_emp_id: null })
-    // 發出時不再記「帶入」「從缺」。
-    const log = ok(await chief.from('access_change_log').select('action').in('target_emp_id', [EMP.newcomer, EMP.departed]).in('action', ['step_carried', 'step_vacated']))
-    expect(log).toEqual([])
+    // 發出時不再記「帶入」「從缺」（Q147），分派類也都不記（Q149）。
+    expect([...await loggedActions(EMP.newcomer), ...await loggedActions(EMP.departed)]).toEqual([])
   })
 
   it('OMS 連不上（p_checked = false）照樣發出，回傳 checked = false；不給 p_checked 也當作沒查', async () => {

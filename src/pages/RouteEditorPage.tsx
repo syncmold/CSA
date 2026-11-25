@@ -98,8 +98,8 @@ export function RouteEditorPage({ editing: editPage = false }: { editing?: boole
         </span>
       )
     }
-    // Everyone else is 分派 on 分派填寫人 before the launch (Q147), the one place a 廠區管理員 assigns too, so every
-    // 分派 is in the 異動紀錄: here only who it is, or that nobody is yet and where to go.
+    // Everyone else is 分派 on 分派填寫人 before the launch (Q147), the one place a 廠區管理員 assigns too: here only
+    // who it is, or that nobody is yet and where to go.
     if (!empId) {
       return (
         <span data-testid="step-unassigned">
