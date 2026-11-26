@@ -3,16 +3,19 @@
 // 刪除；別廠、跨廠（適用廠區有任何一個不是他負責的）、全部廠區的範本只能看。自評單位只能新增。年度發起仍只有稽核主管。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, loginAsMaintainer } from './helpers'
 
 const RUN = `S${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = { chief: `${RUN}A`, staff: `${RUN}B`, plantSide: `${RUN}C`, bareStaff: `${RUN}D` }
+/** 系統維護員：只有他能放行人員、設定角色（Q150） */
+const MAINT = `${RUN}MT`
 const FACTORY = { mine: `${RUN}P1`, other: `${RUN}P2` }
 const UNIT = `${RUN}業務`
 const ID: Record<string, string> = {}
 const created: string[] = []
 
 let chief: SupabaseClient
+let maint: SupabaseClient
 let staff: SupabaseClient
 let plantSide: SupabaseClient
 let bareStaff: SupabaseClient
@@ -34,10 +37,11 @@ beforeAll(async () => {
   await promoteToAuditAdmin(EMP.chief)
   ok(await admin.from('access_allowlist').insert({ emp_id: EMP.chief }))
   chief = await loginAs(EMP.chief, '甲')
-  ok(await chief.rpc('add_access_members', {
+  maint = await loginAsMaintainer(MAINT, '維護員')
+  ok(await maint.rpc('add_access_members', {
     p_people: [{ emp_id: EMP.staff, name: '稽核' }, { emp_id: EMP.bareStaff, name: '沒廠' }], p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null,
   }))
-  ok(await chief.rpc('add_access_members', { p_people: [{ emp_id: EMP.plantSide, name: '廠端' }], p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
+  ok(await maint.rpc('add_access_members', { p_people: [{ emp_id: EMP.plantSide, name: '廠端' }], p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
 
   ID.company = (await insertRow('company', { name: `${RUN}公司` })).id
   for (const [key, c] of Object.entries(FACTORY)) {

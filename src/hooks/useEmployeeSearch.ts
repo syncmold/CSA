@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { AssessmentView } from '../api/assessments'
 import { plantFormPeople } from '../api/assignment'
 import { useAuth } from '../auth/AuthContext'
-import { fetchPeopleNames, lookUpPeople, type LookedUpPerson } from '../api/people'
+import { fetchPeopleNames, isListed, listedEmpIds, lookUpPeople, type LookedUpPerson, type OmsLookedUpPerson } from '../api/people'
 import { useDebounced } from './useDebounced'
 
 const FIVE_MINUTES = 5 * 60 * 1000
@@ -30,7 +30,10 @@ export function useLookUpPeople(factoryCode = '') {
     for (let i = 0; i < missing.length; i += LOOKUP_BATCH) {
       for (const person of await lookUpPeople(missing.slice(i, i + LOOKUP_BATCH), factoryCode || undefined)) client.setQueryData(key(person.asked), person)
     }
-    return ids.flatMap((id) => client.getQueryData<LookedUpPerson>(key(id)) ?? [])
+    const people = ids.flatMap((id) => client.getQueryData<OmsLookedUpPerson>(key(id)) ?? [])
+    // The 放行名單 is CSA's own and changes as the 系統維護員 lets people in: asked every time, never kept (Q150).
+    const listed = await listedEmpIds(people.map((p) => p.emp_id))
+    return people.map((person) => ({ ...person, listed: isListed(listed, person.emp_id) }))
   }
 }
 

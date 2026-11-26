@@ -4,9 +4,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { countMyPastClosed, selectEveryAssessmentOfMine, selectMyAssessments } from '../../src/api/myAssessmentsQuery'
 import { selectAssessmentRecords, selectRecordScope } from '../../src/api/recordsQuery'
-import {
-  admin, insertRow, launchAssigned, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest, restClient,
-} from './helpers'
+import { admin, insertRow, launchAssigned, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest, restClient, unlistPeople } from './helpers'
 
 const RUN = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = {
@@ -95,6 +93,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().in('year', [LAST_YEAR, YEAR])
   await admin.from('approval_route').delete().in('plant_id', [ID.plant1, ID.plant2].filter(Boolean))
   if (ID.template) await admin.from('questionnaire_template').delete().eq('id', ID.template)

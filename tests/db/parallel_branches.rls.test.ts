@@ -6,24 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ASSESSMENT_TREE } from '../../src/api/assessmentQuery'
-import {
-  launchAssigned,
-  admin,
-  beginAs,
-  directDb,
-  insertRow,
-  loginAs,
-  makeRoute,
-  makeTemplate,
-  ok,
-  planNodes,
-  promoteToAuditAdmin,
-  requirePostgrest,
-  restClient,
-  stillWaiting,
-  type PlanNode,
-  type RouteStepSpec,
-} from './helpers'
+import { launchAssigned, admin, beginAs, directDb, insertRow, loginAs, makeRoute, makeTemplate, ok, planNodes, promoteToAuditAdmin, requirePostgrest, restClient, stillWaiting, type PlanNode, type RouteStepSpec, unlistPeople } from './helpers'
 
 const RUN = `b${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = {
@@ -162,6 +145,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   for (const c of conns) await c.end().catch(() => {})
   await admin.from('annual_cycle').delete().gte('year', YEAR).lt('year', YEAR + 10)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant ?? '')

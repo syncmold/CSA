@@ -2,7 +2,7 @@
 // 送出、退回、核准到結案；發起後改流程不影響這張簽核中的自評表 (ADR-0004、Q86(5))。全部走真實 session。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { launchAssigned, admin, insertRow, loginAs, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, listPeople, unlistPeople } from './helpers'
 
 const RUN = `x${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { boss: `${RUN}A`, checker: `${RUN}B`, manager: `${RUN}C` }
@@ -15,6 +15,8 @@ let manager: SupabaseClient
 
 beforeAll(async () => {
   await requirePostgrest()
+  // 關卡上的人要先在放行名單上（Q150）
+  await listPeople(...Object.values(EMP))
   for (const e of Object.values(EMP)) await loginAs(e, e)
   await promoteToAuditAdmin(EMP.boss)
   boss = await loginAs(EMP.boss, '甲')
@@ -27,6 +29,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN)
   ok(await admin.from('annual_cycle').delete().eq('year', YEAR))
   ok(await admin.from('approval_route').delete().eq('plant_id', ID.plant))
   ok(await admin.from('questionnaire_template').delete().like('code', `${RUN}%`))

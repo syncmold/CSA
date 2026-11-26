@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { PickerRow } from '../../exchange/core'
 import { omsCouldNotAnswer } from '../api/people'
-import { bringIn, type Reminder } from '../domain/people'
+import { bringInToStep, type Reminder } from '../domain/people'
 import { formatSigner } from '../domain/signoff'
 import { COMPLETE_EMP_ID, useLookUpPeople, usePersonLookup, usePlantPeople } from '../hooks/useEmployeeSearch'
 import { textSize } from '../theme'
@@ -16,7 +16,7 @@ export type PickNote = Reminder | 'unchecked'
  * their complete 工號, asked of OMS through the CSA backend. No list of a plant's employees and no search of everyone by
  * name: OMS's channel has neither, and CSA's own list of names is not for browsing.
  *
- * Whoever is chosen is checked with OMS first (bringIn: 在職 only), so someone who left since last year is not assigned
+ * Whoever is chosen is checked with OMS first (bringInToStep: 在職 and on the 放行名單, Q150), so someone who left since last year is not assigned
  * again. When OMS itself cannot answer, someone already on this plant's forms is assigned all the same, and the page is
  * told so ('unchecked'). Choosing is the save; the page shows the person once the database has them. `open` starts it
  * unfolded, for 換人; `onClose` is told when it is left without choosing.
@@ -50,7 +50,7 @@ export function PlantEmployeeSelect({
   // still someone else's); each 工號 asked counts against OMS's daily limit.
   const onList = onForms.some((p) => p.emp_id.toUpperCase() === typed)
   const lookup = usePersonLookup(onList || !people.isFetched ? '' : term, factoryCode)
-  const verdict = lookup.person ? bringIn(lookup.person) : null
+  const verdict = lookup.person ? bringInToStep(lookup.person) : null
   const found = lookup.person && verdict?.ok ? { person: lookup.person, reminders: verdict.reminders } : null
 
   const options = [
@@ -74,7 +74,7 @@ export function PlantEmployeeSelect({
       // A 工號 on the plant's forms that cannot be asked about at all (not one OMS could hold) is assigned as it was.
       if (known && !COMPLETE_EMP_ID.test(empId.trim())) return unchecked()
       const [person] = await lookUp([empId])
-      const answer = bringIn(person)
+      const answer = bringInToStep(person)
       if (!answer.ok) return setRefused(t(`picker.refused.${answer.reason}`, { empId }))
       onPick({ emp_id: person!.emp_id, name: person!.name ?? known?.name ?? '', factory_code: person!.factory_code ?? '' }, answer.reminders)
     } catch (error) {

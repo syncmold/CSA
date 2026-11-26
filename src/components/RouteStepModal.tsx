@@ -2,7 +2,7 @@ import { Form, Input, Radio, Select, Spin, Typography } from 'antd'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ROUTE_LINKS, type NewStepInput, type RouteLink, type RouteStepRow, type StepGroup, type StepInput } from '../api/approvalRoutes'
-import { bringIn } from '../domain/people'
+import { bringInToStep } from '../domain/people'
 import { routeWriteError, signerLabel } from '../domain/routes'
 import { useEmployees, usePersonLookup } from '../hooks/useEmployeeSearch'
 import { FormModal } from './TemplateEditModals'
@@ -175,7 +175,7 @@ function SignerSelect({ id, value, onChange }: { id?: string; value?: string | n
   const [picked, setPicked] = useState<{ emp_id: string; name: string; factory_code: string | null } | null>(null)
 
   const person = found.person
-  const verdict = person ? bringIn(person) : null
+  const verdict = person ? bringInToStep(person) : null
   const pickable = person && verdict?.ok ? { emp_id: person.emp_id, name: person.name ?? person.emp_id, factory_code: person.factory_code } : null
   // Not enabled for CSA in OMS yet: can still be chosen (Q130 (4)), and the option says so.
   const options = pickable ? [{ value: pickable.emp_id, label: person!.csa ? signerLabel(pickable) : `${signerLabel(pickable)}　${t('lookup.noCsa')}` }] : []

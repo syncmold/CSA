@@ -4,7 +4,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ASSESSMENT_TREE } from '../../src/api/assessmentQuery'
-import { withCoordinators, launchAssigned, admin, borrowFq02, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, releaseFq02, requirePostgrest, restClient, type RouteStepSpec } from './helpers'
+import { withCoordinators, launchAssigned, admin, borrowFq02, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, releaseFq02, requirePostgrest, restClient, type RouteStepSpec, listPeople, unlistPeople } from './helpers'
 
 // 前綴與隨機尾巴：資料庫測試檔案並行執行，不能和 template.rls.test.ts 的工號撞在同一毫秒。
 const RUN = `a${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
@@ -144,6 +144,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   // 先刪年度作業（連帶自評表），再刪流程、範本、廠區、公司、自評單位
   await admin.from('annual_cycle').delete().in('year', [YEAR, YEAR + 1, YEAR + 2])
   await admin.from('approval_route').delete().in('plant_id', [ID.plant, ID.barePlant].filter(Boolean))
@@ -294,7 +295,8 @@ describe('自評表快照', () => {
     await admin.from('template_section').delete().eq('template_id', ID.template).eq('position', 2)
     await admin.from('questionnaire_template').update({ name: '改名後的範本' }).eq('id', ID.template)
     await admin.from('route_step').update({ name: '改名的關卡' }).eq('route_id', ID.routeT)
-    await admin.from('route_step').update({ signer_emp_id: EMP.outsider }).eq('route_id', ID.routeT).eq('step_group', 'audit_review')
+    await listPeople(EMP.outsider) // 換上的人要在放行名單上（Q150）
+    ok(await admin.from('route_step').update({ signer_emp_id: EMP.outsider }).eq('route_id', ID.routeT).eq('step_group', 'audit_review'))
 
     expect(await fetchTree(boss, tAssessmentId)).toEqual(before)
   })

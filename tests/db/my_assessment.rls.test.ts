@@ -3,7 +3,7 @@
 // 同一個檔案裡的測試依序執行：主要那一張（年度 YEAR、範本 a）從第 1 關一路簽、退回、換人到結案。
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { selectEveryAssessmentOfMine } from '../../src/api/myAssessmentsQuery'
-import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, ok, planNodes, promoteToAuditAdmin, requirePostgrest, withSuperuser, type PlanNode } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, ok, planNodes, promoteToAuditAdmin, requirePostgrest, withSuperuser, type PlanNode, listPeople, unlistPeople } from './helpers'
 
 const RUN = `m${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = {
@@ -78,6 +78,8 @@ async function approveAs(who: string, assessmentId: string) {
 
 beforeAll(async () => {
   await requirePostgrest()
+  // 關卡上的人要先在放行名單上（Q150）
+  await listPeople(...Object.values(EMP))
   for (const who of Object.values(EMP)) await as(who)
   await promoteToAuditAdmin(EMP.auditAdmin)
   await promoteToAuditAdmin(EMP.adminSigner)
@@ -107,6 +109,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN)
   await admin.from('annual_cycle').delete().in('year', [YEAR, YEAR + 1])
   await admin.from('approval_route').delete().eq('plant_id', ID.plant)
   for (const t of [ID.templateA, ID.templateB]) if (t) await admin.from('questionnaire_template').delete().eq('id', t)
@@ -278,7 +281,13 @@ describe('效能（#44）', () => {
         )
         const seeded = inserted.rows.map((r) => r.id)
         // 匯流後一條直線的關卡（沒有分流），每張停在第 1 + rn % STEPS 關、之前的已完成；停在第 3 關之後的結案。
-        // 關卡要在結案前建好（結案後不能再改關卡）
+        // 關卡要在結案前建好（結案後不能再改關卡）；關卡上的人要先在放行名單上（Q150），rollback 時一起還原
+        await sql.query(
+          `insert into access_allowlist (emp_id)
+           select upper($1) union select upper($2) || g from generate_series(1, $3::int) g
+           on conflict do nothing`,
+          [perfSigner, `${RUN}S`, STEPS],
+        )
         await sql.query(
           `insert into assessment_step (assessment_id, position, name, step_group, signer_emp_id, state)
            select a.id, g, '關卡' || g, 'plant', case when g = 1 and a.rn <= $2 then $3 else $4 || g end,

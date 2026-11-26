@@ -48,7 +48,7 @@ export function IdentityTag({ identity, testId, children }: { identity: Identity
 }
 
 /** What one 身分 may do with one feature: yes, no, or within a reach (Q117 (2)). */
-type Cell = 'yes' | 'no' | 'turn' | 'own' | 'viewPlants' | 'runPlants' | 'editRun'
+type Cell = 'yes' | 'no' | 'turn' | 'own' | 'viewPlants' | 'runPlants' | 'editRun' | 'readOnly'
 /** 方向 A (#127): a green tick, a grey dash, a reach in words: orange for one's own, blue for some plants. */
 const CELL_COLOR: Record<Cell, string> = {
   yes: INK.green.color,
@@ -58,6 +58,7 @@ const CELL_COLOR: Record<Cell, string> = {
   viewPlants: INK.blue.color,
   runPlants: INK.blue.color,
   editRun: INK.blue.color,
+  readOnly: INK.blue.color,
 }
 
 /** One row's cells, in IDENTITIES order: 一般使用者, 檢視者, 廠區管理員, 稽核人員, 稽核主管, 系統維護員. */
@@ -94,8 +95,11 @@ const MATRIX: { group: string; rows: { key: string; cells: Cells }[] }[] = [
       // 稽核人員 (Q144): sees every plant, changes only the plants he runs (and only adds to the 自評單位 list).
       ...['templates', 'flows'].map((key) => ({ key, cells: ['no', 'no', 'no', 'editRun', 'yes', 'yes'] as Cells })),
       { key: 'launch', cells: ['no', 'no', 'no', 'no', 'yes', 'yes'] },
-      { key: 'access', cells: ['no', 'no', 'no', 'no', 'yes', 'yes'] },
-      { key: 'accessAdmins', cells: ['no', 'no', 'no', 'no', 'no', 'yes'] },
+      { key: 'coordinators', cells: ['no', 'no', 'no', 'no', 'yes', 'yes'] },
+      // The 稽核主管 sees the people and the log but changes neither (Q150): a ✓ there read as before.
+      { key: 'access', cells: ['no', 'no', 'no', 'no', 'readOnly', 'yes'] },
+      // Letting people in and every role is the 系統維護員's alone (Q150).
+      { key: 'admit', cells: ['no', 'no', 'no', 'no', 'no', 'yes'] },
     ],
   },
 ]

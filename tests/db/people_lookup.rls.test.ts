@@ -53,10 +53,10 @@ beforeAll(async () => {
   ID.other = (await insertRow('plant', { factory_code: FACTORY.other, name: `${RUN}二廠`, company_id: ID.company })).id
   ID.unit = (await insertRow('assessing_unit', { name: UNIT })).id
 
-  ok(await clients.chief.rpc('add_access_members', {
+  ok(await clients.maint.rpc('add_access_members', {
     p_people: [{ emp_id: EMP.owner, name: '廠管' }, { emp_id: EMP.otherOwner, name: '別廠' }], p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
   }))
-  ok(await clients.chief.rpc('add_access_members', { p_people: [{ emp_id: EMP.staff, name: '稽核' }], p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null }))
+  ok(await clients.maint.rpc('add_access_members', { p_people: [{ emp_id: EMP.staff, name: '稽核' }], p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null }))
   ok(await clients.chief.rpc('set_plant_coordinator', { p_plant_id: ID.mine, p_emp_id: EMP.owner }))
   ok(await clients.chief.rpc('set_plant_coordinator', { p_plant_id: ID.other, p_emp_id: EMP.otherOwner }))
   for (const key of ['staff', 'owner', 'otherOwner'] as const) clients[key] = await loginAs(EMP[key], key)
@@ -112,6 +112,12 @@ describe('record_people：只有 CSA 後端能記姓名，而且只動姓名', (
   })
 
   it('沒見過的人新增一列（一般使用者、不進放行名單）；見過的人只改姓名，角色、廠區、放行都不動', async () => {
+    // 流程上的人（manager、routeOnly）排進關卡前就在放行名單上（Q150），路人不在；記姓名前後名單與異動紀錄都不變。
+    const people = [EMP.manager, EMP.routeOnly, EMP.staff, EMP.bystander]
+    const listedNow = async () => (ok(await admin.from('access_allowlist').select('emp_id').in('emp_id', people)) as { emp_id: string }[]).map((r) => r.emp_id).sort()
+    const loggedNow = async () => (ok(await admin.from('access_change_log').select('id').in('target_emp_id', people)) as unknown[]).length
+    const [listedBefore, loggedBefore] = [await listedNow(), await loggedNow()]
+    expect(listedBefore).not.toContain(EMP.bystander)
     ok(await admin.rpc('record_people', {
       p_people: [
         // 前後空白不算；同一個工號送兩次只記一次。
@@ -126,11 +132,9 @@ describe('record_people：只有 CSA 後端能記姓名，而且只動姓名', (
       [EMP.staff]: { name: '稽核（新名）', audit_role: 'audit_staff' },
       [EMP.bystander]: { name: '路人' }, // 空白姓名不蓋掉原本的
     })
-    const listed = ok(await admin.from('access_allowlist').select('emp_id').in('emp_id', [EMP.manager, EMP.routeOnly])) as unknown[]
-    expect(listed).toEqual([])
-    // 新的一列不進異動紀錄（不是放行名單上的人）。
-    const logged = ok(await admin.from('access_change_log').select('id').in('target_emp_id', [EMP.routeOnly]).in('action', ['added', 'role'])) as unknown[]
-    expect(logged).toEqual([])
+    expect(await listedNow()).toEqual(listedBefore)
+    // 記姓名不進異動紀錄。
+    expect(await loggedNow()).toBe(loggedBefore)
   })
 })
 

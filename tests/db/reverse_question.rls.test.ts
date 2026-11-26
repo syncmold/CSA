@@ -2,7 +2,7 @@
 // 每次執行建立自己的公司、廠區、自評單位、範本與簽核流程並發起自己的年度作業（31000 區間），結束時全部清掉。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { admin, insertRow, launchAssigned, linkedAuditSteps, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { admin, insertRow, launchAssigned, linkedAuditSteps, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, unlistPeople } from './helpers'
 
 const RUN = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { auditAdmin: `${RUN}A`, checker: `${RUN}B`, manager: `${RUN}C`, outsider: `${RUN}D` }
@@ -83,6 +83,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant)
   await admin.from('questionnaire_template').delete().in('id', [ID.templateC, ID.templateE].filter(Boolean))

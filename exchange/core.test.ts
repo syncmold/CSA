@@ -144,7 +144,7 @@ const accessWith = (systems: unknown, more: Partial<OmsAccess> = {}) => ({
   getAccess: async (): Promise<OmsAccess> => ({ emp_id: 'FQ0123', name: '王小明', factory_code: 'FQ', active: true, systems: systems as OmsAccess['systems'], ...more }),
 })
 
-describe('with CSA_REQUIRE_OMS_AUTH on, the CSA tick on the OMS 授權頁 decides who signs in (Q133 (2)(4))', () => {
+describe('with CSA_REQUIRE_OMS_AUTH on, the CSA tick on the OMS 授權頁 is needed besides the 放行名單 (Q133 (2)(4), Q150)', () => {
   it('refuses someone OMS has not ticked CSA for, on the 放行名單 or not, 全開 or not, and records nothing', async () => {
     for (const accessAll of [true, false]) {
       const { deps, recorded } = fakeDeps(accessWith(['OMS']), { csaRequired: true, accessAll }, ['FQ0123'])
@@ -153,14 +153,13 @@ describe('with CSA_REQUIRE_OMS_AUTH on, the CSA tick on the OMS 授權頁 decide
     }
   })
 
-  it('lets in someone OMS has ticked CSA for without asking the 放行名單, which only carries roles now', async () => {
-    const { deps, recorded } = fakeDeps(accessWith(['OMS', 'CSA']), { csaRequired: true, accessAll: false }, [])
-    deps.csa.isAdmitted = async () => {
-      throw new Error('must not be asked')
-    }
-    const result = await exchange('good-oms-token', deps)
-    expect(result).toMatchObject({ ok: true, csaEnabled: true })
-    expect(recorded).toEqual([{ emp_id: 'FQ0123', name: '王小明', factory_code: 'FQ' }])
+  it('lets in someone OMS has ticked CSA for only when they are on the 放行名單 too (Q150)', async () => {
+    const listed = fakeDeps(accessWith(['OMS', 'CSA']), { csaRequired: true, accessAll: false }, ['FQ0123'])
+    expect(await exchange('good-oms-token', listed.deps)).toMatchObject({ ok: true, csaEnabled: true })
+    expect(listed.recorded).toEqual([{ emp_id: 'FQ0123', name: '王小明', factory_code: 'FQ' }])
+    const unlisted = fakeDeps(accessWith(['OMS', 'CSA']), { csaRequired: true, accessAll: false }, [])
+    expect(await exchange('good-oms-token', unlisted.deps)).toEqual({ ok: false, status: 403, error: 'not_authorized' })
+    expect(unlisted.recorded).toEqual([])
   })
 
   it('reads the 系統代號 loosely (case, spaces, a list or one delimited text), and anything else is no tick, never an error', async () => {

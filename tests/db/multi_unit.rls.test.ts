@@ -2,7 +2,7 @@
 // CSA session 走 PostgREST；service_role 只用來準備與清理。每次執行建立自己的公司、廠區、範本與自評單位，結束時清掉。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { launchAssigned, admin, insertRow, linkedAuditSteps, loginAs, makeRoute, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { launchAssigned, admin, insertRow, linkedAuditSteps, loginAs, makeRoute, ok, promoteToAuditAdmin, requirePostgrest, unlistPeople } from './helpers'
 
 const RUN = `m${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { boss: `${RUN}A`, quality: `${RUN}Q`, production: `${RUN}P`, manager: `${RUN}M` }
@@ -26,6 +26,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().gte('year', 15000).lt('year', 16000)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant ?? '')
   if (createdTemplates.length) await admin.from('questionnaire_template').delete().in('id', createdTemplates)

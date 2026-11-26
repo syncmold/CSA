@@ -9,7 +9,7 @@ import {
   assignmentSheet,
   checkSheet,
   importPlan,
-  lacksCsa,
+  lacksCsa, unlisted,
   OTHER_PLANT_WARNING_SHARE,
   type FileClaim,
   type ImportPlan,
@@ -32,6 +32,8 @@ export interface ImportSummary {
   counts: Record<OmsStatus, number>
   /** People OMS has not let use CSA yet; written unless csaRequired (Q133 (4)). */
   noCsa: number
+  /** People not on the 放行名單: never written (Q150). */
+  notListed: number
   csaRequired: boolean
   bulkConfirmed: boolean
   /** Rows left out: 自評表 not issued yet (an import after they are writes them), or on 下次發出 範本 not issued here. */
@@ -184,7 +186,7 @@ function ImportReview({
       const { written, skipped } = await write.run(plan.writes)
       const notIssued = check.stop === null ? check.notIssued.length : 0
       onImported({
-        fileName: review.fileName, written, skipped, counts: plan.counts, noCsa: plan.noCsa, csaRequired: plan.csaRequired, bulkConfirmed: plan.bulkWarning, notIssued,
+        fileName: review.fileName, written, skipped, counts: plan.counts, noCsa: plan.noCsa, notListed: plan.notListed, csaRequired: plan.csaRequired, bulkConfirmed: plan.bulkWarning, notIssued,
         next: plant.next === true,
       })
     } catch (e) {
@@ -402,14 +404,14 @@ function NotIssuedBox({ rows, plant }: { rows: { row: number; label: string }[];
   )
 }
 
-type Filter = 'all' | OmsStatus | 'no_csa'
+type Filter = 'all' | OmsStatus | 'no_csa' | 'not_listed'
 const STATUS_INK: Record<OmsStatus, Ink> = { matched: 'green', not_found: 'red', other_plant: 'orange', departed: 'red', on_leave: 'red', transferred: 'red' }
 /** Always offered as a filter; the others only when someone has them. */
 const ALWAYS: readonly Filter[] = ['all', 'matched', 'not_found', 'other_plant', 'departed']
-const SOMETIMES: readonly Filter[] = ['on_leave', 'transferred', 'no_csa']
+const SOMETIMES: readonly Filter[] = ['on_leave', 'transferred', 'no_csa', 'not_listed']
 
 /** 對得上 and allowed into CSA: nothing to point out, so they are only counted in 「其餘 N 人」. */
-const nothingToPointOut = (p: OmsAnswer) => p.status === 'matched' && p.csa
+const nothingToPointOut = (p: OmsAnswer) => p.status === 'matched' && p.csa && p.listed !== false
 
 /** A small coloured label: a status, or 未開通 CSA. */
 function Tag({ ink, children }: { ink: Ink; children: ReactNode }) {
@@ -429,13 +431,14 @@ function People({ plan, plant, confirmed, onConfirm }: { plan: ImportPlan; plant
   const total = plan.people.length
   const simple = plan.people.filter(nothingToPointOut).length
   const noCsaInk: Ink = plan.csaRequired ? 'red' : 'orange'
-  const countOf = (key: Filter) => (key === 'all' ? total : key === 'no_csa' ? plan.noCsa : plan.counts[key])
-  const shows = (p: OmsAnswer) => filter === 'all' || (filter === 'no_csa' ? lacksCsa(p) : filter === p.status)
+  const countOf = (key: Filter) => (key === 'all' ? total : key === 'no_csa' ? plan.noCsa : key === 'not_listed' ? plan.notListed : plan.counts[key])
+  const shows = (p: OmsAnswer) =>
+    filter === 'all' || (filter === 'no_csa' ? lacksCsa(p) : filter === 'not_listed' ? unlisted(p) : filter === p.status)
   const listed = plan.people.filter((p) => !nothingToPointOut(p) && shows(p))
   const rows = [
-    ...listed.map((p) => ({ key: p.empId, status: p.status, noCsa: lacksCsa(p), empId: p.empId, cells: t('sheet.people.cells', { count: p.cells }) })),
+    ...listed.map((p) => ({ key: p.empId, status: p.status, noCsa: lacksCsa(p), notListed: unlisted(p), empId: p.empId, cells: t('sheet.people.cells', { count: p.cells }) })),
     ...((filter === 'all' || filter === 'matched') && simple
-      ? [{ key: '', status: 'matched' as const, noCsa: false, empId: t('sheet.people.rest', { count: simple }), cells: '' }]
+      ? [{ key: '', status: 'matched' as const, noCsa: false, notListed: false, empId: t('sheet.people.rest', { count: simple }), cells: '' }]
       : []),
   ]
   return (
@@ -460,7 +463,7 @@ function People({ plan, plant, confirmed, onConfirm }: { plan: ImportPlan; plant
       <Flex wrap gap={8} role="group" aria-label={t('sheet.people.filter')}>
         {[...ALWAYS, ...SOMETIMES.filter((key) => countOf(key) > 0)].map((key) => {
           const on = filter === key
-          const ink = key === 'all' ? null : key === 'no_csa' ? noCsaInk : STATUS_INK[key]
+          const ink = key === 'all' ? null : key === 'no_csa' ? noCsaInk : key === 'not_listed' ? 'red' : STATUS_INK[key]
           return (
             <button
               key={key}
@@ -495,6 +498,7 @@ function People({ plan, plant, confirmed, onConfirm }: { plan: ImportPlan; plant
               <Flex vertical gap={3} align="flex-start">
                 <Tag ink={STATUS_INK[r.status]}>{t(`sheet.status.${r.status}`)}</Tag>
                 {r.noCsa && <Tag ink={noCsaInk}>{t('sheet.status.no_csa')}</Tag>}
+                {r.notListed && <Tag ink="red">{t('sheet.status.not_listed')}</Tag>}
               </Flex>
             ),
           },
@@ -502,13 +506,18 @@ function People({ plan, plant, confirmed, onConfirm }: { plan: ImportPlan; plant
           { title: t('sheet.people.used'), dataIndex: 'cells', width: 90 },
           {
             title: t('sheet.people.oms', vars), key: 'oms',
-            render: (_, r) => (r.noCsa ? `${t(`sheet.people.says.${r.status}`, vars)}；${t('sheet.people.says.no_csa')}` : t(`sheet.people.says.${r.status}`, vars)),
+            render: (_, r) =>
+              [t(`sheet.people.says.${r.status}`, vars), ...(r.noCsa ? [t('sheet.people.says.no_csa')] : []), ...(r.notListed ? [t('sheet.people.says.not_listed')] : [])].join('；'),
           },
           {
             title: t('sheet.people.action'), key: 'action',
             render: (_, r) => (
               <span style={{ color: palette.textTertiary }}>
-                {r.noCsa ? t(plan.csaRequired ? 'sheet.people.does.no_csaRequired' : 'sheet.people.does.no_csa', vars) : t(`sheet.people.does.${r.status}`, vars)}
+                {r.notListed
+                  ? t('sheet.people.does.not_listed', vars)
+                  : r.noCsa
+                    ? t(plan.csaRequired ? 'sheet.people.does.no_csaRequired' : 'sheet.people.does.no_csa', vars)
+                    : t(`sheet.people.does.${r.status}`, vars)}
               </span>
             ),
           },
@@ -527,6 +536,7 @@ export function importSummaryText(t: T, summary: ImportSummary, plant: string): 
     counts.on_leave ? t('sheet.done.onLeave', { count: counts.on_leave }) : '',
     counts.transferred ? t('sheet.done.transferred', { count: counts.transferred }) : '',
     summary.noCsa ? t(summary.csaRequired ? 'sheet.done.noCsaRequired' : 'sheet.done.noCsa', { count: summary.noCsa }) : '',
+    summary.notListed ? t('sheet.done.notListed', { count: summary.notListed }) : '',
     counts.other_plant ? t(summary.bulkConfirmed ? 'sheet.done.otherPlantConfirmed' : 'sheet.done.otherPlant', { count: counts.other_plant, plant }) : '',
     summary.skipped ? t('sheet.done.skipped', { count: summary.skipped }) : '',
     summary.notIssued ? t(summary.next ? 'sheet.done.notIssuedNext' : 'sheet.done.notIssued', { count: summary.notIssued, plant }) : '',

@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Request, type Route } from '@playwright/test'
-import { signInAsAuditAdmin } from './support/mockSession'
+import { listedEmpIds, signInAsAuditAdmin } from './support/mockSession'
 
 // 簽核流程編輯器的分流 (#98, Q116 (2)): a card per 自評單位 the template uses, 多加一關, a unit the template added
 // later, and the 匯流後 steps. Every /rest/v1 answer is made up here, so no database or sign-in is
@@ -52,6 +52,8 @@ function routeWith(units: object[], check: object) {
 async function mockApi(page: Page, route: object, writes: Request[] = []) {
   await page.route('**/rest/v1/**', async (r: Route) => {
     const path = new URL(r.request().url()).pathname
+    // 誰在放行名單上（Q150）：查到的人都在；這是讀，不算寫入。
+    if (path.endsWith('/rpc/listed_emp_ids')) return r.fulfill({ json: listedEmpIds(r.request().postDataJSON()) })
     if (r.request().method() !== 'GET') writes.push(r.request())
     if (path.endsWith('/employee_ref')) return r.fulfill({ json: [{ audit_role: 'audit_admin' }] })
     if (path.endsWith('/rpc/visible_people')) return r.fulfill({ json: [SIGNER] })

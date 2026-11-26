@@ -21,3 +21,12 @@ export function bringIn(person: LookedUpPerson | null | undefined): BringIn {
   if (!person.csa && person.csaRequired) return { ok: false, reason: 'no_csa' }
   return { ok: true, reminders: [...(person.csa ? [] : ['no_csa' as const]), ...(person.other_plant ? ['other_plant' as const] : [])] }
 }
+
+/**
+ * Whether someone may be put on a 關卡 (分派, 換人, 簽核人 in the 流程編輯器): bringIn, and on the 放行名單 too, since being
+ * assigned no longer lets anyone in (Q150). Getting on the list is the 系統維護員's, through the 權限申請.
+ */
+export function bringInToStep(person: LookedUpPerson | null | undefined): BringIn | { ok: false; reason: 'not_listed' } {
+  const answer = bringIn(person)
+  return answer.ok && !person!.listed ? { ok: false, reason: 'not_listed' } : answer
+}

@@ -3,7 +3,7 @@
 // 每次執行建立自己的公司、廠區、範本與自評單位，結束時全部清掉；不動真實範本 02（其他測試檔會並行讀它）。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, withSuperuser, unlistPeople } from './helpers'
 
 // 資料庫測試檔案並行執行：前綴與隨機尾巴避免和其他檔案的工號、年度撞在一起。
 const RUN = `e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
@@ -108,6 +108,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant ?? '')
   if (createdTemplates.length) await admin.from('questionnaire_template').delete().in('id', createdTemplates)

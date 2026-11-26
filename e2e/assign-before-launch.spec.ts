@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from '../tests/db/helpers'
+import { admin, insertRow, listPeople, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from '../tests/db/helpers'
 import { actAs, type Person } from './support/mainFlow'
 
 // Q147 的完整流程（#223），對真實的 Postgres＋PostgREST：廠區管理員從首頁待辦進分派填寫人的「下次發出」，在簽核流程上
@@ -32,7 +32,8 @@ test.beforeAll(async () => {
   // Each person's employee_ref (and name, which the page shows) comes from logging in once.
   for (const p of EVERYONE) await loginAs(p.empId, p.name)
   await promoteToAuditAdmin(PEOPLE.chief.empId)
-  ok(await admin.from('access_allowlist').insert([{ emp_id: PEOPLE.chief.empId }, { emp_id: PEOPLE.coordinator.empId }]))
+  // 要排進關卡的人都先在放行名單上，像系統維護員開通過（Q150：被分派不再放行，名單以外的人排不進關卡）。
+  await listPeople(...EVERYONE.map((p) => p.empId))
   chief = await loginAs(PEOPLE.chief.empId, PEOPLE.chief.name)
 
   ID.company = (await insertRow('company', { name: `${RUN}公司` })).id

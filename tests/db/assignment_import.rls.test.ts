@@ -4,7 +4,7 @@
 // 逐格走 assign_route_signer，這一廠的廠區管理員與稽核主管都能寫，有一格被拒就整批不寫。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { admin, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest, restClient } from './helpers'
+import { admin, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest, restClient, listPeople } from './helpers'
 
 const RUN = `I${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -21,6 +21,8 @@ const EMP = {
   routeSelf: `${RUN}J`,
   routeManager: `${RUN}K`,
   routeChief: `${RUN}L`,
+  /** 不在放行名單上的人（Q150）：匯入寫不進關卡 */
+  unlisted: `${RUN}N`,
 }
 const FACTORY = { mine: `${RUN}P1`, other: `${RUN}P2` }
 /** tests/db/helpers.ts 檔尾的年度區間表：27000 是這支。 */
@@ -46,6 +48,8 @@ beforeAll(async () => {
   await loginAs(EMP.maint, '維護員')
   await promoteToSystemMaintainer(EMP.maint)
   ok(await admin.from('access_allowlist').insert([{ emp_id: EMP.chief }, { emp_id: EMP.maint }]))
+  // 匯入要換上的人先放行（Q150：關卡上的人要在放行名單上，被分派不再放行）
+  await listPeople(EMP.replacement, EMP.routeSelf, EMP.routeManager, EMP.routeChief)
   chief = await loginAs(EMP.chief, '甲')
   maint = await loginAs(EMP.maint, '維護員')
   owner = await loginAs(EMP.owner, '何欣怡')
@@ -66,7 +70,7 @@ beforeAll(async () => {
     { name: '台北稽核人員', group: 'audit_review', signer: EMP.chief, unitId: null },
     { name: '稽核主管', group: 'audit_review', signer: EMP.chief, unitId: null },
   ])
-  ok(await chief.rpc('add_access_members', {
+  ok(await maint.rpc('add_access_members', {
     p_people: [{ emp_id: EMP.owner, name: '何欣怡', factory_code: FACTORY.mine }, { emp_id: EMP.otherOwner, name: '別廠', factory_code: FACTORY.other }],
     p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
   }))
@@ -112,7 +116,7 @@ describe('import_assignment：確認匯入（發出後換人）', () => {
       .toEqual({ written: 2, skipped: 0 })
     expect((await stepNamed('廠區經理人')).signer_emp_id).toBe(EMP.replacement)
     expect((await stepNamed(financeChief.name)).signer_emp_id).toBe(EMP.finance)
-    expect(await loggedActions(EMP.replacement)).toEqual([])
+    expect(await loggedActions(EMP.replacement)).toEqual(['added']) // 只有放行時的「加入」（Q150）
     const route = ok(await admin.from('route_step').select('name,signer_emp_id,approval_route!inner(template_id)').eq('approval_route.template_id', ID.template!).eq('name', '廠區經理人').single())
     expect(route).toMatchObject({ signer_emp_id: EMP.replacement })
   })
@@ -146,6 +150,14 @@ describe('import_assignment：確認匯入（發出後換人）', () => {
     expect((await restClient(async () => null).rpc('import_assignment', { p_cells: [] })).error?.code).toBe('42501')
   })
 
+  it('不在放行名單上的人寫不進關卡（23514 signer_not_listed），整批不寫（Q150）', async () => {
+    const [manager, financeChief] = await Promise.all([stepNamed('廠區經理人'), stepNamed(`部門主管－${UNITS.finance}`)])
+    const refused = await chief.rpc('import_assignment', { p_cells: [cell(financeChief, EMP.salesManager), cell(manager, EMP.unlisted)] })
+    expect(refused.error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    expect((await stepNamed(financeChief.name)).signer_emp_id).toBe(EMP.finance)
+    expect((await stepNamed('廠區經理人')).signer_emp_id).toBe(manager.signer_emp_id)
+  })
+
   it('系統維護員也能匯入（Q129）', async () => {
     const financeChief = await stepNamed(`部門主管－${UNITS.finance}`)
     expect(ok(await maint.rpc('import_assignment', { p_cells: [cell(financeChief, EMP.salesManager)] }))).toEqual({ written: 1, skipped: 0 })
@@ -167,8 +179,8 @@ describe('import_route_assignment：確認匯入到簽核流程（下次發出�
     expect((await routeStep('廠區經理人')).signer_emp_id).toBe(EMP.routeManager)
     // 已發出的自評表照舊：流程上的人下次發出才照抄（發出後換人只有稽核主管，上面那一節）。
     expect((await stepNamed('廠區經理人')).signer_emp_id).toBe(formBefore.signer_emp_id)
-    expect(await loggedActions(EMP.routeSelf)).toEqual([])
-    expect(await loggedActions(EMP.routeManager)).toEqual([])
+    expect(await loggedActions(EMP.routeSelf)).toEqual(['added']) // 只有放行時的「加入」（Q150）
+    expect(await loggedActions(EMP.routeManager)).toEqual(['added'])
   })
 
   it('稽核主管、系統維護員也能匯入', async () => {
@@ -176,7 +188,7 @@ describe('import_route_assignment：確認匯入到簽核流程（下次發出�
     expect(ok(await chief.rpc('import_route_assignment', { p_cells: [routeCell(chiefStep, EMP.routeChief)] }))).toEqual({ written: 1 })
     expect(ok(await maint.rpc('import_route_assignment', { p_cells: [routeCell(chiefStep, EMP.routeChief)] }))).toEqual({ written: 1 })
     expect((await routeStep(chiefStep.name)).signer_emp_id).toBe(EMP.routeChief)
-    expect(await loggedActions(EMP.routeChief)).toEqual([])
+    expect(await loggedActions(EMP.routeChief)).toEqual(['added'])
   })
 
   it('別廠的廠區管理員、一般簽核人、沒登入的人被拒絕；有一格不能寫（連動關卡、空白）就整批不寫', async () => {
@@ -193,5 +205,13 @@ describe('import_route_assignment：確認匯入到簽核流程（下次發出�
     expect((await routeStep(sales.name)).signer_emp_id).toBe(EMP.sales)
     expect((await routeStep('廠區經理人')).signer_emp_id).toBe(EMP.routeManager)
     expect((await owner.rpc('import_route_assignment', { p_cells: {} })).error?.code).toBe('22023')
+  })
+
+  it('不在放行名單上的人寫不進流程（23514 signer_not_listed），整批不寫（Q150）', async () => {
+    const [sales, manager] = await Promise.all([routeStep(`自行檢查人員－${UNITS.sales}`), routeStep('廠區經理人')])
+    const refused = await owner.rpc('import_route_assignment', { p_cells: [routeCell(sales, EMP.replacement), routeCell(manager, EMP.unlisted.toLowerCase())] })
+    expect(refused.error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    expect((await routeStep(sales.name)).signer_emp_id).toBe(EMP.sales)
+    expect((await routeStep('廠區經理人')).signer_emp_id).toBe(EMP.routeManager)
   })
 })

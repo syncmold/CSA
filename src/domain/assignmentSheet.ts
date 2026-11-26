@@ -24,8 +24,11 @@ export const OTHER_PLANT_WARNING_SHARE = 0.5
 
 /** What OMS says about one 工號 for the plant the file is for. */
 export type OmsStatus = OmsMatchStatus
-/** The status, and whether OMS lets them use CSA (勾了 CSA, with an active account). */
-export type OmsAnswer = OmsMatchAnswer
+/**
+ * The status, whether OMS lets them use CSA (勾了 CSA, with an active account), and whether they are on CSA's 放行名單
+ * (Q150; absent counts as on it, for an answer that never asked).
+ */
+export type OmsAnswer = OmsMatchAnswer & { listed?: boolean }
 
 /** Every status OMS's answer can have (the preview chooses its own order). */
 export const OMS_STATUSES: readonly OmsStatus[] = ['matched', 'other_plant', 'not_found', 'departed', 'on_leave', 'transferred']
@@ -417,6 +420,8 @@ export interface ImportPlan {
   counts: Record<OmsStatus, number>
   /** People whose status would be written but whom OMS has not let use CSA yet (沒勾 CSA, or no active account). */
   noCsa: number
+  /** How many of them are not on the 放行名單: never written (Q150). */
+  notListed: number
   /** CSA_REQUIRE_OMS_AUTH on: those people are not written. Off (until OMS has ticked everyone): only pointed out. */
   csaRequired: boolean
   /** More than OTHER_PLANT_WARNING_SHARE of the people are 廠區不同: ask for a tick before importing. */
@@ -427,8 +432,15 @@ export interface ImportPlan {
 
 const UNKNOWN: OmsAnswer = { status: 'not_found', csa: false }
 
-/** Whether this answer's cells are written: 對得上 or 廠區不同, and allowed into CSA unless that is not required yet. */
-export const writable = (answer: OmsAnswer, csaRequired: boolean) => WRITTEN.has(answer.status) && (answer.csa || !csaRequired)
+/**
+ * Whether this answer's cells are written: 對得上 or 廠區不同, on the 放行名單 (Q150), and allowed into CSA unless that is
+ * not required yet.
+ */
+export const writable = (answer: OmsAnswer, csaRequired: boolean) =>
+  WRITTEN.has(answer.status) && answer.listed !== false && (answer.csa || !csaRequired)
+
+/** Whether this person is not on the 放行名單, among those OMS would let be written: never written (Q150). */
+export const unlisted = (answer: OmsAnswer) => WRITTEN.has(answer.status) && answer.listed === false
 
 /** Whether OMS has not let this person use CSA, among those who would otherwise be written. */
 export const lacksCsa = (answer: OmsAnswer) => WRITTEN.has(answer.status) && !answer.csa
@@ -444,9 +456,10 @@ export function importPlan(cells: readonly SheetCell[], oms: ReadonlyMap<string,
   const counts = Object.fromEntries(OMS_STATUSES.map((s) => [s, 0])) as Record<OmsStatus, number>
   for (const p of people) counts[p.status]++
   const noCsa = people.filter(lacksCsa).length
+  const notListed = people.filter(unlisted).length
   const writes = cells
     .filter((c) => c.kind === 'change' && writable(oms.get(c.empId) ?? UNKNOWN, csaRequired))
     .map((c) => ({ step_id: c.step!.id, emp_id: c.empId }))
   const bulkWarning = people.length > 0 && counts.other_plant / people.length > OTHER_PLANT_WARNING_SHARE
-  return { people, counts, noCsa, csaRequired, bulkWarning, writes }
+  return { people, counts, noCsa, notListed, csaRequired, bulkWarning, writes }
 }

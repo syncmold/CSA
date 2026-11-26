@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { LookedUpPerson } from '../api/people'
-import { bringIn } from './people'
+import { bringIn, bringInToStep } from './people'
 
 const person = (over: Partial<LookedUpPerson> = {}): LookedUpPerson => ({
-  asked: 'SY0140', emp_id: 'SY0140', status: 'active', name: '李大華', factory_code: 'SY', csa: true, other_plant: false, csaRequired: false, ...over,
+  asked: 'SY0140', emp_id: 'SY0140', status: 'active', name: '李大華', factory_code: 'SY', csa: true, other_plant: false, csaRequired: false, listed: true, ...over,
 })
 
 describe('bringIn', () => {
@@ -30,5 +30,15 @@ describe('bringIn', () => {
     expect(bringIn(person({ other_plant: true }))).toEqual({ ok: true, reminders: ['other_plant'] })
     expect(bringIn(person({ other_plant: true, csa: false }))).toEqual({ ok: true, reminders: ['no_csa', 'other_plant'] })
     expect(bringIn(person({ other_plant: true, csaRequired: true }))).toEqual({ ok: true, reminders: ['other_plant'] })
+  })
+})
+
+describe('bringInToStep', () => {
+  it('puts on a 關卡 only someone bringIn takes who is on the 放行名單 too (Q150)', () => {
+    expect(bringInToStep(person())).toEqual({ ok: true, reminders: [] })
+    expect(bringInToStep(person({ listed: false }))).toEqual({ ok: false, reason: 'not_listed' })
+    // OMS's own refusal comes first: there is nothing to let in.
+    expect(bringInToStep(person({ status: 'departed', listed: false }))).toEqual({ ok: false, reason: 'departed' })
+    expect(bringInToStep(null)).toEqual({ ok: false, reason: 'not_found' })
   })
 })

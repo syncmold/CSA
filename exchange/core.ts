@@ -128,13 +128,12 @@ export async function exchange(omsAccessToken: string, deps: ExchangeDeps): Prom
   }
 
   const empId = String(access.emp_id)
-  if (deps.config.csaRequired) {
-    // OMS's tick is the whole answer (Q133 (2)): 全開 does not override it, and the 放行名單 is not asked. A renewal
-    // comes through here too, so someone OMS unticks is out at their next renewal (Q133 (1)).
-    if (!csaEnabled) return { ok: false, status: 403, error: 'csa_not_enabled' }
-  } else if (!deps.config.accessAll && !(await deps.csa.isAdmitted(empId))) {
-    return { ok: false, status: 403, error: 'not_authorized' }
-  }
+  // Two keys, both needed (Q150): OMS's tick, while CSA_REQUIRE_OMS_AUTH asks for it (Q133 (2)), which 全開 does not
+  // override; and the 放行名單, which only a 系統維護員 fills (being assigned no longer lets anyone in). A renewal comes
+  // through here too, so someone OMS unticks or the 系統維護員 removes is out at their next renewal (Q133 (1)).
+  // 全開 (CSA_ACCESS_ALL, development only, refused when deployed) skips the 放行名單 but never the OMS tick.
+  if (deps.config.csaRequired && !csaEnabled) return { ok: false, status: 403, error: 'csa_not_enabled' }
+  if (!deps.config.accessAll && !(await deps.csa.isAdmitted(empId))) return { ok: false, status: 403, error: 'not_authorized' }
 
   // 姓名 and 主檔廠區 from OMS's own answer (Q133 (5)), at every exchange: it costs none of the channel's daily 工號.
   // One OMS leaves empty keeps what CSA has (record_login).

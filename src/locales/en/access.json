@@ -19,8 +19,8 @@
     "signer": "Sees only the assessments they have a step on",
     "viewer": "Senior managers: read-only access to every assessment of the chosen plants, the tracking overview and exports",
     "audit_staff": "Like a user while running no plant; as a plant coordinator, also the Taipei audit step on that plant’s routes, and may export Excel",
-    "audit_admin": "Exactly one in the company: maintains templates, routes, launches, tracking, and the access of users, viewers and audit staff; naming a new one turns the previous one back into a user",
-    "system_maintainer": "Everything: what the audit administrator does, plus setting the audit administrator and system maintainers"
+    "audit_admin": "Exactly one in the company: maintains templates, routes, launches, assignments and tracking, and names plant coordinators; naming a new one turns the previous one back into a user",
+    "system_maintainer": "Everything: what the audit administrator does, plus letting people in and setting roles and viewed plants (audit administrator and system maintainers included)"
   },
   "search": "Search employee ID or name",
   "allRoles": "All roles",
@@ -91,7 +91,7 @@
   "removePlants": "They are the plant coordinator of {{plants}}: once removed, these plants have none until someone is named.",
   "impactLoading": "Looking for their steps on routes…",
   "impactNone": "They are on no step of an assessment in progress or of a route.",
-  "impactWarning": "They are still on these steps. Removing them is allowed, but nobody can sign when these steps come up: ask the plant coordinator to reassign plant steps; change the route for audit steps (issued assessments wait for reassignment, #13). While they are assigned to a plant step of an open assessment, they can still log in.",
+  "impactWarning": "They are still on these steps and must be replaced there before removal: on routes by the audit administrator or the plant coordinator, on issued assessments by the audit administrator. Off the list they cannot sign in, so nobody could sign these steps. A linked “Taipei audit” step changes by itself once the audit administrator names the plant’s new coordinator.",
   "impact": {
     "current": "Assessments in progress: their turn now",
     "later": "Assessments in progress: their turn later",
@@ -106,7 +106,8 @@
     "notListed": "This person is no longer on the list (someone may have just removed them); please reload",
     "plant": "A chosen plant is not in the plant master; reload and choose again",
     "lastMaintainer": "At least one system maintainer must remain: make someone else one first",
-    "maintainerOnly": "Only a system maintainer sets, changes or removes audit administrators and system maintainers",
+    "maintainerOnly": "Only a system maintainer lets people in and sets roles, viewed plants and notes",
+    "stillAssigned": "They are still on a step: replace them there first",
     "maintainerNotCoordinator": "A system maintainer cannot run a plant (they already assign and replace signers at every plant)",
     "singleAdmin": "There is exactly one audit administrator; add only one at a time"
   },
@@ -184,7 +185,8 @@
       "own": "Only their own",
       "viewPlants": "Chosen plants",
       "runPlants": "Plants they run",
-      "editRun": "Edit own plants, see all"
+      "editRun": "Edit own plants, see all",
+      "readOnly": "Read only"
     },
     "group": {
       "assessment": "Assessments",
@@ -204,8 +206,9 @@
       "templates": "Templates, assessing units (audit staff only add units)",
       "flows": "Approval routes (extra step, not applicable, audit steps)",
       "launch": "Annual launch",
-      "access": "Access management (users, viewers, audit staff, plant coordinators) and change log",
-      "accessAdmins": "Set audit administrators and system maintainers"
+      "coordinators": "Name and replace plant coordinators",
+      "access": "See the people list and the access change log",
+      "admit": "Let people in, set roles, viewed plants and notes (audit administrator and system maintainers included)"
     },
     "card": {
       "signer": {
@@ -214,7 +217,7 @@
           "Other units’ answers once their own unit has submitted",
           "No tracking overview"
         ],
-        "note": "Gets in through the access list, or automatically when assigned"
+        "note": "Gets in once a system maintainer adds them to the access list"
       },
       "viewer": {
         "points": [
@@ -240,12 +243,12 @@
           "Templates and routes: sees every plant, adds, edits and deletes only the plants they run; assessing units: add only",
           "Cannot launch or top up a year"
         ],
-        "note": "Several; set by the audit administrator or a system maintainer, and a plant only once named its coordinator"
+        "note": "Several; set by a system maintainer, and a plant only once the audit administrator names them its coordinator"
       },
       "audit_admin": {
         "points": [
           "All plants, all assessments",
-          "Templates, routes, launch; access of users, viewers and audit staff",
+          "Templates, routes, launch, assigning and replacing signers; names plant coordinators; reads the people list and change log",
           "Fills the last step of every route, and the Taipei audit step of any plant they run; cannot sign someone else’s step"
         ],
         "note": "Exactly one; naming a new one turns the previous one into a user"
@@ -254,7 +257,7 @@
         "points": [
           "Everything: templates, routes, launches, assigning and replacing signers",
           "Every plant's assessments, answers, tracking overview and exports",
-          "All of access management, audit administrators and system maintainers included"
+          "The only one who lets people in and sets roles and viewed plants (audit administrators and system maintainers included)"
         ],
         "note": "At least one must remain; cannot run a plant"
       }

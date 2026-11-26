@@ -42,6 +42,7 @@
   "reminder": "{{plant}} {{year}} 年度還有 {{count}} 張自評表待分派，分派好的單位才能開始填寫。",
   "toAssign": "前往分派",
   "errors": {
+    "notListed": "這個人還不在 CSA 放行名單上，不能排進關卡：請他填權限申請表，由系統維護員開通",
     "stepSigned": "這一關剛簽了，不能換人。",
     "linkedStep": "連動的稽核室關卡由權限管理決定，不能在這裡分派。",
     "closed": "這張自評表已結案。",
@@ -144,7 +145,8 @@
         "departed": "OMS 記錄已離職",
         "on_leave": "OMS 記錄留職停薪",
         "transferred": "OMS 記錄這是轉調前的舊工號",
-        "no_csa": "OMS 還沒開通 CSA（授權頁沒勾 CSA，或沒有啟用的帳號）"
+        "no_csa": "OMS 還沒開通 CSA（授權頁沒勾 CSA，或沒有啟用的帳號）",
+        "not_listed": "還不在 CSA 放行名單上（沒申請 CSA 權限）"
       },
       "does": {
         "matched": "照常分派",
@@ -154,7 +156,8 @@
         "on_leave": "這些格子不匯入，請換一位",
         "transferred": "這些格子不匯入，請改用新工號",
         "no_csa": "照常分派（OMS 全面開通前只提醒）。請 OMS 管理員在授權頁勾 CSA，否則他登不進來簽核",
-        "no_csaRequired": "這些格子不匯入。請 OMS 管理員在授權頁勾 CSA 後再匯入一次"
+        "no_csaRequired": "這些格子不匯入。請 OMS 管理員在授權頁勾 CSA 後再匯入一次",
+        "not_listed": "這些格子不匯入。請他填權限申請表，系統維護員開通後再匯入一次"
       }
     },
     "status": {
@@ -164,7 +167,8 @@
       "departed": "已離職",
       "on_leave": "留停",
       "transferred": "轉調",
-      "no_csa": "未開通 CSA"
+      "no_csa": "未開通 CSA",
+      "not_listed": "未放行"
     },
     "done": {
       "written": "已匯入 {{file}}，寫入 {{count}} 格。",
@@ -176,6 +180,7 @@
       "notIssuedNext": "{{count}} 張下次不會發給 {{plant}} 的自評表這次略過。",
       "noCsa": "{{count}} 位在 OMS 還沒開通 CSA，已照常分派，請 OMS 管理員勾 CSA。",
       "noCsaRequired": "{{count}} 位在 OMS 還沒開通 CSA，他們的格子沒有匯入。",
+      "notListed": "{{count}} 位還不在 CSA 放行名單上，他們的格子沒有匯入，請系統維護員開通後再匯入。",
       "onLeave": "{{count}} 位留停，他們的格子沒有匯入。",
       "transferred": "{{count}} 位是轉調前的舊工號，他們的格子沒有匯入，請改用新工號。"
     },
@@ -197,7 +202,8 @@
       "departed": "OMS 記錄 {{empId}} 已離職，不能分派",
       "on_leave": "OMS 記錄 {{empId}} 留職停薪，不能分派",
       "transferred": "{{empId}} 是轉調前的舊工號，請改用新工號",
-      "no_csa": "OMS 授權頁還沒幫 {{empId}} 勾 CSA，不能分派，請 OMS 管理員開通"
+      "no_csa": "OMS 授權頁還沒幫 {{empId}} 勾 CSA，不能分派，請 OMS 管理員開通",
+      "not_listed": "{{empId}} 還不在 CSA 放行名單上，不能分派：請他填權限申請表，由系統維護員開通"
     },
     "errors": {
       "not_signed_in": "登入已過期，請重新登入",

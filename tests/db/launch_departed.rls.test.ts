@@ -5,7 +5,7 @@
 // 例子同 Q116 的 mockup：何欣怡是廠區管理員，許文彬是已離職的財務部門主管。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { admin, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, migratedDb, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { admin, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, migratedDb, ok, promoteToAuditAdmin, requirePostgrest, loginAsMaintainer, listPeople } from './helpers'
 
 const RUN = `C${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -21,6 +21,8 @@ const EMP = {
   neverLoggedIn: `${RUN}H`,
   newcomer: `${RUN}I`,
 }
+/** 系統維護員：只有他能放行人員、設定角色（Q150） */
+const MAINT = `${RUN}MT`
 const FACTORY = `${RUN}P1`
 /** tests/db/helpers.ts 檔尾的年度區間表：25000 是這支。 */
 const YEAR = 25000 + Math.floor(Math.random() * 900)
@@ -29,6 +31,7 @@ const UNITS = { sales: `${RUN}業務`, finance: `${RUN}財務` }
 const ID: Record<string, string> = {}
 
 let chief: SupabaseClient
+let maint: SupabaseClient
 let owner: SupabaseClient
 
 const combo = (template: string) => ({ template_id: template, plant_id: ID.plant! })
@@ -50,17 +53,20 @@ beforeAll(async () => {
   await promoteToAuditAdmin(EMP.chief)
   ok(await admin.from('access_allowlist').insert({ emp_id: EMP.chief }))
   chief = await loginAs(EMP.chief, '甲')
+  maint = await loginAsMaintainer(MAINT, '維護員')
   owner = await loginAs(EMP.owner, '何欣怡')
   await loginAs(EMP.departed, '許文彬')
 
   ID.company = (await insertRow('company', { name: `${RUN}公司` })).id
   ID.plant = (await insertRow('plant', { factory_code: FACTORY, name: `${RUN}一廠`, company_id: ID.company })).id
   for (const [key, name] of Object.entries(UNITS)) ID[key] = (await insertRow('assessing_unit', { name })).id
-  ok(await chief.rpc('add_access_members', {
+  ok(await maint.rpc('add_access_members', {
     p_people: [{ emp_id: EMP.owner, name: '何欣怡', factory_code: FACTORY }],
     p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
   }))
   ok(await chief.rpc('set_plant_coordinator', { p_plant_id: ID.plant, p_emp_id: EMP.owner }))
+  // 換上的人要先在放行名單上（Q150）
+  await listPeople(EMP.newcomer)
 
   // 兩條分流都有「部門主管」，同名的關卡要靠分流分開。
   ID.main = await makeTemplate(`${RUN}M`, 'control_activity', FACTORY, [['第一章', [['要點一', ID.sales!], ['要點二', ID.finance!]]]])
@@ -134,8 +140,8 @@ describe('發出前的離職檢查（Q147 (4)）', () => {
     const issued = ok(await admin.from('assessment_step').select('name,branch_unit_name,signer_emp_id,vacated_emp_id').eq('assessment_id', ID.mainForm!).order('position'))
     expect(issued).toContainEqual({ name: '部門主管', branch_unit_name: UNITS.finance, signer_emp_id: EMP.newcomer, vacated_emp_id: null })
     expect(issued).toContainEqual({ name: '廠區經理人', branch_unit_name: null, signer_emp_id: EMP.salesManager, vacated_emp_id: null })
-    // 發出時不再記「帶入」「從缺」（Q147），分派類也都不記（Q149）。
-    expect([...await loggedActions(EMP.newcomer), ...await loggedActions(EMP.departed)]).toEqual([])
+    // 發出時不再記「帶入」「從缺」（Q147），分派類也都不記（Q149）：只有放行時的「加入」（Q150）。
+    expect([...await loggedActions(EMP.newcomer), ...await loggedActions(EMP.departed)]).toEqual(['added', 'added'])
   })
 
   it('OMS 連不上（p_checked = false）照樣發出，回傳 checked = false；不給 p_checked 也當作沒查', async () => {
@@ -214,7 +220,8 @@ describe('既有流程回填（migration 20261215000000）', () => {
         { name: '稽核主管', signer_emp_id: 'ROUTECHIEF' },
       ])
       expect((await one(`select updated_at from public.approval_route where id = $1`, [route])).updated_at.toISOString()).toBe('2026-10-01T00:00:00.000Z')
-      expect((await one(`select count(*)::int as n from public.access_change_log`)).n).toBe(0)
+      // 回填不記權限異動紀錄；之後的 Q150 migration 把流程上的人加進放行名單，只記那些「加入」。
+      expect((await one(`select count(*)::int as n from public.access_change_log where action <> 'added'`)).n).toBe(0)
     } finally {
       await temp.drop()
     }

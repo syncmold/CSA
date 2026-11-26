@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest'
 import type { AccessMember, ChangeLogRow, RemovalImpactRow } from '../api/accessModel'
 import type { AuditRole } from '../api/employee'
 import {
-  accessWriteError, actsAsAuditAdmin, assignableRoles, canEditRoute, canEditTemplate, mayAddSettings, readsSettings, linksTaipeiAudit, changeText, defaultViewerPlants, exportablePlants, filterLog, filterMembers, groupImpact, identitiesOf,
-  managesAccess, mayManage, mayRunPlant, parseEmpIds, personLabel, planAdd, plantChanges, plantRoster, reachOf, readsAll, seesTracking,
+  accessWriteError, actsAsAuditAdmin, admitsPeople, assignableRoles, canEditRoute, canEditTemplate, mayAddSettings, readsSettings, linksTaipeiAudit, changeText, defaultViewerPlants, exportablePlants, filterLog, filterMembers, groupImpact, identitiesOf,
+  managesAccess, mayEditPlantRights, mayRunPlant, parseEmpIds, personLabel, planAdd, plantChanges, plantRoster, reachOf, readsAll, seesTracking,
   takeovers,
 } from './access'
 
@@ -41,7 +41,7 @@ describe('parseEmpIds', () => {
 
 describe('planAdd', () => {
   const person = (emp_id: string, name: string | null, factory_code: string | null, status: LookedUpPerson['status'] = 'active', csa = true, csaRequired = false): LookedUpPerson =>
-    ({ asked: emp_id.toUpperCase(), emp_id, name, factory_code, status, csa, other_plant: false, csaRequired })
+    ({ asked: emp_id.toUpperCase(), emp_id, name, factory_code, status, csa, other_plant: false, csaRequired, listed: false })
 
   it('adds those OMS has as 在職, says why the others are not added, and skips those already on the list (found or not)', () => {
     const people = [
@@ -250,16 +250,18 @@ describe('who manages whom (Q122)', () => {
     expect(exportablePlants('system_maintainer', [], [])).toBe('all')
   })
 
-  it('lets a 系統維護員 give every role, a 稽核主管 only 一般使用者, 檢視者 and 稽核人員 (#187)', () => {
+  it('lets only a 系統維護員 let people in and give roles (Q150)', () => {
     expect(assignableRoles('system_maintainer')).toEqual(['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer'])
-    expect(assignableRoles('audit_admin')).toEqual(['signer', 'viewer', 'audit_staff'])
-    expect(assignableRoles('audit_staff')).toEqual(['signer', 'viewer', 'audit_staff'])
+    expect(assignableRoles('audit_admin')).toEqual([])
+    expect(assignableRoles('audit_staff')).toEqual([])
+    expect((['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer'] as const).map(admitsPeople)).toEqual([false, false, false, false, true])
+    expect(admitsPeople(undefined)).toBe(false)
   })
 
-  it('lets a 稽核主管 edit only 一般使用者, 檢視者 and 稽核人員, a 系統維護員 anyone, nobody else anyone', () => {
+  it('lets a 稽核主管 open 廠區權限 only for someone who may run a plant and is no 檢視者, a 系統維護員 for anyone (Q150)', () => {
     const roles = ['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer'] as const
-    const editable = (me: AuditRole | undefined) => roles.filter((r) => mayManage(me, member('X', { audit_role: r })))
-    expect(editable('audit_admin')).toEqual(['signer', 'viewer', 'audit_staff'])
+    const editable = (me: AuditRole | undefined) => roles.filter((r) => mayEditPlantRights(me, member('X', { audit_role: r })))
+    expect(editable('audit_admin')).toEqual(['signer', 'audit_staff', 'audit_admin'])
     expect(editable('system_maintainer')).toEqual(roles)
     expect(editable('viewer')).toEqual([])
     expect(editable('audit_staff')).toEqual([])

@@ -20,7 +20,7 @@ import { NO_WRAP } from '../components/tableColumns'
 import { useFillToBottom } from '../components/useFillToBottom'
 import { useWriteToast } from '../components/useWriteToast'
 import {
-  accessWriteError, assignableRoles, AUDIT_ROLES, CHANGE_ACTIONS, changeText, filterLog, filterMembers, mayManage, personLabel, plantText,
+  accessWriteError, admitsPeople, assignableRoles, AUDIT_ROLES, CHANGE_ACTIONS, changeText, filterLog, filterMembers, mayEditPlantRights, personLabel, plantText,
 } from '../domain/access'
 import { errorText } from '../domain/errors'
 import { listLoading } from '../domain/lists'
@@ -153,10 +153,12 @@ function MembersTab({ master }: { master: Plant[] | undefined }) {
           data-testid="access-plant-filter"
           options={[{ value: null, label: t('allPlants') }, ...plants.map((p) => ({ value: p.id, label: plantText(p) }))]}
         />
-        {/* Waits for the role, which decides the roles the dialog offers. */}
-        <Button type="primary" disabled={!myRole} onClick={() => setDialog({ kind: 'add' })} data-testid="access-add">
-          {t('add')}
-        </Button>
+        {/* Only a 系統維護員 lets people in (Q150); waits for the role, which decides the roles the dialog offers. */}
+        {admitsPeople(myRole) && (
+          <Button type="primary" onClick={() => setDialog({ kind: 'add' })} data-testid="access-add">
+            {t('add')}
+          </Button>
+        )}
       </Flex>
       {members.isError ? (
         <Alert type="warning" showIcon title={errorText(members.error)} style={{ margin: '0 20px 16px' }} />
@@ -218,7 +220,7 @@ function MembersTab({ master }: { master: Plant[] | undefined }) {
                 key: 'rights',
                 width: 110,
                 render: (_, m) =>
-                  mayManage(myRole, m) && (
+                  mayEditPlantRights(myRole, m) && (
                     <Button size="small" onClick={() => setDialog({ kind: 'rights', member: m })} data-testid="access-plant-rights">
                       {t('plantRights')}
                     </Button>
@@ -237,10 +239,9 @@ function MembersTab({ master }: { master: Plant[] | undefined }) {
                 title: t('column.actions'),
                 key: 'actions',
                 width: 70,
-                // None on a row the signed-in person may not change: a 稽核主管 leaves 稽核主管 and 系統維護員 to a
-                // 系統維護員 (Q122 (3)). 移除 is in 編輯 (#215).
+                // Only for a 系統維護員: a 稽核主管 sees the people but sets no role, 檢視廠區 or 備註 (Q150). 移除 is in 編輯 (#215).
                 render: (_, m) =>
-                  mayManage(myRole, m) && (
+                  admitsPeople(myRole) && (
                     <Button size="small" type="link" style={LINK_BUTTON} onClick={() => setDialog({ kind: 'edit', member: m })} data-testid="access-edit">
                       {t('edit')}
                     </Button>

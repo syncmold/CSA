@@ -101,6 +101,7 @@
   "save": "儲存",
   "required": "必填",
   "errors": {
+    "notListed": "這個人還不在 CSA 放行名單上，不能當簽核人：請他填權限申請表，由系統維護員開通",
     "duplicateRoute": "這個範本與廠區已有簽核流程，請重新整理後到那條流程修改。",
     "stepRule": "關卡名稱與簽核人不可空白，稽核室覆核關卡只能唯讀。",
     "forbidden": "只有稽核主管可以修改簽核流程",
@@ -126,7 +127,8 @@
     "on_leave": "OMS 記錄 {{empId}} 留職停薪，不能選",
     "transferred": "{{empId}} 是轉調前的舊工號，請改用新工號",
     "noCsa": "（OMS 還沒開通 CSA）",
-    "no_csa": "OMS 授權頁還沒幫 {{empId}} 勾 CSA，不能選，請 OMS 管理員開通"
+    "no_csa": "OMS 授權頁還沒幫 {{empId}} 勾 CSA，不能選，請 OMS 管理員開通",
+    "not_listed": "{{empId}} 還不在 CSA 放行名單上，不能選：請他填權限申請表，由系統維護員開通"
   },
   "lookupErrors": {
     "not_signed_in": "登入已過期，請重新登入",

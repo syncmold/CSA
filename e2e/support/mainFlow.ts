@@ -6,6 +6,7 @@ import type { Page } from '@playwright/test'
 import type { StoredSession } from '../../src/auth/types'
 import {
   admin, borrowFq02, exchangeAs, exchangeAsAdminAccount, insertRow, launchAssigned, loginAs, makeRoute, ok, promoteToAuditAdmin, releaseFq02, requirePostgrest,
+  unlistPeople,
 } from '../../tests/db/helpers'
 
 export interface Person {
@@ -88,6 +89,8 @@ export async function tearDownMainFlow(flow: Partial<MainFlow>): Promise<void> {
   await releaseFq02(FACTORY)
   await admin.from('plant').delete().eq('factory_code', FACTORY)
   if (flow.companyId) await admin.from('company').delete().eq('id', flow.companyId)
+  // 流程上的人排進關卡時加進了放行名單（makeRoute，Q150）。
+  await unlistPeople(RUN)
 }
 
 /**

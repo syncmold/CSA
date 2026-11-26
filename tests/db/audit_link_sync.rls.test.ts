@@ -4,7 +4,7 @@
 // （audit_chief_sync.test.ts）。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { admin, insertRow, launchAssigned, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
+import { admin, insertRow, launchAssigned, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser, loginAsMaintainer } from './helpers'
 
 const RUN = `L${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -21,6 +21,8 @@ const EMP = {
   selfChecker: `${RUN}G`,
   manager: `${RUN}H`,
 }
+/** 系統維護員：只有他能放行人員、設定角色（Q150） */
+const MAINT = `${RUN}MT`
 const FACTORY = { one: `${RUN}P1`, two: `${RUN}P2`, none: `${RUN}P3` }
 /** tests/db/helpers.ts 檔尾的年度區間表：28000 是這支。 */
 const YEAR = 28000 + Math.floor(Math.random() * 900)
@@ -30,6 +32,7 @@ const ID: Record<string, string> = {}
 type Step = { id: string; name: string; link: string | null; signer_emp_id: string | null; state: string }
 
 let chief: SupabaseClient
+let maint: SupabaseClient
 
 const combo = (template: string, plant: string) => ({ template_id: template, plant_id: plant })
 
@@ -73,10 +76,11 @@ beforeAll(async () => {
   await promoteToAuditAdmin(EMP.chief)
   ok(await admin.from('access_allowlist').insert({ emp_id: EMP.chief }))
   chief = await loginAs(EMP.chief, '甲')
-  ok(await chief.rpc('add_access_members', {
+  maint = await loginAsMaintainer(MAINT, '維護員')
+  ok(await maint.rpc('add_access_members', {
     p_people: [{ emp_id: EMP.staffA, name: '稽甲' }, { emp_id: EMP.staffB, name: '稽乙' }], p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null,
   }))
-  ok(await chief.rpc('add_access_members', {
+  ok(await maint.rpc('add_access_members', {
     p_people: [{ emp_id: EMP.plantSide, name: '廠端' }], p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
   }))
 
@@ -221,7 +225,7 @@ describe('廠區管理員在稽核人員與廠區端的人之間切換（#187 �
 
   it('那個人改成稽核人員：他負責的每一廠都蓋成他', async () => {
     const since = await lastLogId()
-    ok(await chief.rpc('update_access_member', { p_emp_id: EMP.plantSide, p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null }))
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.plantSide, p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null }))
     expect((await linked(ID.t5Form!)).taipei_auditor!.signer_emp_id).toBe(EMP.plantSide)
     expect((await linked(ID.t3Form!)).taipei_auditor!.signer_emp_id).toBe(EMP.plantSide)
     expect((await linked(ID.t2Form!)).taipei_auditor).toMatchObject({ signer_emp_id: EMP.staffA, state: 'done' })
@@ -231,7 +235,7 @@ describe('廠區管理員在稽核人員與廠區端的人之間切換（#187 �
 
   it('稽核人員的角色被改掉、或卸任廠區管理員：保留原本的人', async () => {
     const since = await lastLogId()
-    ok(await chief.rpc('update_access_member', { p_emp_id: EMP.plantSide, p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.plantSide, p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
     ok(await chief.rpc('remove_plant_coordinator', { p_plant_id: ID.one }))
     expect((await linked(ID.t5Form!)).taipei_auditor!.signer_emp_id).toBe(EMP.plantSide)
     expect((await routeSigners(ID.t1Route!)).taipei_auditor).toBe(EMP.plantSide)

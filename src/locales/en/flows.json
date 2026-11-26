@@ -77,6 +77,7 @@
   "save": "Save",
   "required": "Required",
   "errors": {
+    "notListed": "This person is not on the CSA access list and cannot be a signer until a system maintainer lets them in",
     "duplicateRoute": "This template and plant already have a route; refresh and edit that one.",
     "stepRule": "Step name and signer cannot be blank, and audit review steps are read-only.",
     "forbidden": "Only audit admins can edit approval routes",
@@ -100,7 +101,8 @@
     "on_leave": "OMS records {{empId}} as on unpaid leave; cannot be chosen",
     "transferred": "{{empId}} is an old ID from before a transfer; use the new ID",
     "noCsa": "(not enabled for CSA in OMS yet)",
-    "no_csa": "CSA is not ticked for {{empId}} in OMS; cannot be chosen, ask the OMS administrator"
+    "no_csa": "CSA is not ticked for {{empId}} in OMS; cannot be chosen, ask the OMS administrator",
+    "not_listed": "{{empId}} is not on the CSA access list; a system maintainer must let them in first"
   },
   "lookupErrors": {
     "not_signed_in": "Your session has expired, please sign in again",

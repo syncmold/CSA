@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Request, type Route } from '@playwright/test'
-import { signInAsAuditAdmin } from './support/mockSession'
+import { listedEmpIds, signInAsAuditAdmin } from './support/mockSession'
 
 // 分派填寫人 on issued 自評表 (#101, #102, Q116 (5)(6)(7); Q147): once the forms are out only a 稽核主管 assigns and
 // replaces (the reminder of forms issued before Q147 that still wait, the page, a pick, a 換人 and a 從缺); a 廠區管理員
@@ -52,6 +52,8 @@ const assignedForms = () => [
 const OUTSIDER = { emp_id: 'SY3001', name: '別廠同仁', factory_code: 'SY' }
 /** A 工號 OMS has as 離職. */
 const DEPARTED = 'FQ9001'
+/** 在職、OMS 也開通了 CSA，但還不在 CSA 的放行名單上（Q150）：排不進關卡。 */
+const NOT_LISTED = { emp_id: 'SY3002', name: '還沒申請的人', factory_code: 'SY' }
 
 /**
  * Answers as if the signed-in employee is a 稽核主管 (or, with `role: 'signer'`, runs FQ as 廠區管理員); a write updates
@@ -72,6 +74,8 @@ async function mockApi(
     if (path.endsWith('/plant')) return r.fulfill({ json: [PLANT] })
     // Names of the people already assigned: CSA's own copy (#218), not OMS.
     if (path.endsWith('/rpc/visible_people')) return r.fulfill({ json: ROSTER })
+    // 誰在放行名單上（Q150）：除了 NOT_LISTED 都在。
+    if (path.endsWith('/rpc/listed_emp_ids')) return r.fulfill({ json: listedEmpIds(request.postDataJSON(), [NOT_LISTED.emp_id]) })
     if (path.endsWith('/rpc/plant_form_people')) {
       pickerReads.push(request.postData() ?? '')
       return r.fulfill({ json: ROSTER.map(({ emp_id, name }) => ({ emp_id, name })) })
@@ -108,7 +112,7 @@ async function mockApi(
     pickerReads.push(`oms:${emp_ids.join(',')}@${factory_code}`)
     const nobody = { name: null, factory_code: null, csa: false }
     const people = emp_ids.map((id) => {
-      const person = [...ROSTER, OUTSIDER].find((p) => p.emp_id === id)
+      const person = [...ROSTER, OUTSIDER, NOT_LISTED].find((p) => p.emp_id === id)
       if (person) return { asked: id, ...person, status: 'active', csa: true, other_plant: person.factory_code !== 'FQ' }
       return { asked: id, emp_id: id, status: id === DEPARTED ? 'departed' : 'not_found', ...nobody, other_plant: false }
     })
@@ -157,7 +161,7 @@ test('a 稽核主管 goes from the home reminder to 分派 and assigns the missi
   await expect(page.getByTestId('assignment-detail')).not.toContainText('A001')
 })
 
-test('someone not on the plant’s forms is found by their complete 工號 only; one OMS has as 離職 is refused (#218)', async ({ page }) => {
+test('someone not on the plant’s forms is found by their complete 工號 only; one OMS has as 離職 (#218) or not on the 放行名單 (Q150) is refused', async ({ page }) => {
   const writes: Request[] = []
   const pickerReads: string[] = []
   await signInAsAuditAdmin(page)
@@ -179,6 +183,10 @@ test('someone not on the plant’s forms is found by their complete 工號 only;
   await expect.poll(() => pickerReads).toContain('oms:FQ400@FQ')
   await select.locator('input').fill(DEPARTED)
   await expect(dropdown).toContainText(`OMS 記錄 ${DEPARTED} 已離職，不能分派`)
+  // 在職、OMS 也開通了，但不在放行名單上：被分派不再放行（Q150），所以排不進關卡
+  await select.locator('input').fill(NOT_LISTED.emp_id)
+  await expect(dropdown).toContainText(`${NOT_LISTED.emp_id} 還不在 CSA 放行名單上，不能分派：請他填權限申請表，由系統維護員開通`)
+  await expect(dropdown.locator('.ant-select-item-option')).toHaveCount(0)
   await select.locator('input').fill(OUTSIDER.emp_id.toLowerCase())
   await expect(dropdown.locator('.ant-select-item-option')).toHaveText('別廠同仁（SY3001）　（主檔廠區 SY，不是本廠）')
   await pick(page, '別廠同仁')

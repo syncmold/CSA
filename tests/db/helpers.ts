@@ -106,8 +106,33 @@ export async function requirePostgrest(): Promise<void> {
   }
 }
 
-/** Insert one row as service_role (test setup) and return it. */
+/**
+ * 放行（Q150）：關卡上的簽核人要在放行名單上（require_listed_signer），被分派也不再放行，所以測試先把要排進關卡的人
+ * 加進名單，像系統維護員開通過一樣。以超級使用者寫，工號照名單的寫法（大寫、去空白），已在名單上的不動。
+ */
+export async function listPeople(...empIds: (string | null | undefined)[]): Promise<void> {
+  const ids = [...new Set(empIds.flatMap((id) => (id?.trim() ? [id.trim().toUpperCase()] : [])))]
+  if (!ids.length) return
+  await withSuperuser((sql) => sql.query('insert into public.access_allowlist (emp_id) select unnest($1::text[]) on conflict do nothing', [ids]))
+}
+
+/**
+ * afterAll：把工號以 `prefix` 開頭（不分大小寫）的人移出放行名單。逐筆刪，最後一位稽核主管、系統維護員的守門
+ * （guard_last_holder）擋下的那一筆留著，不影響其他筆。負責廠區跟著名單刪（外鍵 on delete cascade）。
+ */
+export async function unlistPeople(prefix: string): Promise<void> {
+  await withSuperuser(async (sql) => {
+    const { rows } = await sql.query('select emp_id from public.access_allowlist where emp_id like $1', [`${prefix.toUpperCase()}%`])
+    for (const { emp_id } of rows) await sql.query('delete from public.access_allowlist where emp_id = $1', [emp_id]).catch(() => null)
+  })
+}
+
+/**
+ * Insert one row as service_role (test setup) and return it. A 關卡 (route_step, assessment_step) with a 簽核人 first
+ * puts that person on the 放行名單 (listPeople, Q150), since the database refuses an unlisted one.
+ */
 export async function insertRow<T = { id: string }>(table: string, row: object): Promise<T> {
+  if (table === 'route_step' || table === 'assessment_step') await listPeople((row as { signer_emp_id?: string | null }).signer_emp_id)
   const { data, error } = await admin.from(table).insert(row).select().single()
   if (error) throw new Error(`${table}: ${error.message}`)
   return data as T
@@ -197,9 +222,11 @@ export function linkedAuditSteps(signer: string): RouteStepSpec[] {
 
 /**
  * The 簽核流程 for 範本 × 廠區 with these 關卡 in order; returns the route id. 稽核室覆核 steps named 台北稽核人員 or
- * 稽核主管 get their 連動標記 (#189); a route launched through the 發起檢查 needs both (see linkedAuditSteps).
+ * 稽核主管 get their 連動標記 (#189); a route launched through the 發起檢查 needs both (see linkedAuditSteps). Its 簽核人
+ * go on the 放行名單 first (listPeople, Q150); call unlistPeople(RUN) in afterAll.
  */
 export async function makeRoute(templateId: string, plantId: string, steps: RouteStepSpec[]): Promise<string> {
+  await listPeople(...steps.map((s) => s.signer))
   const route = await insertRow('approval_route', { template_id: templateId, plant_id: plantId })
   for (const [i, s] of steps.entries()) {
     await insertRow('route_step', {
@@ -269,6 +296,17 @@ export async function promoteToAuditAdmin(empId: string): Promise<void> {
 export async function promoteToSystemMaintainer(empId: string): Promise<void> {
   const { error } = await admin.from('employee_ref').update({ audit_role: 'system_maintainer' }).eq('emp_id', empId)
   if (error) throw error
+}
+
+/**
+ * Log in as a 系統維護員 on the 放行名單: the only one who adds, edits and removes people (Q150), so test setup that
+ * lets people in goes through them.
+ */
+export async function loginAsMaintainer(empId: string, name: string): Promise<SupabaseClient> {
+  await loginAs(empId, name)
+  await promoteToSystemMaintainer(empId)
+  await listPeople(empId)
+  return loginAs(empId, name)
 }
 
 /** Throws on a PostgREST error; writes without `.select()` come back with null data, which callers ignore. */

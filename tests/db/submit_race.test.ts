@@ -3,7 +3,7 @@
 // 所以直接連 Postgres（本機與 CI 的兩個環境都有跑）；沒設 CSA_DB_URL 或 CSA_DB_ADMIN_URL、或連不到時跳過。
 import type { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { launchAssigned, admin, beginAs, directDb, insertRow, linkedAuditSteps, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, stillWaiting } from './helpers'
+import { launchAssigned, admin, beginAs, directDb, insertRow, linkedAuditSteps, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, stillWaiting, unlistPeople } from './helpers'
 
 const RUN = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { boss: `${RUN}A`, checker: `${RUN}B`, manager: `${RUN}C` }
@@ -64,6 +64,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   for (const c of conns) await c.end().catch(() => {})
   if (!reachable) return
   await admin.from('annual_cycle').delete().gte('year', YEAR).lt('year', YEAR + 50)

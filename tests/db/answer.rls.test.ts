@@ -4,18 +4,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ASSESSMENT_TREE } from '../../src/api/assessmentQuery'
-import {
-  launchAssigned,
-  admin,
-  insertRow,
-  loginAs,
-  linkedAuditSteps, makeRoute,
-  makeTemplate,
-  promoteToAuditAdmin,
-  requirePostgrest,
-  restClient,
-  type TemplateSections,
-} from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, linkedAuditSteps, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, restClient, type TemplateSections, unlistPeople } from './helpers'
 
 const RUN = `w${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { auditAdmin: `${RUN}A`, checker: `${RUN}B`, checkerB: `${RUN}E`, manager: `${RUN}C`, outsider: `${RUN}D` }
@@ -136,6 +125,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant)
   await admin.from('questionnaire_template').delete().in('id', [ID.templateT, ID.templateE, ID.templateL].filter(Boolean))

@@ -19,3 +19,13 @@ export async function signInAsAuditAdmin(page: Page) {
   const session = storedSession('not-checked-by-the-mocked-api', 3_600_000)
   await page.addInitScript((s) => sessionStorage.setItem('csa.session', s), JSON.stringify(session))
 }
+
+/**
+ * The made-up answer to rpc/listed_emp_ids (Q150): which of the asked 工號 are on the 放行名單, in capitals, the way the
+ * database answers. Everyone asked is listed except `unlisted`.
+ */
+export function listedEmpIds(postData: unknown, unlisted: readonly string[] = []): string[] {
+  const asked = (postData as { p_emp_ids?: string[] } | null)?.p_emp_ids ?? []
+  const out = new Set(unlisted.map((id) => id.trim().toUpperCase()))
+  return [...new Set(asked.map((id) => id.trim().toUpperCase()))].filter((id) => !out.has(id))
+}

@@ -4,7 +4,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { readAssessmentPdfSource } from '../../src/api/assessmentPdfQuery'
 import { selectTracking } from '../../src/api/trackingQuery'
-import { launchAssigned, admin, insertRow, loginAs, linkedAuditSteps, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, restClient, withSuperuser } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, linkedAuditSteps, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, restClient, withSuperuser, loginAsMaintainer } from './helpers'
 
 const RUN = `C${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -32,6 +32,9 @@ const NO_PLANT = '00000000-0000-4000-8000-000000000000'
 
 const person = (empId: string, name: string) => ({ emp_id: empId, name, factory_code: FACTORY[1] })
 const chiefClient = () => loginAs(EMP.chief, '甲')
+/** 系統維護員：只有他能放行人員、移出名單（Q150）；稽核主管只指定、更換、卸任廠區負責人 */
+const MAINT = `${RUN}MT`
+const maintClient = () => loginAs(MAINT, '維護員')
 
 beforeAll(async () => {
   await requirePostgrest()
@@ -39,6 +42,7 @@ beforeAll(async () => {
   await promoteToAuditAdmin(EMP.chief)
   ok(await admin.from('access_allowlist').insert({ emp_id: EMP.chief }))
   for (const [who, name] of [[EMP.checker, '乙'], [EMP.manager, '丙']] as const) await loginAs(who, name)
+  const maint = await loginAsMaintainer(MAINT, '維護員')
 
   ID.company = (await insertRow('company', { name: `${RUN}公司` })).id
   ID.plant1 = (await insertRow('plant', { factory_code: FACTORY[1], name: `${RUN}一廠`, company_id: ID.company })).id
@@ -73,10 +77,10 @@ beforeAll(async () => {
     p_conclusions: [],
   }))
 
-  ok(await chief.rpc('add_access_members', {
+  ok(await maint.rpc('add_access_members', {
     p_people: [person(EMP.owner, '何欣怡'), person(EMP.next, '接任者')], p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
   }))
-  ok(await chief.rpc('add_access_members', { p_people: [person(EMP.viewer, '檢視者')], p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
+  ok(await maint.rpc('add_access_members', { p_people: [person(EMP.viewer, '檢視者')], p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
 })
 
 afterAll(async () => {
@@ -219,7 +223,7 @@ describe('移除', () => {
   it('taking someone off the 放行名單 also ends their 廠區負責人, logged', async () => {
     const chief = await chiefClient()
     ok(await chief.rpc('set_plant_coordinator', { p_plant_id: ID.plant2, p_emp_id: EMP.owner }))
-    ok(await chief.rpc('remove_access_member', { p_emp_id: EMP.owner }))
+    ok(await (await maintClient()).rpc('remove_access_member', { p_emp_id: EMP.owner }))
     expect(await coordinatorOf(ID.plant2!)).toBeNull()
     expect((await logOf(EMP.owner)).slice(-1).map((r) => [r.action, r.before])).toEqual([['coordinator_removed', { plant: FACTORY[2] }]])
   })
@@ -337,7 +341,7 @@ describe('分流（#97，Q116 (9)）', () => {
         p_conclusions: [{ assessing_unit_name: unit, conclusion: 'satisfied' }],
       }))
     }
-    ok(await chief.rpc('add_access_members', { p_people: [person(EMP.branchOwner, '三廠負責人')], p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
+    ok(await (await maintClient()).rpc('add_access_members', { p_people: [person(EMP.branchOwner, '三廠負責人')], p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
     ok(await chief.rpc('set_plant_coordinator', { p_plant_id: ID.plant3, p_emp_id: EMP.branchOwner }))
   })
 

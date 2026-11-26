@@ -491,7 +491,8 @@ export function RemoveMemberModal({
       open
       title={t('removeTitle', { name })}
       okText={t('removeOk')}
-      okButtonProps={{ danger: true, disabled: impact.isLoading, 'data-testid': 'access-remove-ok' } as ButtonProps}
+      // Someone still on a 關卡 is not removed until replaced there (Q150): the database refuses it too (still_assigned).
+      okButtonProps={{ danger: true, disabled: impact.isLoading || !groups.empty, 'data-testid': 'access-remove-ok' } as ButtonProps}
       confirmLoading={removing}
       onOk={async () => {
         setRemoving(true)
@@ -530,7 +531,7 @@ export function RemoveMemberModal({
         </Typography.Text>
       ) : (
         <div data-testid="access-impact">
-          <Alert type="warning" showIcon title={t('impactWarning')} style={{ marginBottom: 12 }} />
+          <Alert type="error" showIcon title={t('impactWarning')} style={{ marginBottom: 12 }} />
           {(['current', 'later', 'route'] as const).map(
             (kind) =>
               groups[kind].length > 0 && (

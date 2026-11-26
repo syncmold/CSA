@@ -1,12 +1,13 @@
 // 資料 API 接縫: 分派填寫人（工單 #101、#222；Q147 修訂 Q116 (5)(7)(8)、Q143）。發出前由稽核主管或該廠的廠區管理員在簽核
 // 流程上分派，全部分派好才能發出，發出時照抄進自評表、每條分流同時開始；發出後只有稽核主管能換人，換人寫回流程（明年沿用）。
-// 被排上的人自動放行，他手上的自評表都結案後失效；換人留著暫存答案；已簽的關卡不能換。Q147 前發出、還有關卡待分派的舊自評表
-// 由稽核主管補分派。例子同 Q116 的 mockup：何欣怡是廠區管理員，蔡宛儒不在放行名單上。
+// 被分派不再放行（Q150，修訂 Q116 (8)）：排進關卡的人要先在放行名單上（系統維護員開通），不在的拒絕（23514 signer_not_listed）；
+// 換人留著暫存答案；已簽的關卡不能換。Q147 前發出、還有關卡待分派的舊自評表由稽核主管補分派。例子同 Q116 的 mockup：
+// 何欣怡是廠區管理員，蔡宛儒是新來的人，系統維護員放行後才排得進關卡。
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { selectTracking, type TrackingRow } from '../../src/api/trackingQuery'
 import type { LaunchCheck } from '../../src/api/approvalRoutes'
-import { admin, depsFor, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
+import { admin, depsFor, insertRow, loggedActions, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser, listPeople, loginAsMaintainer } from './helpers'
 
 const RUN = `A${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 const EMP = {
@@ -17,7 +18,7 @@ const EMP = {
   otherOwner: `${RUN}C`,
   sales: `${RUN}D`,
   salesManager: `${RUN}E`,
-  /** 蔡宛儒：不在放行名單 */
+  /** 蔡宛儒：新來的人，系統維護員放行後才排得進關卡（Q150） */
   newcomer: `${RUN}F`,
   replacement: `${RUN}G`,
   plantManager: `${RUN}H`,
@@ -29,8 +30,12 @@ const EMP = {
   listedOther: `${RUN}K`,
   /** 在權限管理名單上、但 employee_ref 沒有他（沒登入過，Q134） */
   noRef: `${RUN}M`,
-  /** 子公司擔當稽核（Q143），不在放行名單 */
+  /** 子公司擔當稽核（Q143） */
   subsidiaryAuditor: `${RUN}N`,
+  /** 系統維護員：只有他能放行人員（Q150） */
+  maint: `${RUN}Y`,
+  /** 不在放行名單上的人：排不進關卡（Q150） */
+  unlisted: `${RUN}Z`,
 }
 /** OMS 給的寫法是小寫的工號：照存，放行比對時不分大小寫。 */
 const LOWER = `${RUN}l`
@@ -45,6 +50,7 @@ type Step = { id: string; position: number; name: string; signer_emp_id: string 
 type RouteStep = { id: string; name: string; signer_emp_id: string | null }
 
 let chief: SupabaseClient
+let maint: SupabaseClient
 let owner: SupabaseClient
 let otherOwner: SupabaseClient
 
@@ -106,6 +112,9 @@ beforeAll(async () => {
   await promoteToAuditAdmin(EMP.chief)
   ok(await admin.from('access_allowlist').insert({ emp_id: EMP.chief }))
   chief = await loginAs(EMP.chief, '甲')
+  maint = await loginAsMaintainer(EMP.maint, '維護員')
+  // 要排進關卡的人先由系統維護員放行（Q150：被分派不再放行）；工號照 OMS 的寫法（LOWER 小寫）也行，名單存大寫。
+  await listPeople(EMP.sales, EMP.salesManager, EMP.newcomer, EMP.replacement, EMP.plantManager, EMP.smallManager, LOWER)
   owner = await loginAs(EMP.owner, '何欣怡')
   otherOwner = await loginAs(EMP.otherOwner, '別廠')
 
@@ -138,7 +147,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   await admin.from('approval_route').delete().eq('plant_id', ID.mine!)
-  await admin.from('questionnaire_template').delete().in('id', [ID.main, ID.small, ID.audited].filter(Boolean))
+  await admin.from('questionnaire_template').delete().in('id', [ID.main, ID.small, ID.audited, ID.gone].filter(Boolean))
   await admin.from('plant_coordinator').delete().in('plant_id', [ID.mine, ID.other].filter(Boolean))
   const listed = ok(await admin.from('access_allowlist').select('emp_id').like('emp_id', `${RUN}%`)) as { emp_id: string }[]
   for (const { emp_id } of listed) await admin.from('access_allowlist').delete().eq('emp_id', emp_id)
@@ -161,7 +170,7 @@ describe('發出前在流程上分派（Q147）', () => {
   })
 
   it('廠區管理員讀得到本廠的流程、關卡與用到的範本（只讀）；別廠的讀不到', async () => {
-    ok(await chief.rpc('add_access_members', {
+    ok(await maint.rpc('add_access_members', {
       p_people: [{ emp_id: EMP.owner, name: '何欣怡', factory_code: FACTORY.mine }, { emp_id: EMP.otherOwner, name: '別廠', factory_code: FACTORY.other }],
       p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
     }))
@@ -199,8 +208,30 @@ describe('發出前在流程上分派（Q147）', () => {
     ok(await assignRoute(owner, checker.id, EMP.sales, '業務'))
     ok(await assignRoute(owner, checker.id, EMP.sales))
     expect((await routeStepNamed(ID.main!, checker.name)).signer_emp_id).toBe(EMP.sales)
-    expect(await loggedActions(EMP.replacement)).toEqual([])
-    expect(await loggedActions(EMP.sales)).toEqual([])
+    // 只有放行時的「加入」（Q150）。
+    expect(await loggedActions(EMP.replacement)).toEqual(['added'])
+    expect(await loggedActions(EMP.sales)).toEqual(['added'])
+  })
+
+  it('排進流程的人要在放行名單上：不在的拒絕（23514 signer_not_listed），比對不分大小寫（Q150）', async () => {
+    const step = await routeStepNamed(ID.main!, `自行檢查人員－${UNITS.sales}`)
+    for (const [client, empId] of [[owner, EMP.unlisted], [chief, ` ${EMP.unlisted.toLowerCase()} `]] as const) {
+      expect((await assignRoute(client, step.id, empId)).error, empId).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    }
+    expect((await routeStepNamed(ID.main!, step.name)).signer_emp_id).toBe(EMP.sales)
+    ok(await assignRoute(owner, step.id, EMP.replacement.toLowerCase()))
+    ok(await assignRoute(owner, step.id, EMP.sales))
+  })
+
+  it('流程編輯器也排不進不在放行名單上的人：新增關卡、直接改簽核人都拒絕（Q150）', async () => {
+    const routeId = (ok(await admin.from('approval_route').select('id').eq('template_id', ID.main!).single()) as { id: string }).id
+    const inserted = await chief.rpc('insert_route_step', { p_route_id: routeId, p_name: '多一關', p_step_group: 'audit_review', p_signer_emp_id: EMP.unlisted })
+    expect(inserted.error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    expect(await routeSteps(ID.main!)).toHaveLength(12)
+    const step = await routeStepNamed(ID.main!, '廠區經理人')
+    const updated = await chief.from('route_step').update({ signer_emp_id: EMP.unlisted }).eq('id', step.id)
+    expect(updated.error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    expect((await routeStepNamed(ID.main!, '廠區經理人')).signer_emp_id).toBeNull()
   })
 
   it('別廠的廠區管理員、一般使用者不能分派；稽核主管可以；連動關卡與空白拒絕', async () => {
@@ -235,15 +266,19 @@ describe('發出前在流程上分派（Q147）', () => {
 })
 
 describe('發出照抄流程上的人', () => {
-  it('不在放行名單的人排在流程上還不能登入；發出後能', async () => {
-    expect(await admitted(EMP.newcomer)).toBe(false)
+  it('發出不放行任何人：放行名單不變，名單上的人照樣能登入，名單以外的照樣不能（Q150）', async () => {
+    const listedNow = async () => (ok(await admin.from('access_allowlist').select('emp_id').like('emp_id', `${RUN}%`)) as { emp_id: string }[]).map((r) => r.emp_id).sort()
+    const before = await listedNow()
+    expect(await admitted(EMP.newcomer)).toBe(true)
     const launched = ok(await chief.rpc('launch_annual_cycle', { p_year: YEAR, p_due_date: DUE, p_combos: [combo(ID.main!), combo(ID.small!)] }))
     expect(launched).toMatchObject({ ok: true, assessments: 2, checked: false })
     expect(launched).not.toHaveProperty('carried')
     const rows = ok(await admin.from('assessment').select('id,template_id').eq('cycle_id', (launched as { cycle_id: string }).cycle_id)) as { id: string; template_id: string }[]
     ID.mainForm = rows.find((r) => r.template_id === ID.main)!.id
     ID.smallForm = rows.find((r) => r.template_id === ID.small)!.id
+    expect(await listedNow()).toEqual(before)
     expect(await admitted(EMP.newcomer)).toBe(true)
+    expect(await admitted(EMP.unlisted)).toBe(false)
     const newcomer = await loginAs(EMP.newcomer, '蔡宛儒')
     expect(ok(await newcomer.from('my_assessment').select('assessment_id,my_part')).map((r) => (r as { assessment_id: string }).assessment_id).sort())
       .toEqual([ID.mainForm, ID.smallForm].sort())
@@ -254,6 +289,23 @@ describe('發出照抄流程上的人', () => {
     expect(issued.map((s) => [s.name, s.signer_emp_id])).toEqual((await routeSteps(ID.main!)).map((s) => [s.name, s.signer_emp_id]))
     expect(issued.filter((s) => s.state === 'current').map((s) => s.branch_unit_name)).toEqual(Object.values(UNITS))
     expect(await trackingRow(ID.mainForm!)).toMatchObject({ stage: 'filling', branch_count: 4, branches_done: 0 })
+  })
+
+  it('流程上的人在發出前被移出放行名單：照抄那一關被拒（23514 signer_not_listed），什麼都沒發（Q150）', async () => {
+    const gone = `${RUN}X`
+    await listPeople(gone)
+    ID.gone = await makeTemplate(`${RUN}G`, 'control_activity', FACTORY.mine, [['第一章', [['要點一', ID.sales!]]]])
+    await makeRoute(ID.gone, ID.mine!, [
+      { name: '自行檢查人員', group: 'plant', signer: EMP.sales, unitId: ID.sales! },
+      { name: '廠區經理人', group: 'plant', signer: gone, unitId: null },
+      { name: '台北稽核人員', group: 'audit_review', signer: EMP.chief, unitId: null },
+      { name: '稽核主管', group: 'audit_review', signer: EMP.chief, unitId: null },
+    ])
+    // 繞過 remove_access_member（它擋還排在流程上的人），像部署指令直接刪。
+    await withSuperuser((sql) => sql.query('delete from public.access_allowlist where emp_id = $1', [gone]))
+    const refused = await chief.rpc('launch_annual_cycle', { p_year: YEAR, p_due_date: DUE, p_combos: [combo(ID.gone!)] })
+    expect(refused.error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    expect(ok(await admin.from('assessment').select('id').eq('template_id', ID.gone!))).toEqual([])
   })
 })
 
@@ -285,7 +337,7 @@ describe('發出後只有稽核主管換人（Q147）', () => {
   })
 
   it('換人寫回流程，明年發出沿用；不記權限異動紀錄（Q149）', async () => {
-    expect(await loggedActions(EMP.replacement)).toEqual([])
+    expect(await loggedActions(EMP.replacement)).toEqual(['added']) // 只有放行時的「加入」（Q150）
     expect((await routeStepNamed(ID.main!, `自行檢查人員－${UNITS.quality}`)).signer_emp_id).toBe(EMP.replacement)
     // 其他關卡不動。
     expect((await routeStepNamed(ID.main!, `部門主管－${UNITS.quality}`)).signer_emp_id).toBe(EMP.salesManager)
@@ -304,6 +356,15 @@ describe('發出後只有稽核主管換人（Q147）', () => {
   it('工號照 OMS 的寫法照抄；放行比對時不分大小寫', async () => {
     expect((await stepNamed(ID.mainForm!, `部門主管－${UNITS.finance}`)).signer_emp_id).toBe(LOWER)
     expect(await admitted(LOWER.toUpperCase())).toBe(true)
+    expect(await admitted(LOWER)).toBe(true)
+  })
+
+  it('換上不在放行名單上的人被拒（23514 signer_not_listed），那一關不動（Q150）', async () => {
+    const step = await stepNamed(ID.mainForm!, `部門主管－${UNITS.sales}`)
+    expect((await assign(chief, step.id, EMP.unlisted)).error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    expect((await assign(maint, step.id, EMP.unlisted.toLowerCase())).error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
+    expect((await stepNamed(ID.mainForm!, step.name)).signer_emp_id).toBe(EMP.salesManager)
+    expect((await routeStepNamed(ID.main!, step.name)).signer_emp_id).toBe(EMP.salesManager)
   })
 })
 
@@ -342,7 +403,7 @@ describe('走到結案（小表）', () => {
     expect(ok(await replacement.rpc('submit_assessment_step', { p_assessment_id: form }))).toMatchObject({ ok: true })
   })
 
-  it('結案後不能再換人；只有這張表的人不再放行，手上還有別張沒結案的照樣放行（Q117 (5)）', async () => {
+  it('結案後不能再換人；放行跟著放行名單，不跟著自評表：結案後照樣能登入（Q150，取代 Q117 (5)）', async () => {
     const manager = await loginAs(EMP.smallManager, '經理')
     ok(await manager.rpc('approve_assessment_step', { p_assessment_id: form }))
     expect(await admitted(EMP.smallManager)).toBe(true)
@@ -351,8 +412,8 @@ describe('走到結案（小表）', () => {
     expect(ok(await admin.from('assessment').select('status').eq('id', form).single())).toEqual({ status: 'closed' })
 
     expect((await assign(chief, (await stepNamed(form, '廠區經理人')).id, EMP.replacement)).error).toMatchObject({ code: '23514', hint: 'assessment_closed' })
-    expect(await admitted(EMP.smallManager)).toBe(false)
-    expect(await admitted(EMP.replacement)).toBe(true) // 銷售循環的品保自行檢查還是他
+    expect(await admitted(EMP.smallManager)).toBe(true)
+    expect(await admitted(EMP.replacement)).toBe(true)
   })
 })
 
@@ -362,12 +423,13 @@ describe('分派選人的名單：這一廠的自評表與流程已經排過的�
   const listedOther = { emp_id: EMP.listedOther, name: '別廠同仁', factory_code: FACTORY.other }
 
   it('只列這一廠的表上與流程上、由分派決定的關卡排過的人，帶 CSA 存的姓名；權限管理名單上但沒排過的人不列', async () => {
-    ok(await chief.rpc('add_access_members', {
+    ok(await maint.rpc('add_access_members', {
       p_people: [listed, listedOther], p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
     }))
     ok(await admin.from('access_allowlist').insert({ emp_id: EMP.noRef }))
     // 只排在流程上（還沒發出）的人也列。
     const routeOnly = `${RUN}R`
+    await listPeople(routeOnly)
     ok(await assignRoute(owner, (await routeStepNamed(ID.small!, '廠區經理人')).id, routeOnly))
     const people = ok(await list(owner, FACTORY.mine)) as { emp_id: string; name: string | null }[]
     // 對照：直接從關卡算（廠區端，加上稽核室不連動的一般關卡；流程上非連動的關卡）。
@@ -376,12 +438,15 @@ describe('分派選人的名單：這一廠的自評表與流程已經排過的�
       .eq('assessment.plant.factory_code', FACTORY.mine).not('signer_emp_id', 'is', null)) as { signer_emp_id: string; step_group: string; link: string | null }[]
     const routeRows = ok(await admin.from('route_step').select('signer_emp_id,link,approval_route!inner(plant_id)')
       .eq('approval_route.plant_id', ID.mine!).is('link', null).not('signer_emp_id', 'is', null)) as { signer_emp_id: string }[]
+    // 只算放行名單上的人（Q150）：上面「發出前被移出放行名單」那張的廠區經理人還在流程上，但不列。
+    const onList = new Set((ok(await admin.from('access_allowlist').select('emp_id').like('emp_id', `${RUN}%`)) as { emp_id: string }[]).map((r) => r.emp_id))
     const expected = [...new Set([
       ...formSteps.filter((x) => x.step_group === 'plant' || x.link === null).map((x) => x.signer_emp_id),
       ...routeRows.map((x) => x.signer_emp_id),
-    ])].sort()
+    ])].filter((id) => onList.has(id.trim().toUpperCase())).sort()
     expect(people.map((p) => p.emp_id).sort()).toEqual(expected)
     expect(people.map((p) => p.emp_id)).toContain(routeOnly)
+    expect(people.map((p) => p.emp_id)).not.toContain(`${RUN}X`)
     // 被換下來的人（蔡宛儒）表上、流程上都不在了，所以不列。
     expect(people.map((p) => p.emp_id)).not.toContain(EMP.newcomer)
     expect(people.find((p) => p.emp_id === EMP.sales)).toEqual({ emp_id: EMP.sales, name: '業務' })
@@ -389,6 +454,12 @@ describe('分派選人的名單：這一廠的自評表與流程已經排過的�
     // 稽核主管哪一廠都能查；別廠沒有發過表、沒排過流程就是空的。
     expect((ok(await list(chief, FACTORY.mine)) as unknown[]).length).toBe(people.length)
     expect(ok(await list(chief, FACTORY.other))).toEqual([])
+
+    // 只列放行名單上的人（Q150）：關卡上的人被直接移出名單（部署指令）就不列，回到名單又列。
+    await withSuperuser((sql) => sql.query('delete from public.access_allowlist where emp_id = $1', [routeOnly]))
+    expect((ok(await list(owner, FACTORY.mine)) as { emp_id: string }[]).map((p) => p.emp_id)).not.toContain(routeOnly)
+    await listPeople(routeOnly)
+    expect((ok(await list(owner, FACTORY.mine)) as { emp_id: string }[]).map((p) => p.emp_id)).toContain(routeOnly)
   })
 
   it('別廠的廠區管理員與一般使用者查不到；原本不限廠區的退路（plant_access_members）已經拿掉', async () => {
@@ -413,7 +484,7 @@ describe('分派選人的名單：這一廠的自評表與流程已經排過的�
     const form = ID.mainForm!
     const finance = UNITS.finance
     ok(await assign(chief, (await stepNamed(form, `自行檢查人員－${finance}`)).id, EMP.listedOther, '別廠同仁'))
-    expect(await admitted(EMP.listedOther)).toBe(true) // 自動放行不看廠區（Q116 (8)）
+    expect(await admitted(EMP.listedOther)).toBe(true) // 系統維護員放行的，不看廠區（Q150 起被分派不再放行）
 
     const visitor = await loginAs(EMP.listedOther, '別廠同仁')
     expect(ok(await visitor.from('my_assessment').select('assessment_id,my_part'))).toContainEqual({ assessment_id: form, my_part: 'fill' })
@@ -452,15 +523,15 @@ describe('Q147 前發出、還有關卡待分派的舊自評表：稽核主管�
     expect((await todoOf(owner)).filter((r) => r.kind === 'assessment')).toEqual([])
   })
 
-  it('廠區管理員不能補；稽核主管補上後被分派的人能登入，待辦消失', async () => {
+  it('廠區管理員不能補；稽核主管補上放行名單上的人，待辦消失；名單以外的人補不上（Q150）', async () => {
     const audit = await stepNamed(ID.auditedForm!, '子公司擔當稽核')
     expect(audit).toMatchObject({ signer_emp_id: null, state: 'pending' })
-    expect(await admitted(EMP.subsidiaryAuditor)).toBe(false)
     expect((await assign(owner, audit.id, EMP.subsidiaryAuditor)).error?.code).toBe('42501')
+    expect((await assign(chief, audit.id, EMP.unlisted)).error).toMatchObject({ code: '23514', hint: 'signer_not_listed' })
     ok(await assign(chief, audit.id, EMP.subsidiaryAuditor, '子公司稽核'))
     expect((await stepNamed(ID.auditedForm!, '子公司擔當稽核')).signer_emp_id).toBe(EMP.subsidiaryAuditor)
     expect(await admitted(EMP.subsidiaryAuditor)).toBe(true)
     expect(await todoOf(chief)).toEqual([])
-    expect(await loggedActions(EMP.subsidiaryAuditor)).toEqual([])
+    expect(await loggedActions(EMP.subsidiaryAuditor)).toEqual(['added']) // 只有放行時的「加入」，補分派不記
   })
 })

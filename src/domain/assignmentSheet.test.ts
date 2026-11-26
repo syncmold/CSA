@@ -11,6 +11,8 @@ import {
   routeSheetEntry,
   SHEET_NAMES,
   sheetLayout,
+  unlisted,
+  type OmsAnswer,
   type OmsStatus,
   type RawSheet,
   type SheetCell,
@@ -387,6 +389,21 @@ describe('importPlan', () => {
     const most = importPlan([cell('FQ1'), cell('FQ2'), cell('SY1')], oms([['FQ1', 'other_plant'], ['FQ2', 'other_plant'], ['SY1', 'matched']]), false)
     expect(most.bulkWarning).toBe(true)
     expect(most.writes).toHaveLength(3) // 勾選後照常寫入
+  })
+
+  it('never writes someone not on the 放行名單, whatever OMS says, and counts them apart (Q150)', () => {
+    const cells = [cell('SY2211'), cell('FQ0031'), cell('SY0140'), cell('SY1352')]
+    const answers = new Map<string, OmsAnswer>([
+      ['SY2211', { status: 'matched', csa: true, listed: true }],
+      ['FQ0031', { status: 'other_plant', csa: true, listed: false }],
+      ['SY0140', { status: 'matched', csa: false, listed: false }],
+      ['SY1352', { status: 'departed', csa: false, listed: false }],
+    ])
+    const plan = importPlan(cells, answers, false)
+    expect(plan.writes.map((w) => w.emp_id)).toEqual(['SY2211'])
+    expect(plan.notListed).toBe(2) // 已離職 is not counted: it is not written anyway
+    expect(plan.noCsa).toBe(1)
+    expect([...answers.values()].map(unlisted)).toEqual([false, true, true, false])
   })
 
   it('only points out people OMS has not enabled for CSA until CSA_REQUIRE_OMS_AUTH is on, then leaves them out (Q133 (4))', () => {

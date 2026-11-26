@@ -6,7 +6,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it, onTestFinished } from 'vitest'
 import type { LaunchCheck, NewStepInput as StepInput } from '../../src/api/approvalRoutes'
-import { launchAssigned, admin, insertControlPoint, insertRow, loginAs, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { launchAssigned, admin, insertControlPoint, insertRow, loginAs, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, listPeople, unlistPeople } from './helpers'
 
 // 資料庫測試檔案並行執行：前綴與隨機尾巴避免和其他檔案的工號、年度撞在一起。
 const RUN = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
@@ -99,6 +99,8 @@ async function launchCheck(id: string) {
 
 beforeAll(async () => {
   await requirePostgrest()
+  // 關卡上的人要先在放行名單上（Q150）
+  await listPeople(...Object.values(EMP))
   await loginAs(EMP.signer, '甲')
   await loginAs(EMP.boss, '丙')
   await promoteToAuditAdmin(EMP.boss)
@@ -119,6 +121,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN)
   // 每一步都檢查錯誤：清理失敗留下的啟用範本會讓之後不給組合的年度發起失敗。
   ok(await admin.from('annual_cycle').delete().gte('year', YEAR).lte('year', YEAR + 2))
   ok(await admin.from('approval_route').delete().eq('plant_id', ID.plant))

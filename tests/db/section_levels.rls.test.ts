@@ -5,7 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { drafterConnectionString } from '../../scripts/drafts/connection.ts'
-import { admin, insertRow, launchAssigned, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
+import { admin, insertRow, launchAssigned, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser, unlistPeople } from './helpers'
 
 // 資料庫測試檔案並行執行：前綴與隨機尾巴避免和其他檔案的工號、年度、範本編號撞在一起。
 const RUN = `h${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
@@ -71,6 +71,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await drafter?.end()
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant ?? '')

@@ -5,7 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ASSESSMENT_TREE, SIGNOFF_COLUMNS } from '../../src/api/assessmentQuery'
 import type { Signoff } from '../../src/api/signoffModel'
-import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, restClient } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, restClient, listPeople, unlistPeople } from './helpers'
 
 const RUN = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = {
@@ -82,6 +82,8 @@ async function answerAndSubmit() {
 
 beforeAll(async () => {
   await requirePostgrest()
+  // 關卡上的人要先在放行名單上（Q150）
+  await listPeople(...Object.values(EMP))
   for (const who of Object.values(EMP)) await as(who)
   await promoteToAuditAdmin(EMP.auditAdmin)
 
@@ -100,6 +102,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN)
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant)
   if (ID.template) await admin.from('questionnaire_template').delete().eq('id', ID.template)

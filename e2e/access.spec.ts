@@ -5,8 +5,9 @@ import {
 import { actAs, actAsAdminAccount, type Person } from './support/mainFlow'
 
 // 權限管理（#58、Q98、Q122；管理員帳號 #161）：對真實的 Postgres＋PostgREST，系統維護員在畫面上加入一個沒登入過的人 → 改角色 → 移除，
-// 並看異動紀錄；稽核主管只看得到一般使用者、檢視者與稽核人員的選項（設成稽核主管會降級前任，只在資料庫測試裡試，免得動到共用資料庫的其他稽核主管）。誰能做什麼由資料庫決定，規則細節在
-// tests/db/access_management.rls.test.ts；這裡驗畫面走得通。
+// 並看異動紀錄；還排在關卡上的人要先換人才能移除（Q150）。只有系統維護員放行與設定角色（Q150）：稽核主管沒有加入人員與編輯，
+// 只留廠區權限指定廠區管理員（設成稽核主管會降級前任，只在資料庫測試裡試，免得動到共用資料庫的其他稽核主管）。誰能做什麼由資料庫決定，
+// 規則細節在 tests/db/access_management.rls.test.ts；這裡驗畫面走得通。
 // OMS 的查人通道換成假的（只有 NEWCOMER；攔在 CSA 後端的 /oms-people，#218），CSA 這邊的身分走真實換證（同 support/mainFlow.ts）。
 
 const RUN = `x${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.toUpperCase()
@@ -20,6 +21,8 @@ let companyId = ''
 let plantId = ''
 let fq02 = ''
 let routeId = ''
+/** 流程上的台北稽核人員關卡：測試中途把新人排上去，看移除被擋（Q150）。 */
+let taipeiStepId = ''
 
 test.beforeAll(async () => {
   await requirePostgrest()
@@ -33,13 +36,15 @@ test.beforeAll(async () => {
   ok(await admin.from('access_allowlist').insert({ emp_id: MAINT.empId }))
   companyId = (await insertRow('company', { name: `${RUN}測試公司` })).id
   plantId = (await insertRow('plant', { factory_code: FACTORY, name: PLANT_NAME, company_id: companyId })).id
-  // 新人在這個廠區一條簽核流程上，移除時要被提醒（流程沒有狀態，每條都算，Q137 (6)）。
+  // 這個廠區的一條簽核流程：新人加入後排上台北稽核人員，移除時要被擋（流程沒有狀態，每條都算，Q137 (6)；Q150）。
+  // 排進關卡的人要先在放行名單上（Q150），所以流程先排稽核主管。
   // FQ-02 只適用福清（Q111），流程要掛在適用的廠區上，所以測試期間借給測試廠區，收尾時還回去。
   fq02 = await borrowFq02(FACTORY)
   routeId = await makeRoute(fq02, plantId, [
-    { name: '台北稽核人員', group: 'audit_review', signer: NEWCOMER.empId, unitId: null },
+    { name: '台北稽核人員', group: 'audit_review', signer: CHIEF.empId, unitId: null },
     { name: '稽核主管', group: 'audit_review', signer: CHIEF.empId, unitId: null },
   ])
+  taipeiStepId = (ok(await admin.from('route_step').select('id').eq('route_id', routeId).eq('name', '台北稽核人員').single()) as { id: string }).id
 })
 
 test.afterAll(async () => {
@@ -130,12 +135,25 @@ test('a 系統維護員 adds someone who never signed in, changes their role, an
   await page.reload()
   await expect(memberRow(page, NEWCOMER.empId)).not.toContainText('尚未登入')
 
-  // 移除（在編輯視窗左下）：確認框提醒他還在簽核流程的關卡上，但不擋
+  // 他被排上簽核流程的台北稽核人員（在名單上才排得進去，Q150；分派的畫面在分派的測試）。
+  ok(await admin.from('route_step').update({ signer_emp_id: NEWCOMER.empId }).eq('id', taipeiStepId))
+  // 移除（在編輯視窗左下）：確認框列出他還在的關卡，要先換人，不能移除（Q150）
   await memberRow(page, NEWCOMER.empId).getByTestId('access-edit').click()
   await page.getByTestId('access-edit-modal').getByTestId('access-remove').click()
   const remove = page.getByTestId('access-remove-modal')
   await expect(remove.getByTestId('access-impact-route')).toHaveText(`FQ-02 採購及付款循環 × ${FACTORY} ${PLANT_NAME}：第 1 關 台北稽核人員`)
   await expect(remove.getByTestId('access-impact-current')).toHaveCount(0)
+  await expect(remove.getByTestId('access-impact')).toContainText('要先換人才能移除')
+  await expect(remove.getByTestId('access-remove-ok')).toBeDisabled()
+  await page.keyboard.press('Escape')
+  await expect(remove).toHaveCount(0)
+  await expect(memberRow(page, NEWCOMER.empId)).toBeVisible()
+
+  // 流程換回別人之後就能移除
+  ok(await admin.from('route_step').update({ signer_emp_id: CHIEF.empId }).eq('id', taipeiStepId))
+  await memberRow(page, NEWCOMER.empId).getByTestId('access-edit').click()
+  await page.getByTestId('access-edit-modal').getByTestId('access-remove').click()
+  await expect(remove.getByTestId('access-impact-none')).toBeVisible()
   await remove.getByTestId('access-remove-ok').click()
   await expect(remove).toHaveCount(0)
   await expect(memberRow(page, NEWCOMER.empId)).toHaveCount(0)
@@ -223,21 +241,17 @@ test('a 系統維護員 gets every page a 稽核主管 does, 年度發起 and �
   await expect(page.getByTestId('start-editing')).toBeVisible()
 })
 
-test('a 稽核主管 is offered 一般使用者, 檢視者 and 稽核人員 only, and cannot edit or remove a 稽核主管 or 系統維護員', async ({ page }) => {
+test('a 稽核主管 lets no one in and sets no role (Q150): no 加入人員 or 編輯, but 廠區權限 for whoever may run a plant', async ({ page }) => {
   await actAs(page, CHIEF)
   await page.getByTestId('nav-access').click()
   for (const empId of [CHIEF.empId, MAINT.empId]) {
     await expect(memberRow(page, empId).getByTestId('access-member-role')).toBeVisible()
     await expect(memberRow(page, empId).getByTestId('access-edit')).toHaveCount(0)
-    await expect(memberRow(page, empId).getByTestId('access-plant-rights')).toHaveCount(0)
   }
-  await page.getByTestId('access-add').click()
-  const dialog = page.getByTestId('access-add-modal')
-  await expect(dialog.getByRole('radio')).toHaveCount(3)
-  await expect(dialog.getByTestId('access-role-signer')).toBeVisible()
-  await expect(dialog.getByTestId('access-role-viewer')).toBeVisible()
-  await expect(dialog.getByTestId('access-role-audit_staff')).toBeVisible()
-  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('access-add')).toHaveCount(0)
+  // 廠區權限只用來指定廠區管理員：稽核主管自己可以管廠，系統維護員不管廠（Q122 (2)）。
+  await expect(memberRow(page, CHIEF.empId).getByTestId('access-plant-rights')).toBeVisible()
+  await expect(memberRow(page, MAINT.empId).getByTestId('access-plant-rights')).toHaveCount(0)
 })
 
 const OWNER: Person = { empId: `${RUN}O`, name: '測試負責人' }
@@ -302,13 +316,18 @@ test('a 稽核主管 makes someone the 廠區負責人 from the plant card; they
     await expect(rights.getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeChecked()
     await page.keyboard.press('Escape')
     await expect(rights).toHaveCount(0)
-    // 移除他之前，確認框先說哪些廠區會變成未指定。
-    await row.getByTestId('access-edit').click()
-    await page.getByTestId('access-edit-modal').getByTestId('access-remove').click()
-    const removal = page.getByTestId('access-remove-modal')
+    // 稽核主管不能移除他（Q150）；系統維護員移除之前，確認框先說哪些廠區會變成未指定。
+    await expect(row.getByTestId('access-edit')).toHaveCount(0)
+    const maint = await browser.newPage()
+    await actAs(maint, MAINT)
+    await maint.getByTestId('nav-access').click()
+    await memberRow(maint, OWNER.empId).getByTestId('access-edit').click()
+    await maint.getByTestId('access-edit-modal').getByTestId('access-remove').click()
+    const removal = maint.getByTestId('access-remove-modal')
     await expect(removal.getByTestId('access-remove-plants')).toContainText(`${FACTORY} ${PLANT_NAME}`)
-    await page.keyboard.press('Escape')
+    await maint.keyboard.press('Escape')
     await expect(removal).toHaveCount(0)
+    await maint.close()
 
     await page.getByRole('tab', { name: '異動紀錄' }).click()
     const log = page.getByTestId('access-log').getByRole('row').filter({ hasText: OWNER.empId })

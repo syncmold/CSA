@@ -6,7 +6,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { LaunchCandidate } from '../../src/api/launch'
-import { launchAssigned, admin, beginAs, directDb, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, stillWaiting } from './helpers'
+import { launchAssigned, admin, beginAs, directDb, insertRow, listPeople, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, stillWaiting, unlistPeople } from './helpers'
 
 const RUN = `l${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { boss: `${RUN}A`, first: `${RUN}B`, manager: `${RUN}C`, outsider: `${RUN}D` }
@@ -62,12 +62,13 @@ beforeAll(async () => {
   ])
 
   // 廠區要有廠區負責人才能發起
-  await insertRow('access_allowlist', { emp_id: EMP.manager.toUpperCase() })
+  await listPeople(EMP.manager) // 也許已經因為排在流程上而在名單上（makeRoute，Q150）
   await insertRow('plant_coordinator', { plant_id: ID.ready, emp_id: EMP.manager.toUpperCase() })
 })
 
 afterAll(async () => {
   await admin.from('plant_coordinator').delete().eq('plant_id', ID.ready)
+  await unlistPeople(RUN)
   await admin.from('annual_cycle').delete().gte('year', YEAR).lte('year', YEAR + 9)
   await admin.from('approval_route').delete().in('plant_id', [ID.ready, ID.bare].filter(Boolean))
   await admin.from('questionnaire_template').delete().in('code', Object.values(CODE))

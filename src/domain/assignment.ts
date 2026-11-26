@@ -82,6 +82,7 @@ export function assignmentWriteError(t: TFunction, error: unknown, issued = true
   if (hint === 'linked_step') return t('errors.linkedStep')
   if (hint === 'signer_required') return t('errors.signerRequired')
   if (hint === 'assessment_closed') return t('errors.closed')
+  if (hint === 'signer_not_listed') return t('errors.notListed')
   if (code === '42501') return t(issued ? 'errors.deniedIssued' : 'errors.denied')
   return errorText(error)
 }

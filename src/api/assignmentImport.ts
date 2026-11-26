@@ -3,6 +3,7 @@
 import { freshCsaToken } from '../auth/freshToken'
 import type { OmsAnswer } from '../domain/assignmentSheet'
 import { env } from '../env'
+import { isListed, listedEmpIds } from './people'
 import { supabase } from './supabase'
 
 /** Served next to the exchange: the Vite middleware locally, the Edge Function on the demo environments. */
@@ -17,7 +18,7 @@ export class OmsMatchError extends Error {}
 /**
  * What OMS says about each 工號 for this 廠區, asked by the CSA backend (exchange/omsMatch.ts); the browser never reads
  * OMS's people for this, only a status and whether OMS lets them use CSA. Also whether CSA requires the latter yet
- * (CSA_REQUIRE_OMS_AUTH). Throws when the backend refuses or cannot answer.
+ * (CSA_REQUIRE_OMS_AUTH), and whether each is on CSA's 放行名單 (Q150). Throws when the backend refuses or cannot answer.
  */
 export async function matchWithOms(factoryCode: string, empIds: readonly string[]): Promise<{ answers: Map<string, OmsAnswer>; csaRequired: boolean }> {
   const token = await freshCsaToken()
@@ -29,8 +30,9 @@ export async function matchWithOms(factoryCode: string, empIds: readonly string[
   type Payload = { results?: ({ emp_id: string } & OmsAnswer)[]; csa_required?: boolean; error?: string }
   const payload = (await response.json().catch(() => ({}))) as Payload
   if (!response.ok || !payload.results) throw new OmsMatchError(payload.error ?? `HTTP ${response.status}`)
+  const listed = await listedEmpIds(payload.results.map((r) => r.emp_id))
   return {
-    answers: new Map(payload.results.map((r) => [r.emp_id, { status: r.status, csa: r.csa === true }])),
+    answers: new Map(payload.results.map((r) => [r.emp_id, { status: r.status, csa: r.csa === true, listed: isListed(listed, r.emp_id) }])),
     csaRequired: payload.csa_required === true,
   }
 }

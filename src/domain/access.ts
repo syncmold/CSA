@@ -13,12 +13,6 @@ import { writeErrorMessage } from './templates'
 export const AUDIT_ROLES: readonly AuditRole[] = ['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer']
 
 /**
- * Only a 系統維護員 makes someone one of these, or changes or removes someone who is (Q122 (3)). A 稽核人員 is not one:
- * the 稽核主管 sets those too (#187).
- */
-const MAINTAINER_ONLY: readonly AuditRole[] = ['audit_admin', 'system_maintainer']
-
-/**
  * The 權限管理 page is for 稽核主管 and 系統維護員 (Q122 (2)(3)). For showing and hiding only; the database decides
  * (can_manage_access).
  */
@@ -77,14 +71,23 @@ export function canEditRoute(role: AuditRole | null | undefined, runPlantIds: re
 export const mayAddSettings = (role: AuditRole | null | undefined, runPlantIds: readonly string[]): boolean =>
   actsAsAuditAdmin(role) || (role === 'audit_staff' && runPlantIds.length > 0)
 
-/** The roles `myRole` may give someone: every role for a 系統維護員, 一般使用者, 檢視者 and 稽核人員 for a 稽核主管 (Q122 (3), #187). */
+/**
+ * Whether `myRole` may let people into CSA and set their role, 檢視廠區 and 備註: adding, editing and removing on the
+ * 人員 tab. Only a 系統維護員 (Q150, before it the 稽核主管 too, Q122 (3)); the database decides (require_may_manage).
+ */
+export const admitsPeople = (myRole: AuditRole | null | undefined): boolean => myRole === 'system_maintainer'
+
+/** The roles `myRole` may give someone: every role for a 系統維護員, none for anyone else (Q150). */
 export function assignableRoles(myRole: AuditRole | null | undefined): AuditRole[] {
-  return AUDIT_ROLES.filter((r) => myRole === 'system_maintainer' || !MAINTAINER_ONLY.includes(r))
+  return admitsPeople(myRole) ? [...AUDIT_ROLES] : []
 }
 
-/** Whether `myRole` may edit or remove `m`: a 稽核主管 leaves 稽核主管 and 系統維護員 to a 系統維護員 (Q122 (3)). */
-export function mayManage(myRole: AuditRole | null | undefined, m: Pick<AccessMember, 'audit_role'>): boolean {
-  return myRole === 'system_maintainer' || (myRole === 'audit_admin' && !MAINTAINER_ONLY.includes(m.audit_role))
+/**
+ * Whether `myRole` may open 廠區權限 for `m`: a 系統維護員 for anyone; a 稽核主管 only to make `m` a 廠區管理員 or
+ * stand them down (Q150), so not for a 檢視者, whose 廠區權限 are his 檢視廠區, nor for a 系統維護員, who runs no plant.
+ */
+export function mayEditPlantRights(myRole: AuditRole | null | undefined, m: Pick<AccessMember, 'audit_role'>): boolean {
+  return admitsPeople(myRole) || (myRole === 'audit_admin' && m.audit_role !== 'viewer' && mayRunPlant(m))
 }
 
 /**
@@ -119,6 +122,7 @@ export function accessWriteError(t: TFunction, error: unknown): string {
   if (hint === 'maintainer_only') return t('access:errors.maintainerOnly')
   if (hint === 'maintainer_not_coordinator') return t('access:errors.maintainerNotCoordinator')
   if (hint === 'single_audit_admin') return t('access:errors.singleAdmin')
+  if (hint === 'still_assigned') return t('access:errors.stillAssigned')
   return writeErrorMessage(t, error, { '23514': 'access:errors.lastAdmin', P0002: 'access:errors.notListed', '23503': 'access:errors.plant' })
 }
 

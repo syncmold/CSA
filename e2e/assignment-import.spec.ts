@@ -2,7 +2,7 @@ import { expect, test, type Page, type Request, type Route } from '@playwright/t
 import { strFromU8, unzipSync } from 'fflate'
 import readXlsxFile from 'read-excel-file/node'
 import writeXlsxFile from 'write-excel-file/node'
-import { signInAsAuditAdmin } from './support/mockSession'
+import { listedEmpIds, signInAsAuditAdmin } from './support/mockSession'
 
 // 下載分派表／匯入分派表 (#180, Q130; Q147 (6), #224: 下次發出 on the 簽核流程, an issued 年度 on its 自評表). Every
 // /rest/v1 answer and the CSA backend's OMS 比對 are made up here, so no database, OMS or sign-in is needed; who may
@@ -77,6 +77,8 @@ interface Mock {
   noCsa?: string[]
   /** CSA_REQUIRE_OMS_AUTH on the backend. */
   csaRequired?: boolean
+  /** 工號 not on CSA's 放行名單 (Q150); everyone else is. */
+  unlisted?: string[]
   writes?: Request[]
   omsCalls?: Request[]
 }
@@ -92,6 +94,7 @@ async function mockApi(page: Page, mock: Mock = {}) {
     if (path.endsWith('/plant_coordinator')) return r.fulfill({ json: (mock.plants ?? [PLANT]).map((plant) => ({ plant })) })
     if (path.endsWith('/assessment')) return r.fulfill({ json: forms })
     if (path.endsWith('/approval_route')) return r.fulfill({ json: mock.routes ?? [] })
+    if (path.endsWith('/rpc/listed_emp_ids')) return r.fulfill({ json: listedEmpIds(request.postDataJSON(), mock.unlisted) })
     if (path.endsWith('/rpc/import_route_assignment')) {
       mock.routeWrites?.push(request)
       const cells = (request.postDataJSON() as { p_cells: unknown[] }).p_cells
@@ -292,6 +295,30 @@ for (const csaRequired of [false, true]) {
     await expect(page.getByTestId('assignment-imported')).toContainText('1 位留停，他們的格子沒有匯入。')
   })
 }
+
+test('匯入：還不在放行名單上的人標「未放行」，他們的格子不寫入（Q150）', async ({ page }) => {
+  const writes: Request[] = []
+  await open(page, { writes, unlisted: ['FQ2211'] })
+  const { buffer } = await download(page)
+  await upload(page, buffer, (sheets) => {
+    set(sheets, 4, COL.qualitySelf, 'fq2211') // 小寫照樣認出是同一個人
+    set(sheets, 4, COL.qualityChief, 'FQ0031')
+  })
+
+  const people = page.getByTestId('import-people')
+  await expect(page.getByTestId('import-chip-not_listed')).toContainText('1')
+  await page.getByTestId('import-chip-not_listed').click()
+  await expect(people.getByTestId('import-person')).toHaveCount(1)
+  await expect(people.getByTestId('import-person')).toContainText('FQ2211')
+  await expect(people.getByTestId('import-person')).toContainText('未放行')
+  await expect(people).toContainText('還不在 CSA 放行名單上（沒申請 CSA 權限）')
+  await expect(people).toContainText('這些格子不匯入。請他填權限申請表，系統維護員開通後再匯入一次')
+
+  await page.getByTestId('import-confirm').click()
+  expect(writes).toHaveLength(1)
+  expect((writes[0]!.postDataJSON() as { p_cells: unknown[] }).p_cells).toEqual([{ step_id: 's4', emp_id: 'FQ0031' }])
+  await expect(page.getByTestId('assignment-imported')).toContainText('1 位還不在 CSA 放行名單上，他們的格子沒有匯入，請系統維護員開通後再匯入。')
+})
 
 test('匯入：超過一半的人廠區不同，要勾選確認才能匯入', async ({ page }) => {
   const writes: Request[] = []

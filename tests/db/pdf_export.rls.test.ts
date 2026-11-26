@@ -8,7 +8,7 @@ import { readAssessmentPdfSource } from '../../src/api/assessmentPdfQuery'
 import { renderAssessmentPdf } from '../../src/pdf/assessmentPdf'
 import { nodePdfEngine } from '../../src/pdf/testing/nodeEngine'
 import { allText, readPdf } from '../../src/pdf/testing/pdfText'
-import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, promoteToAuditAdmin, requirePostgrest, unlistPeople } from './helpers'
 
 const RUN = `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { auditAdmin: `${RUN}A`, checker: `${RUN}B`, manager: `${RUN}C`, chief: `${RUN}F`, outsider: `${RUN}D` }
@@ -74,6 +74,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant)
   if (ID.template) await admin.from('questionnaire_template').delete().eq('id', ID.template)

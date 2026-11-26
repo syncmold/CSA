@@ -42,6 +42,7 @@
   "reminder": "{{plant}} {{year}}: {{count}} assessments still need assigning. Units can start once they are assigned.",
   "toAssign": "Assign now",
   "errors": {
+    "notListed": "This person is not on the CSA access list and cannot be put on a step until a system maintainer lets them in",
     "stepSigned": "This step was just signed, so it cannot change hands.",
     "linkedStep": "Linked audit steps follow access management; they cannot be assigned here.",
     "closed": "This assessment is closed.",
@@ -144,7 +145,8 @@
         "departed": "OMS records them as having left",
         "on_leave": "OMS records them as on unpaid leave",
         "transferred": "OMS records this as an old ID from before a transfer",
-        "no_csa": "Not enabled for CSA in OMS yet (CSA not ticked, or no active account)"
+        "no_csa": "Not enabled for CSA in OMS yet (CSA not ticked, or no active account)",
+        "not_listed": "Not on the CSA access list yet (no CSA access request)"
       },
       "does": {
         "matched": "Assigned",
@@ -154,7 +156,8 @@
         "on_leave": "Not imported; pick someone else",
         "transferred": "Not imported; use their new ID",
         "no_csa": "Assigned (only pointed out until OMS has enabled everyone). Ask the OMS administrator to tick CSA, or they cannot sign in to sign",
-        "no_csaRequired": "Not imported. Ask the OMS administrator to tick CSA, then import again"
+        "no_csaRequired": "Not imported. Ask the OMS administrator to tick CSA, then import again",
+        "not_listed": "Not imported. Ask them to request CSA access; import again once a system maintainer has let them in"
       }
     },
     "status": {
@@ -164,7 +167,8 @@
       "departed": "Left",
       "on_leave": "On leave",
       "transferred": "Old ID",
-      "no_csa": "No CSA"
+      "no_csa": "No CSA",
+      "not_listed": "Not listed"
     },
     "done": {
       "written": "Imported {{file}}: {{count}} cell(s) written. ",
@@ -176,6 +180,7 @@
       "notIssuedNext": "{{count}} form(s) not issued to {{plant}} next time were left out.",
       "noCsa": "{{count}} are not enabled for CSA in OMS yet; assigned anyway, please ask OMS to tick CSA.",
       "noCsaRequired": "{{count}} are not enabled for CSA in OMS yet; their cells were not imported.",
+      "notListed": "{{count}} not on the CSA access list; their cells were not imported. Import again once a system maintainer has let them in.",
       "onLeave": "{{count}} on leave were not imported.",
       "transferred": "{{count}} old IDs from before a transfer were not imported; use their new IDs."
     },
@@ -197,7 +202,8 @@
       "departed": "OMS records {{empId}} as having left; cannot be assigned",
       "on_leave": "OMS records {{empId}} as on unpaid leave; cannot be assigned",
       "transferred": "{{empId}} is an old ID from before a transfer; use the new ID",
-      "no_csa": "CSA is not ticked for {{empId}} in OMS; cannot be assigned, ask the OMS administrator"
+      "no_csa": "CSA is not ticked for {{empId}} in OMS; cannot be assigned, ask the OMS administrator",
+      "not_listed": "{{empId}} is not on the CSA access list; cannot be assigned until a system maintainer lets them in"
     },
     "errors": {
       "not_signed_in": "Your session has expired, please sign in again",

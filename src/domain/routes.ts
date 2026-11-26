@@ -94,6 +94,7 @@ export function routeWriteError(t: TFunction, error: unknown): string {
   if (hint === 'branch_exists') return t('flows:errors.branchExists')
   if (hint === 'link_exists') return t('flows:errors.linkExists')
   if (hint === 'step_linked') return t('flows:errors.stepLinked')
+  if (hint === 'signer_not_listed') return t('flows:errors.notListed')
   return writeErrorMessage(t, error, {
     '23514': 'flows:errors.stepRule',
     '23505': 'flows:errors.duplicateRoute',

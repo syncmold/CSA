@@ -5,7 +5,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import MAPPING from '../../scripts/controls/references-02-FQ.json'
-import { launchAssigned, admin, insertRow, loginAs, linkedAuditSteps, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, linkedAuditSteps, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, unlistPeople } from './helpers'
 
 /** The frozen 內控文件 of a 內控依據 or a section, as #9's answer page read them before Q127. */
 const DOCUMENT_COLUMNS = 'document_number,document_code,document_name,document_version,pdf_file'
@@ -135,6 +135,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().gte('year', 16000).lt('year', 17000)
   await admin.from('approval_route').delete().eq('plant_id', ID.plant ?? '')
   if (ID.template) await admin.from('questionnaire_template').delete().eq('id', ID.template)

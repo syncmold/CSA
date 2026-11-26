@@ -4,7 +4,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { selectTracking, selectTrackingTemplates, type TrackingRow, type TrackingTemplate } from '../../src/api/trackingQuery'
-import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
+import { launchAssigned, admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser, unlistPeople } from './helpers'
 
 const RUN = `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = {
@@ -137,6 +137,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   for (const p of [ID.plant1, ID.plant2]) if (p) await admin.from('approval_route').delete().eq('plant_id', p)
   for (const t of [ID.templateA, ID.templateB, ID.templateInactive]) if (t) await admin.from('questionnaire_template').delete().eq('id', t)

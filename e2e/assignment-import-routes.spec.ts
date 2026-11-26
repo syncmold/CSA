@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { readFileSync } from 'node:fs'
 import readXlsxFile from 'read-excel-file/node'
 import writeXlsxFile from 'write-excel-file/node'
-import { admin, insertRow, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from '../tests/db/helpers'
+import { admin, insertRow, listPeople, loginAs, makeRoute, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from '../tests/db/helpers'
 import { actAs, type Person } from './support/mainFlow'
 
 // 分派表匯入到簽核流程（Q147 (6)，#224），對真實的 Postgres＋PostgREST：廠區管理員在分派填寫人的「下次發出」下載本廠流程的
@@ -31,7 +31,8 @@ test.beforeAll(async () => {
   await requirePostgrest()
   for (const p of EVERYONE) await loginAs(p.empId, p.name)
   await promoteToAuditAdmin(PEOPLE.chief.empId)
-  ok(await admin.from('access_allowlist').insert([{ emp_id: PEOPLE.chief.empId }, { emp_id: PEOPLE.coordinator.empId }]))
+  // 要排進關卡的人都先在放行名單上，像系統維護員開通過（Q150：被分派不再放行，名單以外的人排不進關卡）。
+  await listPeople(...EVERYONE.map((p) => p.empId))
   chief = await loginAs(PEOPLE.chief.empId, PEOPLE.chief.name)
 
   ID.company = (await insertRow('company', { name: `${RUN}公司` })).id

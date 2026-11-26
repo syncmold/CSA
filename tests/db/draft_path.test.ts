@@ -9,7 +9,7 @@ import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { drafterConnectionString } from '../../scripts/drafts/connection.ts'
 import type { LaunchCheck } from '../../src/api/approvalRoutes'
-import { admin, insertRow, loginAs, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser } from './helpers'
+import { admin, insertRow, loginAs, ok, promoteToAuditAdmin, requirePostgrest, withSuperuser, listPeople, unlistPeople } from './helpers'
 
 // 資料庫測試檔案並行執行：前綴與隨機尾巴避免和其他檔案的工號、範本編號撞在一起。
 const RUN = `q${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
@@ -82,6 +82,8 @@ async function stepNames(routeId: string) {
 
 beforeAll(async () => {
   await requirePostgrest()
+  // 關卡上的人要先在放行名單上（Q150）
+  await listPeople(...Object.values(EMP))
   await loginAs(EMP.boss, '丙')
   await promoteToAuditAdmin(EMP.boss)
   boss = await loginAs(EMP.boss, '丙')
@@ -99,6 +101,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN)
   await drafter?.end()
   await admin.from('approval_route').delete().eq('plant_id', ID.plant ?? '')
   // The 組成要素 tests put a letter before RUN (E…, B-…) so the A–D inference has something to read.

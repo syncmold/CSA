@@ -3,10 +3,7 @@
 // 讀取規則。結束時全部清掉。
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { selectIssuedSections, selectIssuedSteps, selectIssuedTemplates, selectLaunchedYears } from '../../src/api/issuedQuery'
-import {
-  admin, insertControlPoint, insertRow, launchAssigned, loginAs, makeRoute, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest,
-  restClient,
-} from './helpers'
+import { admin, insertControlPoint, insertRow, launchAssigned, loginAs, makeRoute, ok, promoteToAuditAdmin, promoteToSystemMaintainer, requirePostgrest, restClient, unlistPeople } from './helpers'
 
 const RUN = `y${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { auditAdmin: `${RUN}A`, maintainer: `${RUN}M`, checker: `${RUN}B`, chief: `${RUN}F`, outsider: `${RUN}D` }
@@ -96,6 +93,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN) // 排進關卡時加進放行名單的人（Q150）
   await admin.from('annual_cycle').delete().eq('year', YEAR)
   if (ID.plant) await admin.from('approval_route').delete().eq('plant_id', ID.plant)
   if (ID.template) await admin.from('questionnaire_template').delete().eq('id', ID.template)

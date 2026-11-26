@@ -3,7 +3,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { LaunchCheck } from '../../src/api/approvalRoutes'
-import { launchAssigned, admin, insertControlPoint, insertRow, loginAs, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest } from './helpers'
+import { launchAssigned, admin, insertControlPoint, insertRow, loginAs, makeTemplate, ok, promoteToAuditAdmin, requirePostgrest, listPeople, unlistPeople } from './helpers'
 
 const RUN = `b${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 const EMP = { boss: `${RUN}A`, signer: `${RUN}B` }
@@ -69,6 +69,8 @@ async function fourBranchRoute(templateId: string) {
 
 beforeAll(async () => {
   await requirePostgrest()
+  // 關卡上的人要先在放行名單上（Q150）
+  await listPeople(...Object.values(EMP))
   await loginAs(EMP.signer, '甲')
   await loginAs(EMP.boss, '丙')
   await promoteToAuditAdmin(EMP.boss)
@@ -86,6 +88,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await unlistPeople(RUN)
   ok(await admin.from('annual_cycle').delete().eq('year', YEAR))
   ok(await admin.from('approval_route').delete().eq('plant_id', ID.plant))
   ok(await admin.from('questionnaire_template').delete().like('code', `${RUN}%`))
