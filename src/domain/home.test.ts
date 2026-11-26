@@ -8,7 +8,7 @@ function mine(id: string, my_part: MyPart, over: Partial<MyAssessment> = {}): My
     assessment_id: id, year: 2026, due_date: '2026-11-30', template_code: `FQ-${id}`, template_name: '採購及付款循環',
     factory_code: 'FQ', plant_name: '福清', status: 'in_progress', current_step_position: 1, current_step_name: '自行檢查人員－資材',
     stage: 'filling', due_in_days: 30, my_part, my_answered: null, my_question_count: null, my_started: null,
-    ...over,
+    can_open: true, ...over,
   }
 }
 

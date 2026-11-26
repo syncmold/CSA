@@ -157,11 +157,19 @@ function useColumns(tab: MyTab, withProgress: boolean): ColumnsType<MyAssessment
     {
       title: t('mine.assessment'),
       key: 'assessment',
-      render: (_, a) => (
-        <Link to={`/assessments/${a.assessment_id}`} data-testid="my-assessment">
-          {t('mine.heading', { year: a.year, plant: a.plant_name, code: a.template_code, name: a.template_name })}
-        </Link>
-      ),
+      render: (_, a) => {
+        const heading = t('mine.heading', { year: a.year, plant: a.plant_name, code: a.template_code, name: a.template_name })
+        // 尚未輪到我 and not yet visible (Q152): its 抬頭 only, opened once their 關卡 comes.
+        return a.can_open ? (
+          <Link to={`/assessments/${a.assessment_id}`} data-testid="my-assessment">
+            {heading}
+          </Link>
+        ) : (
+          <span title={t('mine.notOpenYet')} data-testid="my-assessment-unopened">
+            {heading}
+          </span>
+        )
+      },
     },
     {
       title: t('common:assessments.dueDate'),

@@ -11,6 +11,7 @@
     },
     "assessment": "Assessment",
     "heading": "{{year}} · {{plant}} · {{code}} {{name}}",
+    "notOpenYet": "Opens when your step comes",
     "action": "Action",
     "status": "Status",
     "progress": "My progress",

@@ -111,8 +111,8 @@ describe('首頁「我參與的」只留當期（Q124 (1)）', () => {
   })
 
   it('keeps the latest 年度 and anything not yet 結案, of any 年度; drops last year’s 結案', async () => {
-    // 簽核中在前（今年、去年），再來結案。稽核主管只在一廠的兩張上輪到過（二廠還沒到他那關）
-    const expected = { [EMP.checker]: [FORM.new2, FORM.old2, FORM.new1], [EMP.chief]: [FORM.new1] }
+    // 簽核中在前（今年、去年），再來結案。稽核主管在二廠的兩張還沒輪到，也照樣列著（Q152）
+    const expected = { [EMP.checker]: [FORM.new2, FORM.old2, FORM.new1], [EMP.chief]: [FORM.new2, FORM.old2, FORM.new1] }
     for (const [who, ids] of Object.entries(expected)) {
       expect(ok(await selectMyAssessments(await as(who))).map((r) => r.assessment_id), who).toEqual(ids)
       expect(await countMyPastClosed(await as(who)), who).toBe(1)

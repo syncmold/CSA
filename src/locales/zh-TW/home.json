@@ -11,6 +11,7 @@
     },
     "assessment": "自評表",
     "heading": "{{year}}　{{plant}}　{{code}} {{name}}",
+    "notOpenYet": "輪到你那一關時才能打開",
     "action": "操作",
     "status": "狀態",
     "progress": "我的填寫進度",

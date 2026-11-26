@@ -156,6 +156,17 @@ test('主線：答題送出 → 主管核准 → 廠區經理人退回 → 重�
     await expect(page.getByTestId('signoff-panel')).toHaveCount(0)
   })
 
+  await test.step('部門主管還沒輪到、也沒簽過：列在我參與的（尚未輪到我），但沒有連結，網址打開也讀不到（Q152）', async () => {
+    await actAs(page, PEOPLE.manager)
+    await expectNothingToDo(page)
+    const row = await myAssessmentRow(page)
+    await expect(row).toContainText('尚未輪到我')
+    await expect(row.getByTestId('my-assessment')).toHaveCount(0)
+    await expect(row.getByTestId('my-assessment-unopened')).toHaveAttribute('title', '輪到你那一關時才能打開')
+    await page.goto(`/assessments/${flow.assessmentId}`)
+    await expect(page.getByTestId('assessment-not-found')).toBeVisible()
+  })
+
   await test.step('自行檢查人員：三個單位同時輪到他，一次答一個；資材單位送出後同一頁接著換品保單位', async () => {
     await actAs(page, PEOPLE.selfChecker)
     // 輪到他答題：開始填寫，進度只數資材單位的題目，還沒答。

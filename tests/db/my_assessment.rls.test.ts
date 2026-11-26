@@ -40,7 +40,10 @@ async function listOf(who: string, ids?: string[]) {
   return ids ? rows.filter((r) => ids.includes(r.assessment_id)) : rows
 }
 const idsOf = async (who: string, ids?: string[]) => (await listOf(who, ids)).map((r) => r.assessment_id)
-const seesMain = async (who: string) => (await idsOf(who, [MAIN])).length === 1
+/** 在清單上、而且打得開（看得到內容）。 */
+const seesMain = async (who: string) => (await listOf(who, [MAIN]))[0]?.can_open === true
+/** 在清單上，打不打得開都算（Q152：還沒輪到的也列）。 */
+const listsMain = async (who: string) => (await idsOf(who, [MAIN])).length === 1
 /** 首頁「我的自評表」用的欄位（Q115）：我的部分、階段、我的填寫進度。 */
 async function partOf(who: string) {
   const [row] = await listOf(who, [MAIN])
@@ -119,9 +122,22 @@ afterAll(async () => {
 })
 
 describe('簽到第 N 關', () => {
-  it('lists it for the signers of 關卡 1..N and not for the ones whose turn has not come', async () => {
+  it('opens it for the signers of 關卡 1..N; the ones whose turn has not come see only its 抬頭 (Q152)', async () => {
     expect([await seesMain(EMP.checker), await seesMain(EMP.manager), await seesMain(EMP.auditor), await seesMain(EMP.chief)])
       .toEqual([true, false, false, false])
+    // 還沒輪到的也在清單上：尚未輪到我、打不開，只有抬頭；目前關卡、我的關卡與填寫進度都是空值（流程走到哪是表的內容）
+    for (const who of [EMP.manager, EMP.auditor, EMP.chief]) {
+      expect(await listOf(who, [MAIN])).toEqual([{
+        assessment_id: MAIN, year: YEAR, due_date: '2099-12-31', template_code: CODE_A, template_name: `${CODE_A} 範本`,
+        factory_code: FACTORY, plant_name: `${RUN}廠`, status: 'in_progress', current_step_position: null, current_step_name: null,
+        stage: 'filling', due_in_days: expect.any(Number), my_part: 'upcoming', my_answered: null, my_question_count: null, my_started: null,
+        can_open: false,
+      }])
+    }
+    // 打不開就是讀不到：自評表本身的可見性沒變（Q81 (5)）
+    expect(ok(await (await as(EMP.auditor)).from('assessment').select('id').eq('id', MAIN))).toEqual([])
+    // 我的待簽不受影響
+    expect(ok(await (await as(EMP.auditor)).from('my_pending_assessment').select('assessment_id').eq('assessment_id', MAIN))).toEqual([])
     // 輪到自行檢查人員答題：待填寫，進度只數他這關的自評單位（一題）；截止日 2099 年還很遠
     expect(await partOf(EMP.checker)).toEqual({ my_part: 'fill', stage: 'filling', my_answered: 0, my_question_count: 1, my_started: false })
     expect((await listOf(EMP.checker, [MAIN]))[0]!.due_in_days).toBeGreaterThan(365)
@@ -190,9 +206,10 @@ describe('換人', () => {
     expect(await seesMain(EMP.manager)).toBe(true)
     ok(await admin.from('assessment_step').update({ signer_emp_id: EMP.replacement }).eq('assessment_id', MAIN).eq('position', 2))
 
-    expect(await seesMain(EMP.manager)).toBe(false)
-    // 換上來的人還沒輪到、也沒簽過（目前在第 1 關）
+    expect(await listsMain(EMP.manager)).toBe(false)
+    // 換上來的人還沒輪到、也沒簽過（目前在第 1 關）：列在清單上但打不開（Q152）
     expect(await seesMain(EMP.replacement)).toBe(false)
+    expect(await listsMain(EMP.replacement)).toBe(true)
   })
 })
 
@@ -206,9 +223,10 @@ describe('結案', () => {
         assessment_id: MAIN, year: YEAR, due_date: '2099-12-31', template_code: CODE_A, template_name: `${CODE_A} 範本`,
         factory_code: FACTORY, plant_name: `${RUN}廠`, status: 'closed', current_step_position: 5, current_step_name: '稽核主管',
         stage: 'closed', due_in_days: expect.any(Number), my_part: 'done', my_answered: null, my_question_count: null, my_started: null,
+        can_open: true,
       }])
     }
-    expect(await seesMain(EMP.manager)).toBe(false)
+    expect(await listsMain(EMP.manager)).toBe(false)
   })
 })
 

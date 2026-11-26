@@ -18,15 +18,17 @@ export interface MyAssessmentSummary {
 export const MY_ASSESSMENT_SUMMARY_COLUMNS = 'assessment_id,year,due_date,template_code,template_name,factory_code,plant_name'
 
 /**
- * 我參與的自評表 (#37): the 自評表 the signed-in employee is on the route of and can see — the ones being signed,
- * already signed and 結案. Which ones is decided by the database (view `my_assessment`, which reuses
- * `my_visible_assessment_ids`); a 稽核管理者 only gets the ones they are on the route of here (every plant's are in
- * 自評表紀錄). 首頁 keeps only those `on_home` (Q124 (1)).
+ * 我參與的自評表 (#37): the 自評表 the signed-in employee is on the route of — the ones being signed, already signed and
+ * 結案, and since Q152 also the ones whose turn has not come even when they cannot see them yet (`can_open` false).
+ * Which ones is decided by the database (view `my_assessment`, which reuses `my_visible_assessment_ids`); a 稽核管理者
+ * only gets the ones they are on the route of here (every plant's are in 自評表紀錄). 首頁 keeps only those `on_home`
+ * (Q124 (1)).
  */
 export interface MyAssessment extends MyAssessmentSummary {
   status: AssessmentStatus
-  current_step_position: number
-  current_step_name: string
+  /** Null only when `can_open` is false: how far the 流程 has got is part of the 自評表, not shown before their turn (Q152). */
+  current_step_position: number | null
+  current_step_name: string | null
   /** 填寫中／簽核中／結案: whether the current 關卡 is one that answers (Q115). */
   stage: AssessmentStage
   /** Calendar days (Asia/Taipei) from today to the 截止日; negative once it has passed. */
@@ -38,13 +40,18 @@ export interface MyAssessment extends MyAssessmentSummary {
   my_question_count: number | null
   /** Only for `fill`: whether any of their questions or their 整體結論 has been touched (開始填寫 vs 繼續填寫). */
   my_started: boolean | null
+  /**
+   * Whether the employee can open it now. False only for a 尚未輪到我 they cannot see yet (Q152): listed with its 抬頭 so
+   * they know it is coming, opened once their 關卡 comes (Q81 (5)).
+   */
+  can_open: boolean
 }
 
 /** `fill`: their turn to answer (my_editable_units); `sign`: their turn, signing only; `upcoming`: a 關卡 of theirs is still ahead. */
 export type MyPart = 'fill' | 'sign' | 'upcoming' | 'done'
 
 const MY_ASSESSMENT_COLUMNS =
-  `${MY_ASSESSMENT_SUMMARY_COLUMNS},status,current_step_position,current_step_name,stage,due_in_days,my_part,my_answered,my_question_count,my_started`
+  `${MY_ASSESSMENT_SUMMARY_COLUMNS},status,current_step_position,current_step_name,stage,due_in_days,my_part,my_answered,my_question_count,my_started,can_open`
 
 /**
  * The page's query, kept apart from the API module (which creates the browser client on import) so tests/db run
