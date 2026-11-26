@@ -75,7 +75,7 @@ const expectNothingToDo = (page: Page) => expect(page.getByTestId('my-tab-todo-c
 
 /** Back to the home page by the breadcrumb: a client-side navigation, so the lists must refresh themselves. */
 async function backToHome(page: Page) {
-  await page.getByRole('navigation').getByRole('link', { name: '首頁' }).click()
+  await page.getByRole('navigation').getByRole('link', { name: '我的待辦' }).click()
   await expect(page.getByTestId('greeting')).toBeVisible()
 }
 

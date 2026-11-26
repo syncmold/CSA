@@ -1,7 +1,7 @@
 {
-  "nav": "追蹤總覽",
+  "nav": "進度追蹤",
   "plantHeader": "公司／廠區",
-  "title": "追蹤總覽",
+  "title": "進度追蹤",
   "filters": {
     "year": "年度",
     "company": "公司",
@@ -21,7 +21,7 @@
     "queue": "待處理優先"
   },
   "kpi": {
-    "total": "自評表（{{plants}} 廠區 × {{templates}} 範本）",
+    "total": "自評表（{{plants}} 廠區 × {{templates}} 題庫）",
     "notLaunched": "未發起 {{count}} 份",
     "inProgress": "進行中",
     "closed": "已結案（{{percent}}%）",
@@ -35,7 +35,7 @@
   "heat": {
     "closed": "已結案",
     "inProgress": "進行中，{{dwell}}",
-    "hint": "格內數字＝在目前關卡停留天數，「n／m」＝已結案／張數；滑過看範本與簽核人，點格子開自評表，點「控制作業」欄標題展開各表單",
+    "hint": "格內數字＝在目前關卡停留天數，「n／m」＝已結案／張數；滑過看題庫與簽核人，點格子開自評表，點「控制作業」欄標題展開各表單",
     "closedCount": "{{closed}}／{{total}}",
     "closedCountNarrow": "{{closed}}/{{total}}",
     "controlsTotal": "合計"
@@ -63,7 +63,7 @@
     "closed": "已結案"
   },
   "noYears": "尚未發起任何年度作業",
-  "empty": "沒有符合條件的自評表（追蹤總覽只給稽核主管、檢視者與廠區管理員）",
+  "empty": "沒有符合條件的自評表（進度追蹤只給稽核主管、檢視者與廠區管理員）",
   "cell": {
     "step": "第 {{position}}／{{count}} 關 {{name}}",
     "stageProgress": "{{stage}}・{{progress}}",
@@ -76,7 +76,7 @@
   },
   "export": "匯出 Excel",
   "exportFailed": "匯出 Excel 失敗：{{message}}",
-  "fileName": "追蹤總覽_{{year}}.xlsx",
+  "fileName": "進度追蹤_{{year}}.xlsx",
   "excel": {
     "overviewSheet": "總覽",
     "detailSheet": "明細",
@@ -84,8 +84,8 @@
     "company": "公司",
     "plant": "廠區",
     "factoryCode": "廠區代碼",
-    "templateCode": "範本編號",
-    "templateName": "範本名稱",
+    "templateCode": "題庫編號",
+    "templateName": "題庫名稱",
     "status": "狀態",
     "stepPosition": "目前關卡",
     "stepCount": "總關數",
@@ -97,5 +97,5 @@
     "closedAt": "結案日期",
     "dueDate": "截止日"
   },
-  "unassigned": "待分派"
+  "unassigned": "待指派"
 }

@@ -66,7 +66,7 @@ test('launching asks OMS about the people on the routes once and tells the datab
   await launch(page)
 
   const outcome = page.getByTestId('launch-outcome')
-  await expect(outcome).toContainText('簽核人照簽核流程上分派的人')
+  await expect(outcome).toContainText('簽核人照簽核流程上指派的人')
   await expect(outcome).toHaveClass(/ant-alert-success/)
   expect(calls.asked).toEqual([['FQ1021', 'FQ9001', 'FQ9002']])
   expect(calls.launches).toHaveLength(1)
@@ -81,9 +81,9 @@ test('a refusal names who on which route has left, and where to replace them', a
   await expect(page.getByTestId('launch-outcome')).toContainText('簽核流程上有 2 位已不在職，沒有發起。請先換人再發出：')
   const [onRoute, linked] = [page.getByTestId('launch-departed').getByRole('listitem').nth(0), page.getByTestId('launch-departed').getByRole('listitem').nth(1)]
   await expect(onRoute).toContainText('FQ-01.1 × FQ 福清富群 財務部・部門主管：許文彬（FQ9001）')
-  await expect(onRoute.getByRole('link', { name: '到分派填寫人換人 →' })).toHaveAttribute('href', '/admin/assignment?plant=FQ&year=next')
+  await expect(onRoute.getByRole('link', { name: '到指派簽核人換人 →' })).toHaveAttribute('href', '/admin/assignment?plant=FQ&year=next')
   await expect(linked).toContainText('FQ-01.1 × FQ 福清富群 台北稽核人員：王小明（SS0001）（連動關卡）')
-  await expect(linked.getByRole('link', { name: '到權限管理換人 →' })).toHaveAttribute('href', '/admin/access')
+  await expect(linked.getByRole('link', { name: '到人員管理換人 →' })).toHaveAttribute('href', '/admin/access')
 })
 
 test('a route still waiting for 分派 cannot be ticked and leads to that plant’s 下次發出 (Q147)', async ({ page }) => {
@@ -97,10 +97,10 @@ test('a route still waiting for 分派 cannot be ticked and leads to that plant�
 
   const row = page.getByTestId('launch-table').locator('tr', { hasText: 'FQ-02' })
   const cell = row.getByTestId('candidate-unassigned')
-  await expect(cell).toContainText('還沒分派')
+  await expect(cell).toContainText('還沒指派')
   await expect(cell).not.toContainText('品保單位・部門主管') // the tag and the link say it; no list of 關卡
-  await expect(cell.getByRole('link', { name: '到分派填寫人 →' })).toHaveAttribute('href', '/admin/assignment?plant=FQ&year=next')
-  await expect(page.getByTestId('launch-blocked')).toContainText('還不能發起（沒有簽核流程、流程沒通過發起檢查或還沒分派好）')
+  await expect(cell.getByRole('link', { name: '到指派簽核人 →' })).toHaveAttribute('href', '/admin/assignment?plant=FQ&year=next')
+  await expect(page.getByTestId('launch-blocked')).toContainText('還不能發起（沒有簽核流程、流程沒通過發起檢查或還沒指派好）')
 })
 
 test('with OMS down it launches all the same, unchecked, and says so as a warning', async ({ page }) => {

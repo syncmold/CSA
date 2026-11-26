@@ -182,15 +182,24 @@ export interface RawSheet {
 }
 
 /** The sheets of the workbook. Fixed 繁中 like the PDF: the file goes to the plants, whatever language the page is in. */
-export const SHEET_NAMES = { main: '分派表', guide: '填寫說明', system: '系統資料' } as const
+export const SHEET_NAMES = { main: '指派表', guide: '填寫說明', system: '系統資料' } as const
+/**
+ * The main sheet's name before Q151 renamed 分派 to 指派: the files already with the plants still carry it and import as
+ * before (csa-assignment-v1 itself did not change).
+ */
+export const OLD_MAIN_SHEET_NAME = '分派表'
+const isMainSheet = (name: string) => name === SHEET_NAMES.main || name === OLD_MAIN_SHEET_NAME
 /** What a 灰色格 shows; read back as empty. */
 export const NOT_HERE = '—'
 /** Rows above the 自評表: the title (row 1), the units (row 2), the 關卡 (row 3). */
 export const HEADER_ROWS = 3
 
-/** Row 1: `SY 台北總公司｜2026 年度 分派表`, then the time it was made. */
+/**
+ * Row 1: `SY 台北總公司｜2026 年度 指派表`, then the time it was made. Read back only up to 「年度」 (parseTitle), so a
+ * file from before Q151, whose row 1 ends in 「分派表」, reads the same.
+ */
 export const sheetTitle = (sheet: Pick<AssignmentSheet, 'factoryCode' | 'plantName' | 'year'>) =>
-  `${sheet.factoryCode} ${sheet.plantName}｜${sheet.year} 年度 分派表`
+  `${sheet.factoryCode} ${sheet.plantName}｜${sheet.year} 年度 指派表`
 
 export function parseTitle(text: string): { factoryCode: string; year: number } | null {
   const match = /^(\S+) .*｜(\d{4}) 年度/.exec(text)
@@ -206,7 +215,7 @@ export function systemRows(sheet: AssignmentSheet): (string | number | null)[][]
     ['廠區代碼', sheet.factoryCode],
     ['年度', String(sheet.year)],
     ['產生時間', sheet.generatedAt],
-    ['來源', sheet.next ? 'CSA 分派填寫人頁・下次發出' : 'CSA 分派填寫人頁'],
+    ['來源', sheet.next ? 'CSA 指派簽核人頁・下次發出' : 'CSA 指派簽核人頁'],
     [null],
     ['欄', '自評單位', '關卡'],
     ...sheet.layout.columns.map((c, i) => [columnLetter(i + 2), c.unit ?? c.step, c.step]),
@@ -328,7 +337,7 @@ const sameUnits = (a: readonly string[], b: readonly string[]) => [...a].sort().
  * longer for it), which have no route here to write to.
  */
 export function checkSheet(sheets: readonly RawSheet[], page: PagePlant, forms: readonly SheetEntry[]): SheetCheck {
-  const main = sheets.find((s) => s.sheet === SHEET_NAMES.main)
+  const main = sheets.find((s) => isMainSheet(s.sheet))
   const system = readSystem(sheets.find((s) => s.sheet === SHEET_NAMES.system))
   const title = parseTitle(text(main?.data[0]?.[0]))
 

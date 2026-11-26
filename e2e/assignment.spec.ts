@@ -131,22 +131,22 @@ test('a 稽核主管 goes from the home reminder to 分派 and assigns the missi
   await mockApi(page, writes, pickerReads)
   await page.goto('/')
 
-  await expect(page.getByTestId('assignment-reminder')).toContainText('FQ 福清富群 2026 年度還有 1 張自評表待分派')
+  await expect(page.getByTestId('assignment-reminder')).toContainText('FQ 福清富群 2026 年度還有 1 張自評表待指派')
   // A numbered step of 發出表單, with no count (使用者 2026-11-24).
-  await expect(page.getByRole('menuitem').filter({ has: page.getByTestId('nav-assignment') })).toHaveText('3分派填寫人')
+  await expect(page.getByRole('menuitem').filter({ has: page.getByTestId('nav-assignment') })).toHaveText('3指派簽核人')
   await page.getByTestId('assignment-reminder-link').click()
 
-  await expect(page.getByRole('heading', { name: '分派填寫人' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '指派簽核人' })).toBeVisible()
   // One 年度 and one 廠區: nothing to choose, but the bar under the title still names both, with the 截止日.
   await expect(page.getByTestId('assignment-year')).toHaveText('2026')
   await expect(page.getByTestId('assignment-plant')).toHaveText('FQ 福清富群')
   await expect(page.getByTestId('assignment-choice-note')).toHaveText('截止日 2026-12-31')
-  await expect(page.getByTestId('assignment-tab-todo')).toHaveText('待分派 1')
+  await expect(page.getByTestId('assignment-tab-todo')).toHaveText('待指派 1')
   await expect(page.getByTestId('assignment-forms').getByRole('button')).toHaveCount(1)
   await expect(page.getByTestId('assignment-form-FQ-01.1')).toContainText('差 3 關')
 
   const quality = page.getByTestId('assign-branch-品保單位')
-  await expect(quality).toContainText('待分派')
+  await expect(quality).toContainText('待指派')
   await quality.getByTestId('plant-employee-select').first().click()
   await pick(page, '蔡宛儒')
   expect(JSON.parse(pickerReads[0]!)).toEqual({ p_factory_code: 'FQ' }) // 名單是這一廠表上排過的人
@@ -182,10 +182,10 @@ test('someone not on the plant’s forms is found by their complete 工號 only;
   await expect(dropdown.locator('.ant-select-item-option')).toHaveText('蔡宛儒（FQ4007）')
   await expect.poll(() => pickerReads).toContain('oms:FQ400@FQ')
   await select.locator('input').fill(DEPARTED)
-  await expect(dropdown).toContainText(`OMS 記錄 ${DEPARTED} 已離職，不能分派`)
+  await expect(dropdown).toContainText(`OMS 記錄 ${DEPARTED} 已離職，不能指派`)
   // 在職、OMS 也開通了，但不在放行名單上：被分派不再放行（Q150），所以排不進關卡
   await select.locator('input').fill(NOT_LISTED.emp_id)
-  await expect(dropdown).toContainText(`${NOT_LISTED.emp_id} 還不在 CSA 放行名單上，不能分派：請他填權限申請表，由系統維護員開通`)
+  await expect(dropdown).toContainText(`${NOT_LISTED.emp_id} 還不在 CSA 放行名單上，不能指派：請他填權限申請表，由系統維護員開通`)
   await expect(dropdown.locator('.ant-select-item-option')).toHaveCount(0)
   await select.locator('input').fill(OUTSIDER.emp_id.toLowerCase())
   await expect(dropdown.locator('.ant-select-item-option')).toHaveText('別廠同仁（SY3001）　（主檔廠區 SY，不是本廠）')
@@ -193,7 +193,7 @@ test('someone not on the plant’s forms is found by their complete 工號 only;
   // Choosing asks OMS first (#218), so the write follows a moment later.
   await expect.poll(() => writes[0]?.postDataJSON()).toEqual({ p_step_id: 's3', p_emp_id: 'SY3001', p_emp_name: '別廠同仁' })
   // 廠區不同只提醒，照常分派
-  await expect(page.locator('.ant-message')).toContainText('別廠同仁（SY3001） 已分派。提醒：OMS 記錄他不是 FQ 的人（主檔廠區 SY）')
+  await expect(page.locator('.ant-message')).toContainText('別廠同仁（SY3001） 已指派。提醒：OMS 記錄他不是 FQ 的人（主檔廠區 SY）')
 })
 
 test('with OMS down someone already on the plant’s forms is assigned all the same; anyone else has to wait (#218)', async ({ page }) => {
@@ -211,7 +211,7 @@ test('with OMS down someone already on the plant’s forms is assigned all the s
   await pick(page, '蔡宛儒')
   // Choosing asks OMS first (#218), so the write follows a moment later.
   await expect.poll(() => writes[0]?.postDataJSON()).toEqual({ p_step_id: 's3', p_emp_id: 'FQ4007', p_emp_name: '蔡宛儒' })
-  await expect(page.locator('.ant-message')).toContainText('蔡宛儒（FQ4007） 已分派，但 OMS 沒有回應，這次沒有確認他是否在職')
+  await expect(page.locator('.ant-message')).toContainText('蔡宛儒（FQ4007） 已指派，但 OMS 沒有回應，這次沒有確認他是否在職')
 })
 
 test('a 從缺 shows on the home reminder and the page, and goes once someone is picked', async ({ page }) => {
@@ -286,7 +286,7 @@ test('with more than one 年度, the 年度 menu in the bar under the title swit
   // Under the title, not at the right of it (使用者 2026-11-13); the 截止日 moves into the bar.
   const bar = page.getByTestId('assignment-choice')
   await expect(bar).toBeVisible()
-  const title = await page.getByRole('heading', { name: '分派填寫人' }).boundingBox()
+  const title = await page.getByRole('heading', { name: '指派簽核人' }).boundingBox()
   const box = await bar.boundingBox()
   expect(box!.y).toBeGreaterThan(title!.y + title!.height)
   await expect(page.getByTestId('assignment-choice-note')).toHaveText('截止日 2026-12-31。換年度，左邊的自評表清單跟著換。')
@@ -304,7 +304,7 @@ test('a 廠區管理員 sees who is on the issued forms but gets no 換人, pick
   await mockApi(page, [], [], assignedForms(), { role: 'signer' })
   await page.goto('/')
 
-  await expect(page.getByTestId('assignment-reminder')).toContainText('FQ 福清富群 還有 2 條簽核流程沒分派好簽核人，分派好才能發出表單。')
+  await expect(page.getByTestId('assignment-reminder')).toContainText('FQ 福清富群 還有 2 條簽核流程沒指派好簽核人，指派好才能發出自評表。')
   await expect(page.getByTestId('assignment-reminder-link')).toHaveAttribute('href', '/admin/assignment?plant=FQ&year=next')
   await page.goto('/admin/assignment')
 
@@ -312,7 +312,7 @@ test('a 廠區管理員 sees who is on the issued forms but gets no 換人, pick
   await expect(sales.getByTestId('assign-step').nth(1)).toContainText('陳建宏')
   await expect(page.getByTestId('reassign')).toHaveCount(0)
   await expect(page.getByTestId('assign-branch-品保單位').getByTestId('plant-employee-select')).toHaveCount(0)
-  await expect(page.getByTestId('assign-branch-品保單位').getByTestId('step-unassigned').first()).toHaveText('待分派')
+  await expect(page.getByTestId('assign-branch-品保單位').getByTestId('step-unassigned').first()).toHaveText('待指派')
   await expect(page.getByTestId('assignment-hint')).toHaveText('發出後只有稽核主管能換人。')
   await expect(page.getByTestId('assignment-download')).toBeVisible()
   await expect(page.getByTestId('assignment-import')).toHaveCount(0)
@@ -344,7 +344,7 @@ test('下次發出 is the default while the plant has routes: 分派 writes the 
   await page.goto('/admin/assignment')
 
   await expect(page.getByTestId('assignment-year')).toContainText('下次發出')
-  await expect(page.getByTestId('assignment-choice-note')).toHaveText('下次發出（年度發起或補發）照這裡的人發出；每一關都分派好，那條流程才能發出。')
+  await expect(page.getByTestId('assignment-choice-note')).toHaveText('下次發出（發起或補發）照這裡的人發出；每一關都指派好，那條流程才能發出。')
   // Only the routes a launch would issue to FQ; 下載／匯入分派表 work on them too (#224, e2e/assignment-import.spec.ts).
   await expect(page.getByTestId('assignment-forms').getByRole('button')).toHaveCount(1)
   await expect(page.getByTestId('assignment-form-FQ-02')).toContainText('差 2 關')

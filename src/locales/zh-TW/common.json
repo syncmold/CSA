@@ -4,7 +4,7 @@
     "backToSyncHub": "回 SyncHub",
     "logout": "登出",
     "language": "語言",
-    "navHome": "首頁",
+    "navHome": "我的待辦",
     "openMenu": "開啟選單",
     "brandSub": "內控自評簽核",
     "pendingCount": " 份待簽",
@@ -13,7 +13,7 @@
     "expandMenu": "展開選單",
     "brandWithEnv": "CSA（{{env}}）",
     "accountMenu": "帳號選單：{{name}}",
-    "launchSteps": "發出表單"
+    "launchSteps": "發出自評表"
   },
   "login": {
     "systemName": "📋 CSA 內控自評簽核系統",
@@ -83,7 +83,7 @@
     "controlPoint": "控制要點",
     "assessingUnit": "自評單位",
     "notFound": "找不到這張自評表，或你沒有權限檢視",
-    "unassigned": "待分派"
+    "unassigned": "待指派"
   },
   "years": {
     "label": "年度",
@@ -92,7 +92,7 @@
     "loadError": "讀不到年度：{{error}}"
   },
   "nextLaunch": {
-    "note": "這裡改的{{subject}}會用在下一次發起與補發；已發出的自評表不受影響，往年內容請到<records>自評表紀錄</records>打開當年那張。",
+    "note": "這裡改的{{subject}}會用在下一次發起與補發；已發出的自評表不受影響，往年內容請到<records>歷年自評表</records>打開當年那張。",
     "questions": "題目",
     "routes": "簽核流程"
   },
@@ -107,7 +107,7 @@
     "delete": "刪除"
   },
   "templates": {
-    "title": "範本管理",
+    "title": "題庫管理",
     "code": "編號",
     "name": "名稱",
     "status": "狀態",
@@ -128,11 +128,11 @@
     "removeUnitLabel": "移除「{{name}}」",
     "noUnitsYet": "尚未加入自評單位",
     "unitsOrderHint": "順序就是答題頁與 PDF 上的列順序；拖曳 ⠿ 或用 ↑↓ 調整。",
-    "empty": "沒有可檢視的問卷範本（只有稽核主管看得到範本管理）",
-    "notFound": "找不到這份問卷範本，或你沒有權限檢視",
+    "empty": "沒有可檢視的題庫（只有稽核主管看得到題庫管理）",
+    "notFound": "找不到這份題庫，或你沒有權限檢視",
     "toRoute": "看簽核流程 →",
     "component": "組成要素",
-    "componentChoiceHint": "依《公開發行公司建立內部控制制度處理準則》第 6 條。控制作業是各營運循環的問卷，答題欄位和其他四類不同，所以建立後不能在控制作業與其他四類之間改。",
+    "componentChoiceHint": "依《公開發行公司建立內部控制制度處理準則》第 6 條。控制作業是各營運循環的題庫，答題欄位和其他四類不同，所以建立後不能在控制作業與其他四類之間改。",
     "componentFixedControl": "控制作業的答題欄位和其他四類不同，建立後不能改成其他組成要素。",
     "componentFixedElement": "可以在這四類之間調整；控制作業的答題欄位不同，不能改成控制作業。",
     "components": {
@@ -151,25 +151,25 @@
       "monitoring": "五、監督作業",
       "unclassified": "未分類"
     },
-    "groupEmpty": "這一類沒有範本",
-    "unclassifiedHint": "這些範本還沒有組成要素，請進範本按「修改」，再用「編輯抬頭」選擇。",
+    "groupEmpty": "這一類沒有題庫",
+    "unclassifiedHint": "這些題庫還沒有組成要素，請進題庫按「修改」，再用「編輯抬頭」選擇。",
     "statuses": {
       "active": "啟用",
       "inactive": "停用"
     },
-    "create": "新增範本",
-    "createTitle": "新增問卷範本",
-    "editTitle": "編輯問卷範本",
+    "create": "新增題庫",
+    "createTitle": "新增題庫",
+    "editTitle": "編輯題庫",
     "editHeader": "編輯抬頭",
     "edit": "修改",
     "delete": "刪除",
     "save": "儲存",
     "required": "必填",
-    "statusHint": "只有啟用的範本會出現在年度發起；停用後不再發出，已發出的自評表不受影響。",
+    "statusHint": "只有啟用的題庫會出現在「自評表發起」；停用後不再發出，已發出的自評表不受影響。",
     "somePlants": "指定廠區",
     "factoryCodes": "適用的廠區代碼",
     "factoryCodesHint": "選擇或輸入 OMS 廠區代碼（如 FQ、KH-HW）；廠區主檔來源尚未定案（Q68）。",
-    "limitedPlantsHint": "只能選你負責的廠區；適用其他廠區或全部廠區的範本請找稽核主管。",
+    "limitedPlantsHint": "只能選你負責的廠區；適用其他廠區或全部廠區的題庫請找稽核主管。",
     "factoryCodesPlaceholder": "選擇或輸入廠區代碼",
     "dragHint": "按住 ⠿ 拖曳可調整章節與控制要點的順序。",
     "dragHandle": "拖曳排序",
@@ -206,28 +206,28 @@
       "duplicate": "已有同名的自評單位",
       "inUse": "這個自評單位仍被控制要點或簽核流程使用，不能刪除"
     },
-    "showInactive": "顯示停用的範本（{{count}}）",
-    "onlyInactive": "目前只有停用的範本，打開上方「顯示停用的範本」即可看到",
+    "showInactive": "顯示停用的題庫（{{count}}）",
+    "onlyInactive": "目前只有停用的題庫，打開上方「顯示停用的題庫」即可看到",
     "usage": {
       "title": "使用狀況",
       "inUse": "已使用",
       "unused": "未使用"
     },
     "deleteTemplate": {
-      "button": "刪除範本",
-      "title": "刪除問卷範本 {{code}} {{name}}",
-      "onlyUnused": "只有從未使用過的範本能刪除：還沒發過自評表、也沒有任何簽核流程。用過的範本請改用停用；刪除後無法復原。",
+      "button": "刪除題庫",
+      "title": "刪除題庫 {{code}} {{name}}",
+      "onlyUnused": "只有從未使用過的題庫能刪除：還沒發過自評表、也沒有任何簽核流程。用過的題庫請改用停用；刪除後無法復原。",
       "contents": "會一併刪除 {{sections}} 個章節、{{points}} 個控制要點與適用廠區設定。",
-      "inUse": "已被使用，請改用停用：這份範本已發出過自評表或設定過簽核流程",
-      "inUseHint": "這份範本已發出過自評表或設定過簽核流程，不能刪除；不再使用請在「修改」→「編輯抬頭」改為停用"
+      "inUse": "已被使用，請改用停用：這份題庫已發出過自評表或設定過簽核流程",
+      "inUseHint": "這份題庫已發出過自評表或設定過簽核流程，不能刪除；不再使用請在「修改」→「編輯抬頭」改為停用"
     },
     "errors": {
       "duplicate": "已有相同的資料",
-      "duplicateTemplate": "已有相同編號的問卷範本（一個編號只能有一份）",
+      "duplicateTemplate": "已有相同編號的題庫（一個編號只能有一份）",
       "inUse": "仍被其他資料使用，不能刪除",
       "unitRule": "控制作業的控制要點必須指定自評單位",
       "componentLayout": "不能在控制作業與其他組成要素之間改：兩者的答題欄位不同",
-      "forbidden": "只有稽核主管可以修改範本",
+      "forbidden": "只有稽核主管可以修改題庫",
       "stale": "畫面上的資料已過期，請重新整理後再試",
       "generic": "儲存失敗：{{message}}"
     },
@@ -236,7 +236,7 @@
     "sameContent": "內容相同的廠區",
     "sameContentNone": "本廠獨有",
     "sameContentMore": "{{codes}} 等 {{count}} 廠",
-    "sameContentHint": "列出「現在」章節、題目與自評單位完全相同的其他廠區（停用的範本不算）。每次打開清單都依當時的內容重新比對，差一個字就算不同。修改前先看這一欄，就知道還有哪些廠可能要一起改；改了之後內容不同，就不會再列出，所以它不會記得以前相同的廠區。"
+    "sameContentHint": "列出「現在」章節、題目與自評單位完全相同的其他廠區（停用的題庫不算）。每次打開清單都依當時的內容重新比對，差一個字就算不同。修改前先看這一欄，就知道還有哪些廠可能要一起改；改了之後內容不同，就不會再列出，所以它不會記得以前相同的廠區。"
   },
   "plants": {
     "pickerLabel": "廠區",

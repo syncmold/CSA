@@ -1,7 +1,7 @@
 {
-  "nav": "Tracking",
+  "nav": "Progress tracking",
   "plantHeader": "Company / plant",
-  "title": "Tracking overview",
+  "title": "Progress tracking",
   "filters": {
     "year": "Year",
     "company": "Company",
@@ -21,7 +21,7 @@
     "queue": "Longest waiting"
   },
   "kpi": {
-    "total": "Assessments ({{plants}} plants × {{templates}} templates)",
+    "total": "Assessments ({{plants}} plants × {{templates}} question banks)",
     "notLaunched": "{{count}} not launched",
     "inProgress": "In progress",
     "closed": "Closed ({{percent}}%)",
@@ -35,7 +35,7 @@
   "heat": {
     "closed": "Closed",
     "inProgress": "In progress, {{dwell}}",
-    "hint": "The number is the days at the current step, \"n/m\" is closed out of all; hover for the template and signer, click to open the assessment, click Control activities to show each form",
+    "hint": "The number is the days at the current step, \"n/m\" is closed out of all; hover for the question bank and signer, click to open the assessment, click Control activities to show each form",
     "closedCount": "{{closed}}/{{total}}",
     "closedCountNarrow": "{{closed}}/{{total}}",
     "controlsTotal": "Total"
@@ -64,7 +64,7 @@
     "closed": "Closed"
   },
   "noYears": "No annual cycle has been launched yet",
-  "empty": "No assessments match (the tracking overview is for audit administrators, viewers and plant coordinators)",
+  "empty": "No assessments match (progress tracking is for audit administrators, viewers and plant coordinators)",
   "cell": {
     "step": "Step {{position}}/{{count}} {{name}}",
     "stageProgress": "{{stage}} · {{progress}}",
@@ -86,8 +86,8 @@
     "company": "Company",
     "plant": "Plant",
     "factoryCode": "Plant code",
-    "templateCode": "Template code",
-    "templateName": "Template name",
+    "templateCode": "Question bank code",
+    "templateName": "Question bank name",
     "status": "Status",
     "stepPosition": "Current step",
     "stepCount": "Steps",

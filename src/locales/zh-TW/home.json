@@ -31,12 +31,12 @@
     "overdue": "逾期 {{count}} 天",
     "dueToday": "今天截止",
     "dueIn": "{{count}} 天後",
-    "pastClosed": "往年已結案的 {{count}} 張在「自評表紀錄」→"
+    "pastClosed": "往年已結案的 {{count}} 張在「歷年自評表」→"
   },
   "plants": {
     "title": "{{year}} 各廠填單進度",
     "titleNoYear": "各廠填單進度",
-    "toTracking": "追蹤總覽",
+    "toTracking": "進度追蹤",
     "filling": "填寫中",
     "signing": "簽核中",
     "closed": "結案",

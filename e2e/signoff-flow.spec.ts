@@ -140,8 +140,8 @@ test('a 關卡 without a 簽核人 says 待分派, and the one waiting for a col
   await expect(branch.nth(0)).toHaveAttribute('data-state', 'todo')
   await expect(branch.nth(0)).toContainText('ZZ')
   await expect(branch.nth(1)).toHaveAttribute('data-state', 'unassigned')
-  await expect(branch.nth(1)).toContainText('待分派')
-  await expect(page.locator('[data-testid="route-step"][data-state="unassigned"]').last()).toContainText('廠區經理人待分派')
+  await expect(branch.nth(1)).toContainText('待指派')
+  await expect(page.locator('[data-testid="route-step"][data-state="unassigned"]').last()).toContainText('廠區經理人待指派')
 })
 
 test('a page narrower than two cards stands them in one column, without scrolling sideways', async ({ page }) => {

@@ -78,7 +78,7 @@ test('簽核流程 opens on a plant and lists only its routes by 組成要素 (#
   // Only the plant buttons and the list: who signs in what order is on each route's own page (使用者 2026-10-29).
   await expect(page.getByTestId('plant-levels')).toHaveCount(0)
   // No 狀態 column: a route is the only one of its 範本 × 廠區, and the 發起檢查 says whether it can be launched (Q137 (6)).
-  await expect(page.getByTestId('route-table').locator('thead th')).toHaveText(['循環', '範本', '關卡', '發起檢查', '最後修改'])
+  await expect(page.getByTestId('route-table').locator('thead th')).toHaveText(['循環', '題庫', '關卡', '發起檢查', '最後修改'])
   // No 停用 switch for routes (there is no 停用 route), and only the tabs, no layout switch (#121, OPEN-5).
   await expect(tabs.getByRole('switch')).toHaveCount(0)
   await expect(page.getByTestId('show-inactive')).toHaveCount(0)

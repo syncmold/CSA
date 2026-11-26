@@ -36,7 +36,7 @@ describe('assignmentWorkbook', () => {
     const sheets = await readWorkbook(await assignmentWorkbook(SHEET))
     expect(sheets.map((s) => s.sheet)).toEqual([SHEET_NAMES.main, SHEET_NAMES.guide, SHEET_NAMES.system])
     const [main, , system] = sheets.map((s) => s.data)
-    expect(main![0]![0]).toBe('SY 台北總公司｜2026 年度 分派表　　產生時間 2026-11-17 10:32　　第 1～3 列與 A、B 欄是系統讀取的依據，請勿修改')
+    expect(main![0]![0]).toBe('SY 台北總公司｜2026 年度 指派表　　產生時間 2026-11-17 10:32　　第 1～3 列與 A、B 欄是系統讀取的依據，請勿修改')
     // csa-assignment-v1: A 編號 and B 名稱 span rows 2-3; row 2 the units (merged over their 關卡), row 3 the 關卡;
     // 廠區經理人 spans both rows.
     expect(main![1]).toEqual(['自評表編號', '自評表名稱', '業務單位', null, '採購單位', '廠區經理人'])
@@ -45,31 +45,31 @@ describe('assignmentWorkbook', () => {
     expect(main![4]).toEqual(['SY-02', '採購及付款循環', '—', '—', 'SY2101', null])
     expect(system!.map((row) => row.slice(0, 3))).toEqual([
       ['格式版本', 'csa-assignment-v1', null], ['廠區代碼', 'SY', null], ['年度', '2026', null], ['產生時間', '2026-11-17 10:32', null],
-      ['來源', 'CSA 分派填寫人頁', null], [null, null, null],
+      ['來源', 'CSA 指派簽核人頁', null], [null, null, null],
       ['欄', '自評單位', '關卡'], ['C', '業務單位', '自行檢查人員'], ['D', '業務單位', '部門主管'], ['E', '採購單位', '自行檢查人員'], ['F', '廠區經理人', '廠區經理人'],
       [null, null, null],
       ['列', '自評表編號', '自評單位（、分隔）'], [4, 'SY-01', '業務單位'], [5, 'SY-02', '採購單位'],
     ])
-    expect(workbookName(SHEET)).toBe('SY_分派表_2026.xlsx')
+    expect(workbookName(SHEET)).toBe('SY_指派表_2026.xlsx')
   })
 
   it('says 下次發出 after the title and in 填寫說明 for the routes, with the same cells and 系統資料 columns', async () => {
     const [issued, next] = await Promise.all([readWorkbook(await assignmentWorkbook(SHEET)), readWorkbook(await assignmentWorkbook(NEXT))])
     const [main, guide, system] = next.map((s) => s.data)
-    expect(String(main![0]![0])).toMatch(/^SY 台北總公司｜2026 年度 分派表（下次發出）　　產生時間 2026-11-17 10:32/)
+    expect(String(main![0]![0])).toMatch(/^SY 台北總公司｜2026 年度 指派表（下次發出）　　產生時間 2026-11-17 10:32/)
     expect(main!.slice(1)).toEqual(issued[0]!.data.slice(1))
-    expect(guide![0]![0]).toBe('SY 台北總公司｜2026 年度 分派表（下次發出）：填寫說明')
-    expect(guide!.map((r) => r[0]).join('\n')).toContain('8. 填好後由廠區管理員或稽核主管在 CSA「分派填寫人」頁的「下次發出」匯入。')
-    expect(issued[1]!.data.map((r) => r[0]).join('\n')).toContain('8. 表單已發出，只有稽核主管能換人')
-    expect(system!.find((r) => r[0] === '來源')![1]).toBe('CSA 分派填寫人頁・下次發出')
+    expect(guide![0]![0]).toBe('SY 台北總公司｜2026 年度 指派表（下次發出）：填寫說明')
+    expect(guide!.map((r) => r[0]).join('\n')).toContain('8. 填好後由廠區管理員或稽核主管在 CSA「指派簽核人」頁的「下次發出」匯入。')
+    expect(issued[1]!.data.map((r) => r[0]).join('\n')).toContain('8. 自評表已發出，只有稽核主管能換人')
+    expect(system!.find((r) => r[0] === '來源')![1]).toBe('CSA 指派簽核人頁・下次發出')
     expect(system!.slice(6)).toEqual(issued[2]!.data.slice(6))
-    expect(workbookName(NEXT)).toBe('SY_分派表_2026.xlsx')
+    expect(workbookName(NEXT)).toBe('SY_指派表_2026.xlsx')
   })
 
   it('hides 系統資料 (veryHidden) and protects the sheets, leaving only the 工號 cells unlocked', async () => {
     const read = await unzipped()
     expect(read('xl/workbook.xml')).toMatch(/<sheet [^>]*name="系統資料"[^>]*state="veryHidden"/)
-    expect(read('xl/workbook.xml')).not.toMatch(/name="分派表"[^>]*state="hidden"/)
+    expect(read('xl/workbook.xml')).not.toMatch(/name="指派表"[^>]*state="hidden"/)
     const sheet = read('xl/worksheets/sheet1.xml')
     expect(sheet).toContain('<sheetProtection sheet="1"')
 

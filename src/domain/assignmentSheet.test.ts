@@ -9,6 +9,7 @@ import {
   importPlan,
   OTHER_PLANT_WARNING_SHARE,
   routeSheetEntry,
+  OLD_MAIN_SHEET_NAME,
   SHEET_NAMES,
   sheetLayout,
   unlisted,
@@ -58,7 +59,8 @@ const forms = () => [
 async function downloaded(rows = forms()): Promise<RawSheet[]> {
   return readWorkbook(await assignmentWorkbook(assignmentSheet(PLANT, PLANT.year, rows, NOW)))
 }
-const main = (sheets: RawSheet[]) => sheets.find((s) => s.sheet === SHEET_NAMES.main)!.data
+// The fixture sent to the plants before Q151 still names its sheet 分派表.
+const main = (sheets: RawSheet[]) => sheets.find((s) => s.sheet === SHEET_NAMES.main || s.sheet === OLD_MAIN_SHEET_NAME)!.data
 const system = (sheets: RawSheet[]) => sheets.find((s) => s.sheet === SHEET_NAMES.system)!.data
 const rowOf = (sheets: RawSheet[], code: string) => main(sheets).find((r) => r[0] === code)!
 /** The column of a unit's 關卡 by the header rows (row 2 units, merged; row 3 關卡); unit null for 廠區經理人. */
@@ -112,6 +114,24 @@ describe('checkSheet', () => {
     expect(check.people).toEqual(['SY2100', 'SY1300', 'SY0140', 'SY2101', 'SY1301'])
   })
 
+  it('still takes a file from before Q151: the sheet named 分派表 and row 1 ending in 分派表 (csa-assignment-v1 unchanged)', async () => {
+    const old = (await downloaded()).map((s) => (s.sheet === SHEET_NAMES.main ? { ...s, sheet: OLD_MAIN_SHEET_NAME } : s))
+    expect(SHEET_NAMES.main).toBe('指派表')
+    expect(old.map((s) => s.sheet)).toEqual(['分派表', '填寫說明', '系統資料'])
+    main(old)[0]![0] = 'SY 台北總公司｜2026 年度 分派表　　產生時間 2026-11-17 10:32　　第 1～3 列與 A、B 欄是系統讀取的依據，請勿修改'
+    put(old, 'SY-01', '財會單位', '自行檢查人員', 'SY2155')
+    const check = checkSheet(old, PLANT, forms())
+    if (check.stop !== null) throw new Error(`stopped at ${check.stop}: ${JSON.stringify(check)}`)
+    expect(check.rows).toBe(3)
+    expect(check.cells.filter((c) => c.kind === 'change').map((c) => [c.formCode, c.step?.name, c.empId])).toEqual([
+      ['SY-01', '自行檢查人員－財會單位', 'SY2155'],
+    ])
+
+    // A sheet under neither name is still not one of ours.
+    const renamed = old.map((s) => (s.sheet === OLD_MAIN_SHEET_NAME ? { ...s, sheet: '工作表1' } : s))
+    expect(checkSheet(renamed, PLANT, forms()).stop).toBe(1)
+  })
+
   it('puts a 要素類 cell on the form’s own 分流, whatever its unit', async () => {
     const sheets = await downloaded()
     put(sheets, 'SY-A', '要素類', '自行檢查人員', 'SY2300')
@@ -133,7 +153,7 @@ describe('checkSheet', () => {
 
     it('stops when row 1 and 系統資料 disagree, or the 系統資料 is gone', async () => {
       const edited = await downloaded()
-      main(edited)[0]![0] = 'FQ 福清｜2026 年度 分派表'
+      main(edited)[0]![0] = 'FQ 福清｜2026 年度 指派表'
       expect(checkSheet(edited, PLANT, forms())).toMatchObject({ stop: 1, claim: { title: { factoryCode: 'FQ' }, system: { factoryCode: 'SY' } } })
 
       const noSystem = (await downloaded()).filter((s) => s.sheet !== SHEET_NAMES.system)
@@ -307,9 +327,9 @@ describe('下次發出: the 簽核流程 (Q147 (6))', () => {
       { code: 'SY-A', name: '控制環境', cells: [null, null, '', '', '', null] },
     ])
     const sheets = await downloadedNext()
-    expect(main(sheets)[0]![0]).toBe('SY 台北總公司｜2026 年度 分派表（下次發出）　　產生時間 2026-11-17 10:32　　第 1～3 列與 A、B 欄是系統讀取的依據，請勿修改')
+    expect(main(sheets)[0]![0]).toBe('SY 台北總公司｜2026 年度 指派表（下次發出）　　產生時間 2026-11-17 10:32　　第 1～3 列與 A、B 欄是系統讀取的依據，請勿修改')
     expect(system(sheets).slice(0, 5).map((r) => r.slice(0, 2))).toEqual([
-      ['格式版本', 'csa-assignment-v1'], ['廠區代碼', 'SY'], ['年度', '2026'], ['產生時間', '2026-11-17 10:32'], ['來源', 'CSA 分派填寫人頁・下次發出'],
+      ['格式版本', 'csa-assignment-v1'], ['廠區代碼', 'SY'], ['年度', '2026'], ['產生時間', '2026-11-17 10:32'], ['來源', 'CSA 指派簽核人頁・下次發出'],
     ])
   })
 

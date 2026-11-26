@@ -62,7 +62,7 @@ test('tops up this year with one 廠區 only, keeping the year\'s 截止日', as
   await expect(page.getByTestId('year-select')).toContainText(`${THIS_YEAR + 1}（下次發起）`)
   await chooseYear(page, `${THIS_YEAR}（已發起）`)
   await expect(page.getByTestId('year-note')).toHaveText(
-    `${THIS_YEAR} 年度已發起：補發會用目前的範本與簽核流程（就是下次發起要用的內容）。`,
+    `${THIS_YEAR} 年度已發起：補發會用目前的題庫與簽核流程（就是下次發起要用的內容）。`,
   )
   await expect(page.getByTestId('already-launched')).toContainText(`${THIS_YEAR} 年度已發起 2 張（截止 ${DUE}）`)
   await expect(page.getByTestId('launch-due-kept')).toContainText(`${DUE}（沿用 ${THIS_YEAR} 年度，不能改）`)
@@ -171,7 +171,7 @@ test('after a first launch the 年度 menu moves on to the next year, and 範本
   // Nothing launched yet: this year is the next one, launched for the first time with a 截止日 to pick.
   await expect(page.getByTestId('year-select')).toContainText(`${THIS_YEAR}（下次發起）`)
   await expect(page.getByTestId('year-note')).toHaveText(
-    '發起時會把範本管理、簽核流程目前的內容凍結進每張自評表；之後再改範本與流程，只影響下一次發起與補發。',
+    '發起時會把題庫與簽核流程目前的內容凍結進每張自評表；之後再改題庫與流程，只影響下一次發起與補發。',
   )
   await page.locator('[data-testid="launch-due"] input, input[data-testid="launch-due"]').fill('2099-12-31')
   await page.keyboard.press('Enter')
@@ -181,7 +181,7 @@ test('after a first launch the 年度 menu moves on to the next year, and 範本
   // The page stays on the year it launched, now a top-up, with the outcome; the menu has gained the next year.
   await expect(page.getByTestId('launch-outcome')).toBeVisible()
   await expect(page.getByTestId('year-select')).toContainText(`${THIS_YEAR}（已發起）`)
-  await expect(page.getByTestId('year-note')).toContainText('補發會用目前的範本與簽核流程')
+  await expect(page.getByTestId('year-note')).toContainText('補發會用目前的題庫與簽核流程')
   await page.getByTestId('year-select').click()
   await expect(page.getByRole('option')).toHaveText([`${THIS_YEAR + 1}（下次發起）`, `${THIS_YEAR}（已發起）`])
   await page.keyboard.press('Escape')
@@ -189,7 +189,7 @@ test('after a first launch the 年度 menu moves on to the next year, and 範本
   await expect(page.getByTestId('year-bar')).toHaveAttribute('data-launched', 'true')
 
   // 範本管理 has no 年度 (Q137 (2)): it edits the templates themselves, for the next launch and top-ups.
-  await page.getByRole('link', { name: '範本管理' }).click()
+  await page.getByRole('link', { name: '題庫管理' }).click()
   await expect(page.getByTestId('next-launch-note')).toBeVisible()
   await expect(page.getByTestId('year-select')).toHaveCount(0)
 })

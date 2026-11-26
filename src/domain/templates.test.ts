@@ -83,7 +83,7 @@ describe('writeErrorMessage', () => {
     const i18n = i18next.createInstance()
     await i18n.init({ lng: 'zh-TW', resources: { 'zh-TW': { common: zhTWCommon, flows: {} } }, defaultNS: 'common', interpolation: { escapeValue: false } })
     const flowsT = i18n.getFixedT(null, 'flows')
-    expect(writeErrorMessage(flowsT, { code: '42501' })).toBe('只有稽核主管可以修改範本')
+    expect(writeErrorMessage(flowsT, { code: '42501' })).toBe('只有稽核主管可以修改題庫')
     expect(writeErrorMessage(flowsT, { code: 'XX000', message: 'boom' })).toBe('儲存失敗：boom')
   })
 })

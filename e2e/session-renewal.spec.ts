@@ -63,9 +63,9 @@ test('the first request after the computer slept waits for the renewal', async (
 
   // Asleep past the hour: the timer did not fire, so the page still holds a token that has run out.
   await page.evaluate((s) => sessionStorage.setItem('csa.session', s), EXPIRED_SESSION)
-  await page.getByRole('link', { name: '範本管理' }).click()
+  await page.getByRole('link', { name: '題庫管理' }).click()
 
-  await expect(page.getByText('沒有可檢視的問卷範本')).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('沒有可檢視的題庫')).toBeVisible({ timeout: 10_000 })
   await expect(page.getByText('JWT expired')).toHaveCount(0)
 })
 

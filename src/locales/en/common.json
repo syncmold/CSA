@@ -4,7 +4,7 @@
     "backToSyncHub": "Back to SyncHub",
     "logout": "Sign out",
     "language": "Language",
-    "navHome": "Home",
+    "navHome": "My to-dos",
     "openMenu": "Open menu",
     "brandSub": "Internal control self-assessment",
     "pendingCount": " pending",
@@ -13,7 +13,7 @@
     "expandMenu": "Expand menu",
     "brandWithEnv": "CSA ({{env}})",
     "accountMenu": "Account menu: {{name}}",
-    "launchSteps": "Sending out forms"
+    "launchSteps": "Issue assessments"
   },
   "login": {
     "systemName": "📋 CSA Internal Control Sign-off System",
@@ -92,7 +92,7 @@
     "loadError": "Could not read the years: {{error}}"
   },
   "nextLaunch": {
-    "note": "The {{subject}} edited here are used by the next launch and top-ups; assessments already issued are not affected. For past years, open that year's assessment in <records>Assessment records</records>.",
+    "note": "The {{subject}} edited here are used by the next launch and top-ups; assessments already issued are not affected. For past years, open that year's assessment in <records>Assessment history</records>.",
     "questions": "questions",
     "routes": "approval routes"
   },
@@ -107,7 +107,7 @@
     "delete": "Delete"
   },
   "templates": {
-    "title": "Templates",
+    "title": "Question banks",
     "code": "Code",
     "name": "Name",
     "status": "Status",
@@ -128,12 +128,12 @@
     "removeUnitLabel": "Remove \"{{name}}\"",
     "noUnitsYet": "No assessing unit added yet",
     "unitsOrderHint": "This order is the row order on the answer sheet and the PDF; drag ⠿ or use ↑↓ to change it.",
-    "empty": "No templates to show (only audit admins can see template management)",
-    "notFound": "This template does not exist or you are not allowed to view it",
+    "empty": "No question banks to show (only audit admins can see Question banks)",
+    "notFound": "This question bank does not exist or you are not allowed to view it",
     "toRoute": "See the approval route →",
     "component": "Component",
-    "componentChoiceHint": "Per Article 6 of the Regulations Governing Establishment of Internal Control Systems by Public Companies. Control activities cover the operating cycles and have different answer columns from the other four, so a template cannot move between control activities and the others once created.",
-    "componentFixedControl": "Control activities have different answer columns from the other four components, so this template cannot move to another component.",
+    "componentChoiceHint": "Per Article 6 of the Regulations Governing Establishment of Internal Control Systems by Public Companies. Control activities cover the operating cycles and have different answer columns from the other four, so a question bank cannot move between control activities and the others once created.",
+    "componentFixedControl": "Control activities have different answer columns from the other four components, so this question bank cannot move to another component.",
     "componentFixedElement": "It can move among these four; control activities have different answer columns, so it cannot become one.",
     "components": {
       "control_environment": "Control environment",
@@ -151,25 +151,25 @@
       "monitoring": "5. Monitoring activities",
       "unclassified": "Unclassified"
     },
-    "groupEmpty": "No templates in this component",
-    "unclassifiedHint": "These templates have no component yet; open the template, press \"Edit\" and choose one under \"Edit header\".",
+    "groupEmpty": "No question banks in this component",
+    "unclassifiedHint": "These question banks have no component yet; open the question bank, press \"Edit\" and choose one under \"Edit header\".",
     "statuses": {
       "active": "Active",
       "inactive": "Inactive"
     },
-    "create": "New template",
-    "createTitle": "New template",
-    "editTitle": "Edit template",
+    "create": "New question bank",
+    "createTitle": "New question bank",
+    "editTitle": "Edit question bank",
     "editHeader": "Edit header",
     "edit": "Edit",
     "delete": "Delete",
     "save": "Save",
     "required": "Required",
-    "statusHint": "Only active templates appear in the annual launch; deactivating one does not affect assessments already issued.",
+    "statusHint": "Only active question banks appear in Launch assessments; deactivating one does not affect assessments already issued.",
     "somePlants": "Selected plants",
     "factoryCodes": "Plant codes",
     "factoryCodesHint": "Pick or type OMS plant codes (e.g. FQ, KH-HW); the plant master source is not settled yet (Q68).",
-    "limitedPlantsHint": "Only the plants you run; for a template that applies to other plants or all plants, ask the 稽核主管.",
+    "limitedPlantsHint": "Only the plants you run; for a question bank that applies to other plants or all plants, ask the 稽核主管.",
     "factoryCodesPlaceholder": "Pick or type plant codes",
     "dragHint": "Drag ⠿ to reorder sections and control points.",
     "dragHandle": "Drag to reorder",
@@ -189,7 +189,7 @@
     "editControlPoint": "Edit control point",
     "deleteControlPointConfirm": "Delete this control point?",
     "chooseUnit": "Choose an assessing unit",
-    "elementUnitHint": "Optional outside control activities, and there may be several; to have one self-checker answer it, give every control point of the template the same assessing unit.",
+    "elementUnitHint": "Optional outside control activities, and there may be several; to have one self-checker answer it, give every control point of the question bank the same assessing unit.",
     "reverse": "Reverse question",
     "reverseTag": "Reverse",
     "reverseHint": "The question is worded in the negative, so No is the good answer. When ticked, answering Yes needs improvement actions or remarks, and No does not.",
@@ -206,28 +206,28 @@
       "duplicate": "An assessing unit with this name already exists",
       "inUse": "This assessing unit is still used by control points or approval routes and cannot be deleted"
     },
-    "showInactive": "Show inactive templates ({{count}})",
-    "onlyInactive": "Only inactive templates exist; turn on \"Show inactive templates\" above to see them",
+    "showInactive": "Show inactive question banks ({{count}})",
+    "onlyInactive": "Only inactive question banks exist; turn on \"Show inactive question banks\" above to see them",
     "usage": {
       "title": "Usage",
       "inUse": "In use",
       "unused": "Unused"
     },
     "deleteTemplate": {
-      "button": "Delete template",
-      "title": "Delete template {{code}} {{name}}",
-      "onlyUnused": "Only a template that was never used can be deleted: no assessment issued and no approval route. Deactivate a used template instead; deleting cannot be undone.",
+      "button": "Delete question bank",
+      "title": "Delete question bank {{code}} {{name}}",
+      "onlyUnused": "Only a question bank that was never used can be deleted: no assessment issued and no approval route. Deactivate a used question bank instead; deleting cannot be undone.",
       "contents": "This also deletes {{sections}} sections, {{points}} control points and the applicable plants.",
-      "inUse": "Already in use, deactivate it instead: this template has issued assessments or an approval route",
-      "inUseHint": "This template has issued assessments or an approval route and cannot be deleted; deactivate it under \"Edit\" → \"Edit header\" instead"
+      "inUse": "Already in use, deactivate it instead: this question bank has issued assessments or an approval route",
+      "inUseHint": "This question bank has issued assessments or an approval route and cannot be deleted; deactivate it under \"Edit\" → \"Edit header\" instead"
     },
     "errors": {
       "duplicate": "This already exists",
-      "duplicateTemplate": "A template with this code already exists (one template per code)",
+      "duplicateTemplate": "A question bank with this code already exists (one question bank per code)",
       "inUse": "Still in use elsewhere, cannot be deleted",
       "unitRule": "Control points under control activities need an assessing unit",
-      "componentLayout": "A template cannot move between control activities and the other components: their answer columns differ",
-      "forbidden": "Only audit admins can change templates",
+      "componentLayout": "A question bank cannot move between control activities and the other components: their answer columns differ",
+      "forbidden": "Only audit admins can change question banks",
       "stale": "This page is out of date; reload and try again",
       "generic": "Could not save: {{message}}"
     },
@@ -236,7 +236,7 @@
     "sameContent": "Plants with the same content",
     "sameContentNone": "Only this plant",
     "sameContentMore": "{{codes}}… ({{count}})",
-    "sameContentHint": "Lists the other plants whose current sections, questions and assessing units are identical (inactive templates excluded). It is recompared from the current content every time the list opens; one different character makes them differ. Check it before editing to see which plants may need the same change; once edited, a template no longer matches, so this column does not remember plants that used to be the same."
+    "sameContentHint": "Lists the other plants whose current sections, questions and assessing units are identical (inactive question banks excluded). It is recompared from the current content every time the list opens; one different character makes them differ. Check it before editing to see which plants may need the same change; once edited, a question bank no longer matches, so this column does not remember plants that used to be the same."
   },
   "plants": {
     "pickerLabel": "Plant",

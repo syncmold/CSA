@@ -113,7 +113,7 @@ test('a 簽核流程 opens read-only too; 刪除 and the step controls are only 
   await page.getByTestId('finish-editing').click()
   await expect(page).toHaveURL(new RegExp(`/admin/flows/${ROUTE_ID}$`))
   // The breadcrumb opens the list on the route's 組成要素 and 廠區 (#85).
-  await page.getByRole('main').getByRole('link', { name: '簽核流程' }).click()
+  await page.getByRole('main').getByRole('link', { name: '簽核流程管理' }).click()
   await expect(page).toHaveURL(/\/admin\/flows\?component=control_activities&plant=FQ$/)
 })
 

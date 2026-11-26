@@ -25,7 +25,7 @@
   "hint": "Choosing a person saves it, on the approval route too, so next year keeps them. A branch starts once all its steps have someone. Any step not signed yet can change hands; saved answers stay on the assessment for the new person.",
   "hintNext": "Choosing a person saves it on the approval route; the launch copies them onto the assessment. They can be changed until the forms go out.",
   "hintReadOnly": "Once the forms are out, only the audit chief can reassign.",
-  "footnote": "The list holds the people already on {{plant}}’s assessments and approval routes; for anyone else type the complete employee ID and OMS confirms it (colleagues from other plants too). The linked audit chief and Taipei auditor follow access management, not this page.",
+  "footnote": "The list holds the people already on {{plant}}’s assessments and approval routes; for anyone else type the complete employee ID and OMS confirms it (colleagues from other plants too). The linked audit chief and Taipei auditor follow People management, not this page.",
   "branch": {
     "unassigned": "To assign",
     "assigned": "Assigned",
@@ -44,7 +44,7 @@
   "errors": {
     "notListed": "This person is not on the CSA access list and cannot be put on a step until a system maintainer lets them in",
     "stepSigned": "This step was just signed, so it cannot change hands.",
-    "linkedStep": "Linked audit steps follow access management; they cannot be assigned here.",
+    "linkedStep": "Linked audit steps follow People management; they cannot be assigned here.",
     "closed": "This assessment is closed.",
     "denied": "Only this plant's coordinator or the audit chief can assign.",
     "deniedIssued": "Once the forms are out, only the audit chief can reassign.",
@@ -83,7 +83,7 @@
       "notOurs": "No plant, year or system sheet found",
       "bad2": "{{count}} difference(s) from the generated file",
       "bad3": "{{count}} row(s) are not {{plant}} {{year}} forms that were issued",
-      "bad3Next": "{{count}} row(s) are not {{plant}} templates",
+      "bad3Next": "{{count}} row(s) are not {{plant}} question banks",
       "skipped": "Not checked: an earlier check failed",
       "asking": "Asking OMS…",
       "omsFailed": "OMS did not answer ({{message}}); upload again later",
@@ -120,7 +120,7 @@
       "title": "These {{count}} forms are not issued yet and are left out this time",
       "titleNext": "These {{count}} forms will not be issued to {{plant}} next time and are left out",
       "text": "These rows are not written now; the rest is imported. Once these forms are issued (or topped up), import the same file again to write them; cells already written stay as they are.",
-      "textNext": "Their template is inactive or no longer for this plant, so there is no route to write to. These rows are not written; the rest is imported."
+      "textNext": "Their question bank is inactive or no longer for this plant, so there is no route to write to. These rows are not written; the rest is imported."
     },
     "bulk": {
       "title": "Most people in this sheet are not {{plant}} employees: it may be another plant's list",

@@ -109,7 +109,7 @@ test('廠區管理員下載下次發出的分派表、填好匯入：寫到流�
     [`自行檢查人員－${UNIT}`]: PEOPLE.checker.empId, [`部門主管－${UNIT}`]: PEOPLE.manager.empId, 廠區經理人: PEOPLE.plantManager.empId,
   })
   // 畫面跟著重新整理：這條流程分派好了。
-  await expect(page.getByTestId(`assignment-form-${RUN}T`)).toContainText('已分派')
+  await expect(page.getByTestId(`assignment-form-${RUN}T`)).toContainText('已指派')
   const route = ok(await chief.from('approval_route').select('launch_check').eq('id', ID.route!).single()) as { launch_check: { ready: boolean } }
   expect(route.launch_check.ready).toBe(true)
 

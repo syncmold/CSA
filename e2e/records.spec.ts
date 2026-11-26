@@ -112,10 +112,10 @@ test('首頁 points from 我參與的 to 自評表紀錄 for the 往年已結案
   await page.getByTestId('my-tab-all').click()
   // The list itself is cut by the database (on_home), not here.
   expect(asked).toContain('eq.true')
-  await expect(page.getByTestId('my-past-closed')).toHaveText('往年已結案的 105 張在「自評表紀錄」→')
+  await expect(page.getByTestId('my-past-closed')).toHaveText('往年已結案的 105 張在「歷年自評表」→')
   await page.getByTestId('my-past-closed').click()
   await expect(page).toHaveURL(/\/records$/)
-  await expect(page.getByRole('heading', { name: /自評表紀錄/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /歷年自評表/ })).toBeVisible()
 
   await page.unrouteAll()
   await signIn(page, 'signer', 0)

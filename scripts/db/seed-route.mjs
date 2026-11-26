@@ -84,7 +84,7 @@ try {
 
   console.log(`已建立 ${TEMPLATE_CODE} × ${FACTORY_CODE} 的簽核流程，共 ${STEPS.length} 關：`)
   for (const [i, step] of STEPS.entries()) {
-    console.log(`  ${String(i + 1).padStart(2)}. ${step.name}（${step.signer ?? '發起後分派'}）`)
+    console.log(`  ${String(i + 1).padStart(2)}. ${step.name}（${step.signer ?? '發起後指派'}）`)
   }
   const coordinator = (await client.query(
     `select c.emp_id, e.audit_role from public.plant_coordinator c left join public.employee_ref e on e.emp_id = c.emp_id where c.plant_id = $1`,

@@ -52,8 +52,8 @@ async function mockApi(page: Page) {
   })
 }
 
-const NOTE_TEMPLATES = '這裡改的題目會用在下一次發起與補發；已發出的自評表不受影響，往年內容請到自評表紀錄打開當年那張。'
-const NOTE_ROUTES = '這裡改的簽核流程會用在下一次發起與補發；已發出的自評表不受影響，往年內容請到自評表紀錄打開當年那張。'
+const NOTE_TEMPLATES = '這裡改的題目會用在下一次發起與補發；已發出的自評表不受影響，往年內容請到歷年自評表打開當年那張。'
+const NOTE_ROUTES = '這裡改的簽核流程會用在下一次發起與補發；已發出的自評表不受影響，往年內容請到歷年自評表打開當年那張。'
 
 test('範本管理 has no 年度: the list and the template are edited directly, and the note links to 自評表紀錄', async ({ page }) => {
   await signInAsAuditAdmin(page)
@@ -95,5 +95,5 @@ test('簽核流程 has no 年度: the list and the route are edited directly, wi
   await expect(page.getByTestId('start-editing')).toBeVisible()
   await expect(page.getByTestId('to-questions')).toHaveText('看題目 →')
   await expect(page.getByTestId('to-questions')).toHaveAttribute('href', `/admin/templates/${TEMPLATE}`)
-  await expect(page.getByTestId('next-launch-note').getByRole('link', { name: '自評表紀錄' })).toHaveAttribute('href', '/records')
+  await expect(page.getByTestId('next-launch-note').getByRole('link', { name: '歷年自評表' })).toHaveAttribute('href', '/records')
 })

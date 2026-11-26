@@ -134,7 +134,7 @@ async function download(page: Page): Promise<{ name: string; buffer: Buffer }> {
 type Sheets = Awaited<ReturnType<typeof readXlsxFile>>
 
 /** The downloaded file, edited as a 稽核人員 would, written back and uploaded. */
-async function upload(page: Page, original: Buffer, edit: (sheets: Sheets) => void, name = 'FQ_分派表_2026.xlsx') {
+async function upload(page: Page, original: Buffer, edit: (sheets: Sheets) => void, name = 'FQ_指派表_2026.xlsx') {
   const sheets = await readXlsxFile(original)
   edit(sheets)
   const blob = await writeXlsxFile(sheets.map((s) => ({ sheet: s.sheet, data: s.data.map((row) => row.map((value) => (value === null ? null : { value: value as string | number | boolean }))) }))).toBuffer()
@@ -153,12 +153,12 @@ const set = (sheets: Sheets, row: number, col: number, value: string | null) => 
 test('下載的分派表：一廠一年度，帶入已分派的人，第 1 列與隱藏的系統資料寫明廠區與年度，工作表保護', async ({ page }) => {
   await open(page)
   const { name, buffer } = await download(page)
-  expect(name).toBe('FQ_分派表_2026.xlsx')
+  expect(name).toBe('FQ_指派表_2026.xlsx')
 
   const sheets = await readXlsxFile(buffer)
-  expect(sheets.map((s) => s.sheet)).toEqual(['分派表', '填寫說明', '系統資料'])
+  expect(sheets.map((s) => s.sheet)).toEqual(['指派表', '填寫說明', '系統資料'])
   const data = main(sheets)
-  expect(String(data[0]![0])).toMatch(/^FQ 福清富群｜2026 年度 分派表　　產生時間 \d{4}-\d\d-\d\d \d\d:\d\d　　第 1～3 列與 A、B 欄是系統讀取的依據，請勿修改$/)
+  expect(String(data[0]![0])).toMatch(/^FQ 福清富群｜2026 年度 指派表　　產生時間 \d{4}-\d\d-\d\d \d\d:\d\d　　第 1～3 列與 A、B 欄是系統讀取的依據，請勿修改$/)
   // csa-assignment-v1, the same as the forms sent to the plants before this shipped.
   expect(data[1]).toEqual(['自評表編號', '自評表名稱', '業務單位', null, '品保單位', null, '資材單位', null, '廠區經理人'])
   expect(data[2]).toEqual([null, null, '自行檢查人員', '部門主管', '自行檢查人員', '部門主管', '自行檢查人員', '部門主管', null])
@@ -222,7 +222,7 @@ test('匯入：OMS 四種結果照規則處理，空白格、已簽關卡、灰�
     { step_id: 's4', emp_id: 'FQ0031' },
   ])
   await expect(page.getByTestId('assignment-imported')).toContainText(
-    '已匯入 FQ_分派表_2026.xlsx，寫入 2 格。1 位不在 OMS、1 位已離職，他們的格子沒有匯入。1 位不是 FQ 的員工，已照常分派，請確認是跨廠支援。',
+    '已匯入 FQ_指派表_2026.xlsx，寫入 2 格。1 位不在 OMS、1 位已離職，他們的格子沒有匯入。1 位不是 FQ 的員工，已照常指派，請確認是跨廠支援。',
   )
 })
 
@@ -282,7 +282,7 @@ for (const csaRequired of [false, true]) {
     await expect(page.getByTestId('import-chip-transferred')).toHaveCount(0) // only offered when someone has it
     await expect(people).toContainText('OMS 還沒開通 CSA（授權頁沒勾 CSA，或沒有啟用的帳號）')
     await expect(people).toContainText('OMS 記錄留職停薪')
-    await expect(people).toContainText(csaRequired ? '這些格子不匯入。請 OMS 管理員在授權頁勾 CSA 後再匯入一次' : '照常分派（OMS 全面開通前只提醒）')
+    await expect(people).toContainText(csaRequired ? '這些格子不匯入。請 OMS 管理員在授權頁勾 CSA 後再匯入一次' : '照常指派（OMS 全面開通前只提醒）')
     await page.getByTestId('import-chip-no_csa').click()
     await expect(people.getByTestId('import-person')).toHaveCount(2)
 
@@ -290,7 +290,7 @@ for (const csaRequired of [false, true]) {
     const written = (writes[0]?.postDataJSON() as { p_cells: { emp_id: string }[] } | undefined)?.p_cells.map((c) => c.emp_id) ?? []
     expect(written).toEqual(csaRequired ? [] : ['FQ2211', 'FQ0031'])
     await expect(page.getByTestId('assignment-imported')).toContainText(
-      csaRequired ? '2 位在 OMS 還沒開通 CSA，他們的格子沒有匯入。' : '2 位在 OMS 還沒開通 CSA，已照常分派，請 OMS 管理員勾 CSA。',
+      csaRequired ? '2 位在 OMS 還沒開通 CSA，他們的格子沒有匯入。' : '2 位在 OMS 還沒開通 CSA，已照常指派，請 OMS 管理員勾 CSA。',
     )
     await expect(page.getByTestId('assignment-imported')).toContainText('1 位留停，他們的格子沒有匯入。')
   })
@@ -333,25 +333,25 @@ test('匯入：超過一半的人廠區不同，要勾選確認才能匯入', as
   await page.getByTestId('import-bulk-confirm').click()
   await confirm.click()
   expect((writes[0]!.postDataJSON() as { p_cells: unknown[] }).p_cells).toEqual([{ step_id: 's3', emp_id: 'FQ2211' }])
-  await expect(page.getByTestId('assignment-imported')).toContainText('4 位不是 FQ 的員工，已照常分派（已勾選確認）。')
+  await expect(page.getByTestId('assignment-imported')).toContainText('4 位不是 FQ 的員工，已照常指派（已勾選確認）。')
 })
 
 const STOPS: { title: string; edit: (sheets: Sheets) => void; check: number; says: string[]; redownload: boolean }[] = [
   {
     title: '錯廠區',
     edit: (s) => {
-      main(s)[0]![0] = 'SY 台北總公司｜2026 年度 分派表'
+      main(s)[0]![0] = 'SY 台北總公司｜2026 年度 指派表'
       system(s)[1]![1] = 'SY'
     },
-    check: 1, says: ['這是 SY 的分派表，不是 FQ 的', '檔案第 1 列和系統資料：SY｜2026 年度', '你現在匯入到：FQ 福清富群｜2026 年度'], redownload: false,
+    check: 1, says: ['這是 SY 的指派表，不是 FQ 的', '檔案第 1 列和系統資料：SY｜2026 年度', '你現在匯入到：FQ 福清富群｜2026 年度'], redownload: false,
   },
   {
     title: '錯年度',
     edit: (s) => {
-      main(s)[0]![0] = 'FQ 福清富群｜2025 年度 分派表'
+      main(s)[0]![0] = 'FQ 福清富群｜2025 年度 指派表'
       system(s)[2]![1] = '2025'
     },
-    check: 1, says: ['這是 2025 年度的分派表，不是 2026 年度的'], redownload: false,
+    check: 1, says: ['這是 2025 年度的指派表，不是 2026 年度的'], redownload: false,
   },
   {
     title: '格式被改',
@@ -389,7 +389,7 @@ for (const stop of STOPS) {
       await expect(page.getByTestId(`import-check-${later}`)).toContainText('前面沒通過，沒有檢查')
     }
     for (const text of stop.says) await expect(page.getByTestId('import-stop')).toContainText(text)
-    await expect(page.getByTestId('import-foot')).toHaveText('整份不匯入，FQ 現在的分派沒有任何改變。')
+    await expect(page.getByTestId('import-foot')).toHaveText('整份不匯入，FQ 現在的指派沒有任何改變。')
     await expect(page.getByTestId('import-confirm')).toHaveCount(0)
     await expect(page.getByTestId('import-redownload')).toHaveCount(stop.redownload ? 1 : 0)
     expect(omsCalls).toHaveLength(0)
@@ -401,7 +401,7 @@ for (const stop of STOPS) {
 test('不是系統產生的檔案也整份擋下', async ({ page }) => {
   await open(page)
   await page.getByTestId('assignment-import-file').setInputFiles({ name: 'names.xlsx', mimeType: 'text/plain', buffer: Buffer.from('工號\nFQ2211') })
-  await expect(page.getByTestId('import-stop')).toContainText('這不是系統產生的分派表')
+  await expect(page.getByTestId('import-stop')).toContainText('這不是系統產生的指派表')
 })
 
 // 下次發出 (Q147 (6), #224): the same file, on the 簽核流程, before the launch -------------------------------------
@@ -416,22 +416,22 @@ for (const role of ['signer', 'audit_admin'] as const) {
 
     // The next launch's 年度: FQ's newest issued one is 2026.
     const { name, buffer } = await download(page)
-    expect(name).toBe('FQ_分派表_2027.xlsx')
+    expect(name).toBe('FQ_指派表_2027.xlsx')
     const sheets = await readXlsxFile(buffer)
-    expect(String(main(sheets)[0]![0])).toMatch(/^FQ 福清富群｜2027 年度 分派表（下次發出）　　產生時間 /)
+    expect(String(main(sheets)[0]![0])).toMatch(/^FQ 福清富群｜2027 年度 指派表（下次發出）　　產生時間 /)
     expect(main(sheets)[1]).toEqual(['自評表編號', '自評表名稱', '業務單位', null, '品保單位', null, '資材單位', null, '廠區經理人'])
     // The routes' people; the 連動 稽核主管 is not in it.
     expect(main(sheets)[3]).toEqual(['FQ-01.1', '銷售及收款循環', 'FQ2100', 'FQ1300', null, null, '—', '—', 'FQ0140'])
     expect(main(sheets)[4]).toEqual(['FQ-02', '採購及付款循環', '—', '—', '—', '—', 'FQ2101', null, null])
     expect(system(sheets).slice(0, 5).map((r) => r.slice(0, 2))).toEqual([
-      ['格式版本', 'csa-assignment-v1'], ['廠區代碼', 'FQ'], ['年度', '2027'], ['產生時間', expect.any(String)], ['來源', 'CSA 分派填寫人頁・下次發出'],
+      ['格式版本', 'csa-assignment-v1'], ['廠區代碼', 'FQ'], ['年度', '2027'], ['產生時間', expect.any(String)], ['來源', 'CSA 指派簽核人頁・下次發出'],
     ])
 
     await upload(page, buffer, (sheets) => {
       set(sheets, 4, COL.salesSelf, 'FQ2188') // 流程上沒有人簽過：照樣換
       set(sheets, 4, COL.qualitySelf, 'fq2211') // 新分派
       set(sheets, 5, COL.manager, 'FQ9999') // 不在 OMS
-    }, 'FQ_分派表_2027.xlsx')
+    }, 'FQ_指派表_2027.xlsx')
     await expect(page.getByTestId('import-review')).toContainText('匯入到 FQ 福清富群・下次發出（2027 年度）')
     await expect(page.getByTestId('import-check-1')).toContainText('FQ｜2027 年度（第 1 列和隱藏的系統資料），是 FQ 下次發出的年度')
     await expect(page.getByTestId('import-check-3')).toContainText('簽核流程')
@@ -448,7 +448,7 @@ for (const role of ['signer', 'audit_admin'] as const) {
       { route_step_id: 'r1', emp_id: 'FQ2188' },
       { route_step_id: 'r3', emp_id: 'FQ2211' },
     ])
-    await expect(page.getByTestId('assignment-imported')).toContainText('已匯入 FQ_分派表_2027.xlsx，寫入 2 格。1 位不在 OMS、0 位已離職，他們的格子沒有匯入。')
+    await expect(page.getByTestId('assignment-imported')).toContainText('已匯入 FQ_指派表_2027.xlsx，寫入 2 格。1 位不在 OMS、0 位已離職，他們的格子沒有匯入。')
   })
 }
 
@@ -470,11 +470,11 @@ test('下次發出：發出前寄出的檔案（2027）列了這次不會發給�
   await expect(page.getByTestId('assignment-imported')).toContainText('1 張下次不會發給 FQ 的自評表這次略過。')
 
   await upload(page, buffer, (sheets) => {
-    main(sheets)[0]![0] = 'FQ 福清富群｜2026 年度 分派表'
+    main(sheets)[0]![0] = 'FQ 福清富群｜2026 年度 指派表'
     system(sheets)[2]![1] = '2026'
   })
   await expect(page.getByTestId('import-check-1')).toContainText('FQ｜2026 年度，和下次發出（FQ｜2027）不同')
-  await expect(page.getByTestId('import-stop')).toContainText('這是 2026 年度的分派表，下次發出是 2027 年度')
+  await expect(page.getByTestId('import-stop')).toContainText('這是 2026 年度的指派表，下次發出是 2027 年度')
   await expect(page.getByTestId('import-stop')).toContainText('你現在匯入到：FQ 福清富群｜下次發出（2027 年度）')
   await expect(page.getByTestId('import-confirm')).toHaveCount(0)
 })
@@ -485,7 +485,7 @@ test('已發出的年度：廠區管理員只能下載，沒有匯入（Q147：�
   await expect(page.getByTestId('assignment-download')).toBeVisible()
   await expect(page.getByTestId('assignment-import')).toHaveCount(0)
   const { name } = await download(page)
-  expect(name).toBe('FQ_分派表_2026.xlsx')
+  expect(name).toBe('FQ_指派表_2026.xlsx')
 
   // On 下次發出 the same 廠區管理員 imports.
   await page.getByTestId('assignment-year').click()

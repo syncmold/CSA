@@ -1,6 +1,6 @@
 {
-  "nav": "Assessment records",
-  "title": "Assessment records",
+  "nav": "Assessment history",
+  "title": "Assessment history",
   "subtitle": "Closed assessments are locked; open or export them as PDF.",
   "scope": {
     "all": "All plants · all years",
@@ -17,9 +17,9 @@
     "allCompanies": "All companies",
     "plant": "Plant",
     "allPlants": "All plants",
-    "template": "Template",
+    "template": "Question bank",
     "templatePlaceholder": "Code or name",
-    "templatePlaceholderPhone": "Template"
+    "templatePlaceholderPhone": "Question bank"
   },
   "status": {
     "all": "All",

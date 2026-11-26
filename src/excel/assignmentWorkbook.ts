@@ -96,22 +96,22 @@ function mainSheet(sheet: AssignmentSheet): SheetData {
 function guideSheet(sheet: AssignmentSheet): SheetData {
   const plant = `${sheet.factoryCode} ${sheet.plantName}`
   return [
-    `${plant}｜${sheet.year} 年度 分派表${sheet.next ? '（下次發出）' : ''}：填寫說明`,
+    `${plant}｜${sheet.year} 年度 指派表${sheet.next ? '（下次發出）' : ''}：填寫說明`,
     '',
     sheet.next
-      ? '1. 每一列是一張自評表（一個範本的簽核流程，發出時照這裡的人發出）；每個自評單位有兩格：「自行檢查人員」和「部門主管」，最右邊是這張表的「廠區經理人」。'
+      ? '1. 每一列是一張自評表（一個題庫的簽核流程，發出時照這裡的人發出）；每個自評單位有兩格：「自行檢查人員」和「部門主管」，最右邊是這張表的「廠區經理人」。'
       : '1. 每一列是一張自評表；每個自評單位有兩格：「自行檢查人員」和「部門主管」，最右邊是這張表的「廠區經理人」。',
-    `2. 黃色格子填工號（例如 ${sheet.factoryCode}0001）。一格只填一位。工號格是文字格式，開頭的 0 不會不見。已經有工號的格子是目前分派的人，可以改。`,
+    `2. 黃色格子填工號（例如 ${sheet.factoryCode}0001）。一格只填一位。工號格是文字格式，開頭的 0 不會不見。已經有工號的格子是目前指派的人，可以改。`,
     '3. 灰色「—」的格子表示這張表沒有這個單位，不用填。',
     '4. 「要素類」是控制環境、風險評估、資訊與溝通、監督（A～D）：每張表由一個單位填整張，請填該單位的自行檢查人員與部門主管。',
-    '5. 「待指定單位」是範本還沒指定由哪個單位填的部分，請填實際負責的人。',
+    '5. 「待指定單位」是題庫還沒指定由哪個單位填的部分，請填實際負責的人。',
     '6. 第 1～3 列、A 欄、B 欄已鎖住：系統靠它們讀取，請勿修改、插入或刪除欄列、改分頁名稱，也不要另存成 .xls 或 .csv。',
     sheet.next
-      ? '7. 不確定的格子可以先空白；空白表示這次不動，不會清掉原本的人，之後可以在系統上補。每一關都分派好，這張表才能發出。'
+      ? '7. 不確定的格子可以先空白；空白表示這次不動，不會清掉原本的人，之後可以在系統上補。每一關都指派好，這張表才能發出。'
       : '7. 不確定的格子可以先空白；空白表示這次不動，不會清掉原本的人，之後可以在系統上補。已經簽過的關卡不能換人，匯入時會跳過。',
     sheet.next
-      ? '8. 填好後由廠區管理員或稽核主管在 CSA「分派填寫人」頁的「下次發出」匯入。'
-      : '8. 表單已發出，只有稽核主管能換人：填好後請寄回給稽核主管，在 CSA「分派填寫人」頁匯入。',
+      ? '8. 填好後由廠區管理員或稽核主管在 CSA「指派簽核人」頁的「下次發出」匯入。'
+      : '8. 自評表已發出，只有稽核主管能換人：填好後請寄回給稽核主管，在 CSA「指派簽核人」頁匯入。',
     '',
     '匯入時系統會檢查：這份是不是這一廠、這一年度的表；格式有沒有被改；每一列是不是這一廠的自評表；',
     '每個工號用「工號＋廠區」到 OMS 比對：不在 OMS 或已離職的人不會匯入；不是這一廠的員工只提醒（跨廠支援）。',
@@ -163,8 +163,8 @@ export function assignmentWorkbook(sheet: AssignmentSheet): Promise<Blob> {
   ).toBlob()
 }
 
-/** `SY_分派表_2026.xlsx`. */
-export const workbookName = (sheet: Pick<AssignmentSheet, 'factoryCode' | 'year'>) => `${sheet.factoryCode}_分派表_${sheet.year}.xlsx`
+/** `SY_指派表_2026.xlsx` (分派表 before Q151; the file name is never read on import). */
+export const workbookName = (sheet: Pick<AssignmentSheet, 'factoryCode' | 'year'>) => `${sheet.factoryCode}_指派表_${sheet.year}.xlsx`
 
 /** Every sheet of an uploaded file as rows of values; throws when it is not an .xlsx. */
 export async function readWorkbook(file: Blob): Promise<RawSheet[]> {

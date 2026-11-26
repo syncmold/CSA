@@ -99,27 +99,27 @@ test('發出前分派 → 發起 → 廠區管理員不能換、稽核主管能�
   // 1. 廠區管理員：首頁提醒本廠還有流程沒分派，進「下次發出」把每一關都分派好。
   await actAs(page, PEOPLE.coordinator)
   // Their one step of 發出表單 is a plain entry: no heading, no number, no count (使用者 2026-11-24).
-  await expect(page.getByRole('menuitem').filter({ has: page.getByTestId('nav-assignment') })).toHaveText('分派填寫人')
+  await expect(page.getByRole('menuitem').filter({ has: page.getByTestId('nav-assignment') })).toHaveText('指派簽核人')
   await expect(page.getByTestId('nav-steps-title')).toHaveCount(0)
   await expect(page.getByTestId(/^nav-step-/)).toHaveCount(0)
   const reminder = page.getByTestId('assignment-reminder').filter({ hasText: FACTORY })
-  await expect(reminder).toContainText('還有 1 條簽核流程沒分派好簽核人')
+  await expect(reminder).toContainText('還有 1 條簽核流程沒指派好簽核人')
   await reminder.getByTestId('assignment-reminder-link').click()
   await expect(page).toHaveURL(/year=next/)
   await expect(page.getByTestId('assignment-year')).toHaveText('下次發出')
-  await expect(page.getByTestId('assignment-choice-note')).toContainText('下次發出（年度發起或補發）照這裡的人發出')
+  await expect(page.getByTestId('assignment-choice-note')).toContainText('下次發出（發起或補發）照這裡的人發出')
   await expect(page.getByTestId('assignment-form-' + `${RUN}T`)).toContainText('差 3 關')
   // 分派表對流程：廠區管理員發出前也能下載、匯入（#224；匯入寫到流程見 assignment-import-routes.spec.ts）。
   await expect(page.getByTestId('assignment-download')).toBeVisible()
   await expect(page.getByTestId('assignment-import')).toBeVisible()
 
   const branch = page.getByTestId(`assign-branch-${UNIT}`)
-  await expect(branch).toContainText('待分派')
+  await expect(branch).toContainText('待指派')
   await pickByEmpId(page, branch.getByTestId('assign-step').nth(0), PEOPLE.checker)
   await pickByEmpId(page, branch.getByTestId('assign-step').nth(1), PEOPLE.manager)
-  await expect(branch).toContainText('已分派')
+  await expect(branch).toContainText('已指派')
   await pickByEmpId(page, page.getByTestId('assign-merged'), PEOPLE.plantManager)
-  await expect(page.getByTestId('assignment-form-' + `${RUN}T`)).toContainText('已分派')
+  await expect(page.getByTestId('assignment-form-' + `${RUN}T`)).toContainText('已指派')
   // 存在流程上：發起檢查通過
   expect(await routeSigners()).toMatchObject({
     [`自行檢查人員－${UNIT}`]: PEOPLE.checker.empId, [`部門主管－${UNIT}`]: PEOPLE.manager.empId, 廠區經理人: PEOPLE.plantManager.empId,
@@ -149,7 +149,7 @@ test('發出前分派 → 發起 → 廠區管理員不能換、稽核主管能�
   await actAs(page, PEOPLE.chief)
   await page.goto(`/admin/assignment?plant=${FACTORY}&year=${YEAR}`)
   // The 稽核主管 has all four steps: under 發出表單, numbered in the order of use.
-  await expect(page.getByTestId('nav-steps-title')).toHaveText('發出表單')
+  await expect(page.getByTestId('nav-steps-title')).toHaveText('發出自評表')
   for (const [n, id] of ['nav-templates', 'nav-flows', 'nav-assignment', 'nav-launch'].entries()) {
     await expect(page.getByRole('menuitem').filter({ has: page.getByTestId(id) }).getByTestId(`nav-step-${n + 1}`)).toHaveText(String(n + 1))
   }

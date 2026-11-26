@@ -33,12 +33,12 @@
     "dueToday": "Due today",
     "dueIn_one": "In {{count}} day",
     "dueIn_other": "In {{count}} days",
-    "pastClosed": "{{count}} closed in earlier years are in Assessment records →"
+    "pastClosed": "{{count}} closed in earlier years are in Assessment history →"
   },
   "plants": {
     "title": "{{year}} progress by plant",
     "titleNoYear": "Progress by plant",
-    "toTracking": "Tracking",
+    "toTracking": "Progress tracking",
     "filling": "Filling in",
     "signing": "Signing",
     "closed": "Closed",

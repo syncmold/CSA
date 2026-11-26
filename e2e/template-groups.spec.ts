@@ -68,7 +68,7 @@ test('範本管理 shows tabs for 全部 and the five 組成要素, listing only
 
   // A 組成要素 without templates says so.
   await tabs.getByRole('tab', { name: /二、風險評估/ }).click()
-  await expect(table.getByText('這一類沒有範本')).toBeVisible()
+  await expect(table.getByText('這一類沒有題庫')).toBeVisible()
 
   // 全部 lists every 組成要素's templates.
   await tabs.getByRole('tab', { name: /全部/ }).click()
@@ -82,7 +82,7 @@ test('範本管理 shows tabs for 全部 and the five 組成要素, listing only
   await second.click()
   await expect(page).toHaveURL(/component=risk_assessment/)
   await expect(second).toHaveAttribute('aria-selected', 'true')
-  await expect(table.getByText('這一類沒有範本')).toBeVisible()
+  await expect(table.getByText('這一類沒有題庫')).toBeVisible()
   await expect(async () => {
     await second.focus()
     await page.keyboard.press('ArrowRight')
@@ -112,7 +112,7 @@ test('opening a template and coming back returns to the same 組成要素', asyn
 
   // The breadcrumb also goes back to the template's own 組成要素.
   await page.getByTestId('template-table').getByRole('link', { name: '採購及付款循環' }).click()
-  await page.getByRole('main').getByRole('link', { name: '範本管理' }).click()
+  await page.getByRole('main').getByRole('link', { name: '題庫管理' }).click()
   await expect(page).toHaveURL(/\/admin\/templates\?component=control_activities$/)
 })
 

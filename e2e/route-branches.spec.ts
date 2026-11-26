@@ -88,9 +88,9 @@ test('four units show four 分流, a 課長 goes into 財務 before its 部門�
   await expect(page.getByTestId('route-steps').locator('tbody tr.ant-table-row').first()).toContainText('1廠區經理人')
   // 廠區端還沒分派（Q147）：說還沒分派、到分派填寫人去分派，這裡不選人；稽核室照舊
   await expect(branches).not.toContainText(SIGNER.name)
-  await expect(page.getByTestId('branch-財務').getByTestId('branch-step-signer').first()).toHaveText(/還沒分派/)
+  await expect(page.getByTestId('branch-財務').getByTestId('branch-step-signer').first()).toHaveText(/還沒指派/)
   const manager = page.getByTestId('route-steps').locator('tbody tr.ant-table-row').first()
-  await expect(manager.getByTestId('step-unassigned')).toContainText('還沒分派')
+  await expect(manager.getByTestId('step-unassigned')).toContainText('還沒指派')
   await expect(manager.getByTestId('to-assignment')).toHaveAttribute('href', '/admin/assignment?plant=SY&year=next')
   await expect(page.getByTestId('route-steps').locator('tbody tr.ant-table-row').last()).toContainText(SIGNER.name)
 
@@ -135,7 +135,7 @@ test('a unit the template added later: what the cards say, and the 發起檢查 
   await expect(page.getByTestId('merge-band')).toHaveText('業務、資材、品保、財務、工務 5 個單位都核准後匯流')
   // No 啟用 to press (Q137 (6)): the 發起檢查 box itself says the 年度發起 cannot tick this combination, and why.
   const checkBox = page.getByTestId('route-check')
-  await expect(checkBox).toContainText('發起檢查尚未通過：年度發起時不能勾選這個組合')
+  await expect(checkBox).toContainText('發起檢查尚未通過：在「自評表發起」不能勾選這個組合')
   await expect(checkBox).toContainText('下列自評單位還沒有分流：工務')
   await expect(page.getByTestId('activate-route')).toHaveCount(0)
 

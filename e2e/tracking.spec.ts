@@ -184,7 +184,7 @@ test('a 稽核管理者 opens 追蹤總覽 from the menu and sees where each 自
   await expect(cell(page, 'SZ', CONTROLS)).toHaveText('1／2')
   await expect(cell(page, 'FQ', PURCHASE)).toHaveCount(0)
 
-  await expectCount(page, 'tracking-kpi-total', '自評表（3 廠區 × 4 範本） · 未發起 2 份', 6)
+  await expectCount(page, 'tracking-kpi-total', '自評表（3 廠區 × 4 題庫） · 未發起 2 份', 6)
   await expectCount(page, 'tracking-kpi-in-progress', '進行中', 4)
   await expectCount(page, 'tracking-kpi-closed', '已結案（33%）', 2)
   // SZ/A has stayed 12 days: past the first threshold (7), not the second (14)
@@ -264,7 +264,7 @@ test('匯出 Excel writes the matrix expanded, filters applied, plus one 明細 
 
   // Exported while folded: the 總覽 still has every form (Q105 (4) compares it with the screen expanded).
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('tracking-export').click()])
-  expect(download.suggestedFilename()).toBe('追蹤總覽_2027.xlsx')
+  expect(download.suggestedFilename()).toBe('進度追蹤_2027.xlsx')
   const sheets = await readXlsxFile(await download.path())
   expect(sheets.map((s) => s.sheet)).toEqual(['總覽', '明細'])
   const overview = sheets[0]!.data.map((r) => r.map((c) => (c === null ? '' : String(c))))
@@ -274,7 +274,7 @@ test('匯出 Excel writes the matrix expanded, filters applied, plus one 明細 
   expect(overview[0]).toEqual(['公司／廠區', '一、控制環境', '三、控制作業', PURCHASE, RND])
   // 明細 has no 範本版本 column (one template per 編號, Q137 (4)).
   expect(sheets[1]!.data[0]).toEqual([
-    '年度', '公司', '廠區', '廠區代碼', '範本編號', '範本名稱', '狀態', '目前關卡', '總關數', '關卡名稱', '簽核人工號', '簽核人姓名',
+    '年度', '公司', '廠區', '廠區代碼', '題庫編號', '題庫名稱', '狀態', '目前關卡', '總關數', '關卡名稱', '簽核人工號', '簽核人姓名',
     '進入目前關卡（台北時間）', '停留天數', '結案日期', '截止日',
   ])
   expect(sheets[1]!.data.slice(1).map((r) => `${r[3]}/${r[4]}/${r[13] ?? ''}`)).toEqual(['FQ/A/0', 'FQ/02/5', 'SZ/A/12', 'SZ/10.3/3'])
@@ -317,7 +317,7 @@ test('待處理優先 groups by 廠區, each 廠區 longest 停留 first, with t
   await expect(page.getByTestId(/^tracking-queue-/)).toHaveCount(0)
   await plant('SZ').getByRole('button', { name: /SZ廠/ }).click()
   await expect(page.getByTestId(/^tracking-queue-/)).toHaveCount(2)
-  await expectCount(page, 'tracking-kpi-total', '自評表（1 廠區 × 2 範本）', 3)
+  await expectCount(page, 'tracking-kpi-total', '自評表（1 廠區 × 2 題庫）', 3)
 
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('tracking-export').click()])
   const sheets = await readXlsxFile(await download.path())
@@ -365,12 +365,12 @@ test('the side menu folds to its icons, every page and reload keeps it folded, a
   expect(Math.abs(button.x + button.width / 2 - (menu.x + menu.width))).toBeLessThanOrEqual(2)
   expect(Math.abs(button.y + button.height / 2 - (mark.y + mark.height / 2))).toBeLessThanOrEqual(2)
   // Folded, the item shows only its icon; clicking it still follows the link (and its name is still the label).
-  await page.getByRole('menuitem', { name: /權限管理/ }).click()
+  await page.getByRole('menuitem', { name: /人員管理/ }).click()
   await expect(page).toHaveURL(/\/admin\/access$/)
   // The URL changes at once, but react-router renders the new page as a transition, so 追蹤總覽 can stay on screen a
   // moment longer (about 400ms on CI). Each page has its own AppShell: wait for 權限管理 itself, or the clicks below
   // reach the old menu, which then leaves the page under them.
-  await expect(page.getByRole('heading', { name: '權限管理' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '人員管理' })).toBeVisible()
   await expect(page.getByTestId('toggle-sider')).toHaveAttribute('aria-expanded', 'false')
   await page.getByTestId('toggle-sider').click()
   await expect(page.getByTestId('signed-in-as')).toBeVisible()

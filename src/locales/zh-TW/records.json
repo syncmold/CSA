@@ -1,6 +1,6 @@
 {
-  "nav": "自評表紀錄",
-  "title": "自評表紀錄",
+  "nav": "歷年自評表",
+  "title": "歷年自評表",
   "subtitle": "結案後內容鎖定，可以打開或匯出 PDF。",
   "scope": {
     "all": "全部廠區・全部年度",
@@ -17,9 +17,9 @@
     "allCompanies": "全部公司",
     "plant": "廠區",
     "allPlants": "全部廠區",
-    "template": "範本",
+    "template": "題庫",
     "templatePlaceholder": "編號或名稱",
-    "templatePlaceholderPhone": "搜尋範本"
+    "templatePlaceholderPhone": "搜尋題庫"
   },
   "status": {
     "all": "全部",

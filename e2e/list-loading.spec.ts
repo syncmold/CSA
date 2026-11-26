@@ -43,12 +43,12 @@ test('範本管理 shows the spinner, not the empty hint, until the templates ar
 
   const table = page.getByTestId('template-table')
   await expect(spinnerAround(page, 'template-table')).toBeVisible()
-  await expect(page.getByText('沒有可檢視的問卷範本')).toHaveCount(0)
+  await expect(page.getByText('沒有可檢視的題庫')).toHaveCount(0)
 
   release([TEMPLATE])
   await expect(table.getByRole('link', { name: '測試用範本' })).toBeVisible()
   await expect(spinnerAround(page, 'template-table')).toHaveCount(0)
-  await expect(page.getByText('沒有可檢視的問卷範本')).toHaveCount(0)
+  await expect(page.getByText('沒有可檢視的題庫')).toHaveCount(0)
 })
 
 test('範本管理 shows the empty hint once the database answers with no templates', async ({ page }) => {
@@ -58,7 +58,7 @@ test('範本管理 shows the empty hint once the database answers with no templa
   await expect(spinnerAround(page, 'template-table')).toBeVisible()
 
   release([])
-  await expect(page.getByText('沒有可檢視的問卷範本')).toBeVisible()
+  await expect(page.getByText('沒有可檢視的題庫')).toBeVisible()
 })
 
 test('流程編輯器 shows the spinner, not the empty hint, until the routes arrive', async ({ page }) => {
