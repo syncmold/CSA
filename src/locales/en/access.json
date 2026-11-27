@@ -1,7 +1,7 @@
 {
   "nav": "People",
   "title": "People management",
-  "accessAllWarning": "Admission is wide open on this machine (CSA_ACCESS_ALL=true): the list has no effect yet and any OMS account can sign in. Roles and viewer plants still apply.",
+  "accessAllWarning": "Admission is wide open on this machine (CSA_ACCESS_ALL=true): the list has no effect yet and any OMS account can sign in. Roles and viewed plants still apply.",
   "tabs": {
     "members": "People",
     "log": "Change log",
@@ -9,16 +9,15 @@
   },
   "role": {
     "signer": "User",
-    "viewer": "Viewer",
+    "viewer": "Viewer (retired)",
     "coordinator": "Plant coordinator",
     "audit_staff": "Audit staff",
     "audit_admin": "Audit administrator",
     "system_maintainer": "System maintainer"
   },
   "roleHint": {
-    "signer": "Sees only the assessments they have a step on",
-    "viewer": "Senior managers: read-only access to every assessment of the chosen plants, progress tracking and exports",
-    "audit_staff": "Like a user while running no plant; as a plant coordinator, also the Taipei audit step on that plant’s routes, and may export Excel",
+    "signer": "Sees the assessments they have a step on; with viewed plants set, also every assessment of those plants, progress tracking and exports",
+    "audit_staff": "Sees the assessments they have a step on, and every plant’s question banks and routes (read only); running a plant, fills that plant’s Taipei audit step, exports its Excel and maintains its question banks and routes",
     "audit_admin": "Exactly one in the company: maintains question banks, routes, launches, assignments and progress tracking, and names plant coordinators; naming a new one turns the previous one back into a user",
     "system_maintainer": "Everything: what the audit administrator does, plus letting people in and setting roles and viewed plants (audit administrator and system maintainers included)"
   },
@@ -45,9 +44,8 @@
     "empIds": "Employee IDs",
     "empIdsPlaceholder": "Paste several at once, separated by commas or new lines",
     "role": "Role",
-    "viewerPlants": "Viewer plants",
-    "viewerPlantsHint": "Several allowed, from the plant master only; starts with the OMS plant",
-    "viewerPlantsRequired": "A viewer needs at least one plant",
+    "viewerPlants": "Viewed plants (optional)",
+    "viewerPlantsHint": "Only for senior managers who need a whole plant’s data, such as a plant manager. Left empty, they see only the assessments they have a step on. Several allowed.",
     "note": "Note",
     "notePlaceholder": "e.g. new auditor, Fuqing plant manager",
     "batchShared": "Everyone in this batch gets the same role, plants and note",
@@ -86,7 +84,7 @@
   "editTitle": "Edit {{name}}",
   "saved": "Saved",
   "removeTitle": "Remove {{name}}?",
-  "removeIntro": "Takes them off the access list, back to user, with no viewer plants and no plants to run; sign-off history and progress tracking still show their name. They are signed out at the next renewal (within about 45 minutes) and cannot sign in again.",
+  "removeIntro": "Takes them off the access list, back to user, with no viewed plants and no plants to run; sign-off history and progress tracking still show their name. They are signed out at the next renewal (within about 45 minutes) and cannot sign in again.",
   "removeSelf": "You are removing yourself: afterwards you can no longer open People management.",
   "removePlants": "They are the plant coordinator of {{plants}}: once removed, these plants have none until someone is named.",
   "impactLoading": "Looking for their steps on routes…",
@@ -118,14 +116,14 @@
     "content": "Change",
     "empty": "No people changes yet",
     "none": "(none)",
-    "plants": "viewer plants {{plants}}",
+    "plants": "viewed plants {{plants}}",
     "note": "note {{note}}",
     "action": {
       "added": "Added",
       "removed": "Removed",
       "role": "Role",
       "audit_admin_replaced": "Took over as audit administrator",
-      "viewer_plants": "Viewer plants",
+      "viewer_plants": "Viewed plants",
       "note": "Note",
       "coordinator_assigned": "Became plant coordinator",
       "coordinator_replaced": "Took over as plant coordinator",
@@ -147,7 +145,7 @@
     "missing": "{{count}} without one",
     "clickHint": "click to assign or replace",
     "none": "Not assigned",
-    "viewers": "Viewers: {{names}}",
+    "viewers": "Viewed by: {{names}}",
     "search": "Search code or plant",
     "allOwners": "All coordinators",
     "owner": "{{name}} ({{count}})",
@@ -176,17 +174,22 @@
     "notLinked": "The Taipei audit step of this plant’s routes will not follow them; set it in each route"
   },
   "guide": {
-    "rule": "Answering, submitting, approving and returning follow the route, not these roles: whoever’s step it is may act, and not even the audit administrator signs for someone else. One person may hold several roles; the plants they see add up, except in progress tracking’s Excel export: plants seen only as a plant-side coordinator are left out, while audit staff export the plants they run.",
+    "notes": [
+      "Where a cell says “Viewed plants” or “+ plants they run”, it covers those plants only.",
+      "A plant coordinator sees the plants of their own role plus the plants they run.",
+      "The “+ plants they run” for exporting Excel and changing question banks and routes applies to audit staff only; a plant-side coordinator does not get it."
+    ],
     "matrixTitle": "Roles and what they may do",
     "operation": "Feature",
-    "scopeTitle": "What each role sees",
     "cell": {
-      "turn": "Only their step",
-      "own": "Only their own",
-      "viewPlants": "Chosen plants",
-      "runPlants": "Plants they run",
-      "editRun": "Edit own plants, see all",
+      "addRun": "+ plants they run",
+      "viewPlants": "Viewed plants",
       "readOnly": "Read only"
+    },
+    "addOn": {
+      "name": "Plant coordinator (added)",
+      "hint": "Plant coordinator is added on top of a system role: the last column only says what it adds; empty means the same as the role.",
+      "column": "what it adds"
     },
     "group": {
       "assessment": "Assessments",
@@ -196,73 +199,20 @@
     },
     "row": {
       "ownAssessments": "See the assessments they have a step on",
-      "act": "Answer, submit, approve, return",
+      "act": "Answer, submit, approve, return (their step)",
       "allAnswers": "See every assessment and its answers",
-      "pdf": "Export PDF",
-      "assign": "Assign signers and the plant manager",
-      "replace": "Replace someone on a step not yet signed",
+      "pdf": "Export PDF (assessments they can open)",
+      "assign": "Assign signers before issue",
+      "replace": "Replace someone on a step not yet signed, after issue",
       "tracking": "Progress tracking, plant progress on My to-dos",
       "excel": "Export Excel",
-      "templates": "Question banks, assessing units (audit staff only add units)",
-      "flows": "Approval routes (extra step, not applicable, audit steps)",
+      "templates": "Question banks, assessing units",
+      "flows": "Approval routes",
       "launch": "Launch assessments",
       "coordinators": "Name and replace plant coordinators",
       "access": "See the people list and the people change log",
-      "admit": "Let people in, set roles, viewed plants and notes (audit administrator and system maintainers included)"
-    },
-    "card": {
-      "signer": {
-        "points": [
-          "Only the assessments they have a step on",
-          "Other units’ answers once their own unit has submitted",
-          "No progress tracking"
-        ],
-        "note": "Gets in once a system maintainer adds them to the access list"
-      },
-      "viewer": {
-        "points": [
-          "Every assessment and answer of the chosen plants",
-          "Progress tracking for those plants",
-          "Read only"
-        ],
-        "note": "Senior managers only (chosen plants)"
-      },
-      "coordinator": {
-        "points": [
-          "Every assessment and answer of the plants they run",
-          "Progress tracking for those plants (no Excel export)",
-          "Assign signers, replace on steps not yet signed"
-        ],
-        "note": "A plant-side person. One per plant, one person may run several, no deputies; the routes’ steps do not follow"
-      },
-      "audit_staff": {
-        "points": [
-          "Like a user while running no plant",
-          "Running a plant: every assessment, answer and tracking row of it, assign signers, replace on steps not yet signed, and export Excel",
-          "Fills the “Taipei audit” step of that plant’s routes",
-          "Question banks and routes: sees every plant, adds, edits and deletes only the plants they run; assessing units: add only",
-          "Cannot launch or top up a year"
-        ],
-        "note": "Several; set by a system maintainer, and a plant only once the audit administrator names them its coordinator"
-      },
-      "audit_admin": {
-        "points": [
-          "All plants, all assessments",
-          "Question banks, routes, launch, assigning and replacing signers; names plant coordinators; reads the people list and change log",
-          "Fills the last step of every route, and the Taipei audit step of any plant they run; cannot sign someone else’s step"
-        ],
-        "note": "Exactly one; naming a new one turns the previous one into a user"
-      },
-      "system_maintainer": {
-        "points": [
-          "Everything: question banks, routes, launches, assigning and replacing signers",
-          "Every plant's assessments, answers, progress tracking and exports",
-          "The only one who lets people in and sets roles and viewed plants (audit administrators and system maintainers included)"
-        ],
-        "note": "At least one must remain; cannot run a plant"
-      }
-    },
-    "coordinatorRule": "One coordinator per plant, one person may run several, no deputies; picked from the access list, and leaving the list ends it. Audit staff come first, the audit chief may run a plant too; picking someone from the plant is allowed, but then the Taipei audit step of that plant’s routes is not linked."
+      "admit": "Let people in, set roles, viewer plants and notes"
+    }
   },
   "plantRights": "Plants",
   "removeFromList": "Remove from the list",
@@ -279,15 +229,18 @@
   "rights": {
     "title": "Edit plants",
     "who": "Plant: {{plant}}  Role: {{role}}",
-    "view": "These are the plants this viewer views: their assessments and progress tracking. At least one.",
+    "viewTitle": "Viewed plants",
+    "view": "They see every assessment and the progress tracking of these plants. Optional; only a system maintainer can change it.",
+    "viewLocked": "They see every assessment and the progress tracking of these plants. Only a system maintainer can change it; shown here read only.",
+    "runTitle": "Plants they run (plant coordinator)",
+    "runHint": "One per plant; a plant someone else runs is handed over on save. The audit administrator may set these too.",
     "run": "These are the plants this person runs as coordinator, one per plant; a plant someone else runs is handed over on save.",
     "fixed": "A system maintainer sees every plant and runs none; nothing to set here.",
     "all": "All plants ({{count}} now)",
     "clear": "Clear",
     "count": "{{count}} of {{total}} plants chosen",
     "runBy": "now {{name}}",
-    "close": "Close",
-    "viewerRuns": "They also run {{plants}}: change the plants they run from the plant cells on the right."
+    "close": "Close"
   },
   "allPlants": "All plants"
 }

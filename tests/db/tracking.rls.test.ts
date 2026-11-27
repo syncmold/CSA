@@ -13,6 +13,7 @@ const EMP = {
   manager: `${RUN}C`,
   chief: `${RUN}F`,
   outsider: `${RUN}D`,
+  /** 有檢視廠區（二廠）的一般使用者（Q153；之前是檢視者） */
   viewer: `${RUN}V`,
 }
 const NAME: Record<string, string> = {
@@ -109,7 +110,7 @@ beforeAll(async () => {
   ID.templateB = await makeTemplate(CODE_B, 'control_activity', FACTORY_1, [['第一章', [['p1', ID.unit]]]])
   ID.templateInactive = await makeTemplate(CODE_INACTIVE, 'control_activity', FACTORY_1, [['第一章', [['p1', ID.unit]]]])
   ok(await admin.from('questionnaire_template').update({ status: 'inactive' }).eq('id', ID.templateInactive))
-  ok(await admin.from('employee_ref').update({ audit_role: 'viewer', viewer_plant_ids: [ID.plant2] }).eq('emp_id', EMP.viewer))
+  ok(await admin.from('employee_ref').update({ viewer_plant_ids: [ID.plant2] }).eq('emp_id', EMP.viewer))
   const steps = [
     { name: '自行檢查人員－資材', group: 'plant' as const, signer: EMP.checker, unitId: ID.unit },
     { name: '部門主管－資材', group: 'plant' as const, signer: EMP.manager, unitId: null },
@@ -228,7 +229,7 @@ describe('範本與適用廠區（#86）', () => {
     expect(templates.find((t) => t.template_id === ID.templateB)!.applies_to).toEqual([ID.plant1])
   })
 
-  it('gives a 檢視者 the 範本 of their 檢視廠區 only, applying there only', async () => {
+  it('gives a 一般使用者 with 檢視廠區 the 範本 of those plants only, applying there only', async () => {
     expect(await trackingOf(EMP.viewer)).toHaveLength(1)
     const templates = await templatesOf(EMP.viewer)
     expect(templates.map((t) => [t.template_id, t.applies_to])).toEqual([[ID.templateA, [ID.plant2]]])

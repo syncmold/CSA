@@ -66,7 +66,7 @@ describe('管理員帳號的權限同系統維護員', () => {
     const adminAccount = await loginAsAdminAccount()
     const added = await adminAccount.rpc('add_access_members', {
       p_people: [{ emp_id: EMP.newcomer, name: '新人', factory_code: 'FQ' }],
-      p_role: 'viewer',
+      p_role: 'signer',
       p_viewer_plant_ids: [],
       p_note: null,
     })

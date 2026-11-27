@@ -1,12 +1,11 @@
 // 權限管理 (#58, Q98). Reads go through view access_member and table access_change_log, writes through the
 // database's maintenance functions; both are for 稽核管理者 only, which the database decides (ADR-0001).
 import type { PickerRow } from '../../exchange/core'
-import type { AccessMember, ChangeLogRow, RemovalImpactRow } from './accessModel'
-import type { AuditRole } from './employee'
+import type { AccessMember, AccessSettings, ChangeLogRow, RemovalImpactRow } from './accessModel'
 import { check } from './result'
 import { supabase } from './supabase'
 
-export type { AccessMember, ChangeLogRow, RemovalImpactRow } from './accessModel'
+export type { AccessMember, AccessSettings, ChangeLogRow, RemovalImpactRow } from './accessModel'
 
 const MEMBER_COLUMNS =
   'emp_id,name,factory_code,audit_role,viewer_plant_ids,note,added_at,added_by_emp_id,added_by_name,last_login_at,coordinator_plant_ids'
@@ -30,14 +29,6 @@ export async function fetchChangeLog(): Promise<ChangeLogRow[]> {
     .returns<ChangeLogRow[]>()
   if (error) throw error
   return data
-}
-
-export interface AccessSettings {
-  role: AuditRole
-  viewerPlantIds: string[]
-  note: string
-  /** The 負責廠區 added and taken off (編輯 only); the others stay as they are, and all of them when absent. */
-  coordinatorChanges?: { assign: string[]; unassign: string[] }
 }
 
 /** The 工號 the database added and the ones it skipped because they were already on the list. */

@@ -9,7 +9,7 @@ import { PlantProgressCard } from '../components/PlantProgressCard'
 import { useSeesTracking } from '../hooks/useMyAuditRole'
 
 /**
- * 首頁 (Q115): 我的自評表 for everyone; whoever sees 追蹤總覽 (稽核管理者, 檢視者, 廠區負責人, Q117 (3)) also gets
+ * 首頁 (Q115): 我的自評表 for everyone; whoever sees 追蹤總覽 (稽核管理者, a 一般使用者 with 檢視廠區, 廠區負責人, Q117 (3), Q153) also gets
  * 各廠填單進度 beside it, about 3:2, and a 廠區負責人 with something to assign a reminder above them (#101). Like the menu, the role only decides what is shown; the database decides what each card's rows are.
  * 方向 A (#129).
  */

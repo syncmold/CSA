@@ -61,27 +61,27 @@ const TEMPLATES = Object.entries({ '02': ['FQ', 'SY'], A: ['FQ', 'SY', 'SZ'], '1
   template_component: COMPONENTS[code] ?? 'control_activities', applies_to: plants.map((p) => `p-${p}`),
 }))
 
-type As = 'audit_admin' | 'viewer' | 'coordinator' | 'viewer_coordinator' | 'audit_staff' | 'audit_staff_no_plant' | 'signer'
+type As = 'audit_admin' | 'plant_viewer' | 'coordinator' | 'plant_viewer_coordinator' | 'audit_staff' | 'audit_staff_no_plant' | 'signer'
 
 /**
  * Who I am to the mocked database: `runs` the plants I run as 廠區管理員, `plants` the factory codes it gives me rows
- * for (null: every plant).
+ * for (null: every plant). A plant_viewer is a 一般使用者 with 檢視廠區 (Q153; the 檢視者 role before it).
  */
 const ME: Record<As, { audit_role: string; viewer_plant_ids: string[]; runs: string[]; plants: string[] | null }> = {
   audit_admin: { audit_role: 'audit_admin', viewer_plant_ids: [], runs: [], plants: null },
-  viewer: { audit_role: 'viewer', viewer_plant_ids: ['p-FQ'], runs: [], plants: ['FQ'] },
+  plant_viewer: { audit_role: 'signer', viewer_plant_ids: ['p-FQ'], runs: [], plants: ['FQ'] },
   coordinator: { audit_role: 'signer', viewer_plant_ids: [], runs: ['p-FQ'], plants: ['FQ'] },
-  viewer_coordinator: { audit_role: 'viewer', viewer_plant_ids: ['p-SY'], runs: ['p-FQ'], plants: ['FQ', 'SY'] },
+  plant_viewer_coordinator: { audit_role: 'signer', viewer_plant_ids: ['p-SY'], runs: ['p-FQ'], plants: ['FQ', 'SY'] },
   audit_staff: { audit_role: 'audit_staff', viewer_plant_ids: [], runs: ['p-FQ', 'p-SZ'], plants: ['FQ', 'SZ'] },
   audit_staff_no_plant: { audit_role: 'audit_staff', viewer_plant_ids: [], runs: [], plants: [] },
   signer: { audit_role: 'signer', viewer_plant_ids: [], runs: [], plants: [] },
 }
 
 /**
- * Answers /rest/v1 like PostgREST would, as a 稽核管理者, as a 檢視者 of FQ (whose rows the database has already
- * narrowed to their 檢視廠區, #58), as a 廠區負責人 (a 一般使用者 who runs FQ, so the same rows as that 檢視者, Q117 (3)),
- * as a 檢視者 of SY who also runs FQ (both plants' rows), as a 稽核人員 who runs FQ and SZ (#187), or as anyone else
- * (who gets no tracking rows).
+ * Answers /rest/v1 like PostgREST would, as a 稽核管理者, as a 一般使用者 whose 檢視廠區 is FQ (whose rows the database
+ * has already narrowed to it, #58, Q153), as a 廠區負責人 (a 一般使用者 who runs FQ, so the same rows, Q117 (3)), as a
+ * 一般使用者 who views SY and also runs FQ (both plants' rows), as a 稽核人員 who runs FQ and SZ (#187), or as anyone
+ * else (who gets no tracking rows).
  */
 async function mockApi(page: Page, as: As) {
   const me = ME[as]
@@ -412,9 +412,9 @@ test('anyone who is not a 稽核管理者 has no 追蹤總覽: no menu link, and
   await expect(page.getByTestId('tracking-export')).toHaveCount(0)
 })
 
-test('a 檢視者 (#58) opens 追蹤總覽 from the menu and sees the 檢視廠區 the database gives them, but no admin pages', async ({ page }) => {
+test('a 一般使用者 with 檢視廠區 (#58, Q153) opens 進度追蹤 from the menu and sees the plants the database gives them, but no admin pages', async ({ page }) => {
   await signIn(page)
-  await mockApi(page, 'viewer')
+  await mockApi(page, 'plant_viewer')
   await page.goto('/')
   await expect(page.getByTestId('nav-templates')).toHaveCount(0)
   await expect(page.getByTestId('nav-access')).toHaveCount(0)
@@ -471,9 +471,9 @@ test('a 稽核人員 who runs no plant is a 一般使用者 here (#187): no 追�
   await expect(page.getByTestId('tracking-export')).toHaveCount(0)
 })
 
-test('a 檢視者 who also runs a plant sees both on screen, but 匯出 Excel holds only the 檢視廠區 (user 2026-11-03)', async ({ page }) => {
+test('a 一般使用者 with 檢視廠區 who also runs a plant sees both on screen, but 匯出 Excel holds only the 檢視廠區 (user 2026-11-03)', async ({ page }) => {
   await signIn(page)
-  await mockApi(page, 'viewer_coordinator')
+  await mockApi(page, 'plant_viewer_coordinator')
   await page.goto('/admin/tracking')
   await expect(cell(page, 'FQ', CE)).toBeVisible()
   await expect(cell(page, 'SY', CE)).toBeVisible()

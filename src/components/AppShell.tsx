@@ -46,7 +46,7 @@ const VISUALLY_HIDDEN = { position: 'absolute', width: 1, height: 1, overflow: '
  * The menu's parts, top to bottom, each after a thin rule (Q124 (3)): 首頁; the steps of sending the forms out
  * (範本 → 流程 → 分派填寫人 → 年度發起, Q147), headed 發出表單 and numbered when someone has two or more of them; the
  * other pages that change settings; the pages that show data. Only the steps have a heading: headings named after
- * whose things they were (我的／管理) misled, a 檢視者's 追蹤總覽 sat under 管理.
+ * whose things they were (我的／管理) misled: 進度追蹤, which someone who only views a plant gets too, sat under 管理.
  */
 type NavSection = 'home' | 'steps' | 'settings' | 'data'
 const SECTIONS: readonly NavSection[] = ['home', 'steps', 'settings', 'data']
@@ -66,7 +66,7 @@ interface NavEntry {
 /** What the menu knows about the signed-in employee. */
 interface Me {
   role: AuditRole | undefined
-  /** 稽核管理者, 檢視者 and 廠區負責人 (Q117 (3)) */
+  /** 稽核主管, 系統維護員, a 一般使用者 with 檢視廠區 (Q153) and 廠區管理員 (Q117 (3)) */
   seesTracking: boolean
   /** 稽核管理者 and 廠區負責人 (#101) */
   assigns: boolean

@@ -13,6 +13,7 @@ const EMP = {
   owner: `${RUN}B`,
   /** 接任的人 */
   next: `${RUN}C`,
+  /** 有檢視廠區（一廠）的一般使用者（Q153；之前是檢視者） */
   viewer: `${RUN}D`,
   checker: `${RUN}E`,
   manager: `${RUN}F`,
@@ -80,7 +81,7 @@ beforeAll(async () => {
   ok(await maint.rpc('add_access_members', {
     p_people: [person(EMP.owner, '何欣怡'), person(EMP.next, '接任者')], p_role: 'signer', p_viewer_plant_ids: [], p_note: null,
   }))
-  ok(await maint.rpc('add_access_members', { p_people: [person(EMP.viewer, '檢視者')], p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
+  ok(await maint.rpc('add_access_members', { p_people: [person(EMP.viewer, '廠長')], p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
 })
 
 afterAll(async () => {
@@ -142,7 +143,7 @@ describe('指定', () => {
     expect(ok(await owner.from('assessment_answer').select('control_point_id,execution').eq('assessment_id', ASSESSMENT[1])))
       .toEqual([{ control_point_id: ID.point1, execution: 'yes' }])
     expect(await readAssessmentPdfSource(owner, ASSESSMENT[2])).toBeNull()
-    // Being the 廠區負責人 is not a 稽核角色: still a 簽核人, and 追蹤總覽 stays the 稽核管理者's and 檢視者's.
+    // Being the 廠區負責人 is not a 稽核角色: still a 簽核人, and 追蹤總覽 stays the 稽核管理者's and those with 檢視廠區.
     expect(ok(await owner.from('employee_ref').select('audit_role').eq('emp_id', EMP.owner).single())).toEqual({ audit_role: 'signer' })
     // She reads her own assignment (for the menu); others' stay hidden.
     expect(ok(await owner.from('plant_coordinator').select('plant_id,emp_id'))).toEqual([{ plant_id: ID.plant1, emp_id: EMP.owner }])
@@ -244,13 +245,13 @@ describe('移除', () => {
   })
 })
 
-describe('檢視者', () => {
-  it('a 檢視者 named 廠區負責人 of another plant keeps their 檢視廠區 and sees both', async () => {
+describe('檢視廠區（Q153）', () => {
+  it('a 一般使用者 with 檢視廠區 named 廠區負責人 of another plant keeps their 檢視廠區 and sees both', async () => {
     const chief = await chiefClient()
     ok(await chief.rpc('set_plant_coordinator', { p_plant_id: ID.plant2, p_emp_id: EMP.viewer }))
     expect(ok(await chief.from('access_member').select('audit_role,viewer_plant_ids').eq('emp_id', EMP.viewer).single()))
-      .toEqual({ audit_role: 'viewer', viewer_plant_ids: [ID.plant1] })
-    const viewer = await loginAs(EMP.viewer, '檢視者')
+      .toEqual({ audit_role: 'signer', viewer_plant_ids: [ID.plant1] })
+    const viewer = await loginAs(EMP.viewer, '廠長')
     expect((await readAssessmentPdfSource(viewer, ASSESSMENT[1]))?.assessment.id).toBe(ASSESSMENT[1])
     expect((await readAssessmentPdfSource(viewer, ASSESSMENT[2]))?.assessment.id).toBe(ASSESSMENT[2])
 
@@ -276,7 +277,7 @@ describe('在編輯對話框改負責廠區（只送有變的廠區）', () => {
       { coordinator_plant_ids: string[] }).coordinator_plant_ids].sort()
   const update = async (changes?: { assign?: string[]; unassign?: string[] }) =>
     (await chiefClient()).rpc('update_access_member', {
-      p_emp_id: EMP.viewer, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null,
+      p_emp_id: EMP.viewer, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: null,
       ...(changes ? { p_coordinator_assign: changes.assign ?? [], p_coordinator_unassign: changes.unassign ?? [] } : {}),
     })
 
@@ -353,7 +354,7 @@ describe('分流（#97，Q116 (9)）', () => {
     return [answers.map((r) => r.assessing_unit_name).sort(), conclusions.map((r) => r.assessing_unit_name).sort()]
   }
 
-  it('the 廠區負責人 reads every unit’s answers before any unit submits, like a 檢視者; a unit’s 自行檢查人員 reads only their own', async () => {
+  it('the 廠區負責人 reads every unit’s answers before any unit submits, like someone with 檢視廠區; a unit’s 自行檢查人員 reads only their own', async () => {
     const both = [UNIT, UNIT2].sort()
     expect(await visibleUnits(EMP.branchOwner, '三廠負責人')).toEqual([both, both])
     expect(await visibleUnits(EMP.manager, '丙')).toEqual([[UNIT2], [UNIT2]])

@@ -64,7 +64,7 @@
     "closed": "Closed"
   },
   "noYears": "No annual cycle has been launched yet",
-  "empty": "No assessments match (progress tracking is for audit administrators, viewers and plant coordinators)",
+  "empty": "No assessments match (progress tracking is for audit administrators, people with viewed plants and plant coordinators)",
   "cell": {
     "step": "Step {{position}}/{{count}} {{name}}",
     "stageProgress": "{{stage}} · {{progress}}",

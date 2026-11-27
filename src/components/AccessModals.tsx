@@ -1,15 +1,15 @@
 import {
   Alert, Button, Checkbox, Collapse, Descriptions, Flex, Form, Input, List, Modal, Radio, Select, Space, Spin, Tag, Typography, type ButtonProps,
 } from 'antd'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AccessMember, AccessSettings, AddResult } from '../api/access'
 import type { AuditRole } from '../api/employee'
 import type { Plant } from '../api/plants'
 import type { PickerRow } from '../../exchange/core'
 import {
-  accessWriteError, defaultViewerPlants, groupImpact, linksTaipeiAudit, mayRunPlant, parseEmpIds, personLabel, planAdd, plantChanges, plantLabelById, plantText,
-  takeovers,
+  accessWriteError, groupImpact, linksTaipeiAudit, mayRunPlant, mayViewPlants, parseEmpIds, personLabel, planAdd, plantLabelById, plantRightsSettings, plantText,
+  takeovers, viewedPlants,
 } from '../domain/access'
 import { palette, textSize } from '../theme'
 import { errorText } from '../domain/errors'
@@ -27,41 +27,32 @@ interface SettingsValues {
 
 const toSettings = (v: SettingsValues): AccessSettings => ({
   role: v.role,
-  viewerPlantIds: v.role === 'viewer' ? (v.viewer_plant_ids ?? []) : [],
+  viewerPlantIds: mayViewPlants(v.role) ? (v.viewer_plant_ids ?? []) : [],
   note: (v.note ?? '').trim(),
 })
 
 /**
- * 角色 (the `roles` the signed-in person may give, with what each may do), 檢視廠區 (only for 檢視者) and 備註: shared
- * by 加入 and 編輯. 編輯 asks for 檢視廠區 only when it makes someone a 檢視者 (`askViewerPlants`): a 檢視者's plants are
- * changed in 廠區權限 (#215). For a 系統維護員, who runs no plant, 編輯 says what they step down from (`stepsDown`).
+ * 角色 (the `roles` the signed-in person may give, with what each may do), 檢視廠區 and 備註: shared by 加入 and 編輯.
+ * 檢視廠區 is optional and only for a 一般使用者 (Q153): 加入 asks for it (`plants`), with nothing filled in to start
+ * from; 編輯 does not, since someone's plants are changed in 廠區權限 (#215). For a 系統維護員, who runs no plant, 編輯
+ * says what they step down from (`stepsDown`).
  */
 function SettingsFields({
   roles,
   plants,
-  defaultPlants,
   stepsDown,
-  askViewerPlants = true,
   batchSize = 1,
 }: {
   roles: readonly AuditRole[]
-  plants: Plant[]
-  defaultPlants: string[]
+  /** 加入 only: the plant master, to pick a 一般使用者's 檢視廠區 from. */
+  plants?: Plant[]
   stepsDown?: ReactNode
-  askViewerPlants?: boolean
   /** 加入 only: how many people this batch adds, since there is exactly one 稽核主管 (#187). */
   batchSize?: number
 }) {
   const { t } = useTranslation('access')
   const form = Form.useFormInstance<SettingsValues>()
   const role = Form.useWatch('role', form)
-  // Q98 (6): a 檢視者 starts with their own OMS 廠區 — also when the OMS lookup answers after 檢視者 was picked.
-  const defaultKey = defaultPlants.join(',')
-  useEffect(() => {
-    if (role === 'viewer' && defaultPlants.length && !(form.getFieldValue('viewer_plant_ids') ?? []).length) {
-      form.setFieldValue('viewer_plant_ids', defaultPlants)
-    }
-  }, [role, defaultKey, form]) // defaultKey stands for defaultPlants, a new array every render
   return (
     <>
       <Form.Item name="role" label={t('form.role')} rules={[{ required: true }]}>
@@ -81,15 +72,11 @@ function SettingsFields({
       {role === 'audit_admin' && batchSize > 1 && (
         <Alert type="warning" showIcon style={{ marginBottom: 12 }} data-testid="access-single-admin" title={t('errors.singleAdmin')} />
       )}
-      {role === 'viewer' && askViewerPlants && (
-        <Form.Item
-          name="viewer_plant_ids"
-          label={t('form.viewerPlants')}
-          extra={t('form.viewerPlantsHint')}
-          rules={[{ required: true, type: 'array', min: 1, message: t('form.viewerPlantsRequired') }]}
-        >
+      {mayViewPlants(role) && plants && (
+        <Form.Item name="viewer_plant_ids" label={t('form.viewerPlants')} extra={t('form.viewerPlantsHint')}>
           <Select
             mode="multiple"
+            allowClear
             data-testid="access-viewer-plants"
             optionFilterProp="label"
             options={plants.map((p) => ({ value: p.id, label: plantText(p) }))}
@@ -136,7 +123,6 @@ export function AddMembersModal({
   /** The list below is still for an earlier text, or OMS has not answered yet. */
   const catchingUp = typed.join(',') !== empIds.join(',') || (empIds.length > 0 && picker.isFetching)
   const toAdd = plan.flatMap((p) => (p.status === 'add' ? [p.person] : []))
-  const defaultPlants = defaultViewerPlants(toAdd, plants)
 
   return (
     <FormModal<SettingsValues>
@@ -193,7 +179,7 @@ export function AddMembersModal({
             )}
           />
         ))}
-      <SettingsFields roles={roles} plants={plants} defaultPlants={defaultPlants} batchSize={toAdd.length} />
+      <SettingsFields roles={roles} plants={plants} batchSize={toAdd.length} />
     </FormModal>
   )
 }
@@ -223,30 +209,23 @@ export function EditMemberModal({
   onClose: () => void
 }) {
   const { t } = useTranslation('access')
-  const wasViewer = member.audit_role === 'viewer'
   return (
     <FormModal<SettingsValues>
       title={t('editTitle', { name: personLabel(member.emp_id, member.name) })}
       testId="access-edit-modal"
-      initialValues={{ role: member.audit_role, viewer_plant_ids: member.viewer_plant_ids, note: member.note ?? '' }}
+      initialValues={{ role: member.audit_role, note: member.note ?? '' }}
       errorOverrides={(e) => accessWriteError(t, e)}
       footerStart={
         <Button type="link" danger style={{ paddingInline: 0 }} onClick={onRemove} data-testid="access-remove">
           {t('removeFromList')}
         </Button>
       }
-      onSave={(v) => {
-        const settings = toSettings(v)
-        // Still a 檢視者: the dialog does not ask for the plants, which stay as they are.
-        return onSave(wasViewer && v.role === 'viewer' ? { ...settings, viewerPlantIds: member.viewer_plant_ids } : settings)
-      }}
+      // The dialog does not ask for 檢視廠區: someone who stays a 一般使用者 keeps theirs, any other role has none (Q153).
+      onSave={(v) => onSave({ ...toSettings(v), viewerPlantIds: mayViewPlants(v.role) ? member.viewer_plant_ids : [] })}
       onClose={onClose}
     >
       <SettingsFields
         roles={roles}
-        plants={plants}
-        askViewerPlants={!wasViewer}
-        defaultPlants={member.factory_code ? defaultViewerPlants([{ factory_code: member.factory_code }], plants) : []}
         stepsDown={
           member.coordinator_plant_ids.length > 0 && (
             <Alert
@@ -281,19 +260,29 @@ export function EditMemberModal({
 }
 
 interface PlantRightsValues {
+  /** 檢視廠區: a 一般使用者 only (Q153); the form has no such field for anyone else. */
+  view_plant_ids?: string[]
+  /** 負責的廠區, as 廠區管理員. */
   plant_ids: string[]
 }
 
+/** A group's head inside 廠區權限: its name, then what ticking a plant there means. */
+const GROUP_HEAD: CSSProperties = { marginBottom: 8 }
+/** The second group starts after a line, so the two sets of boxes do not read as one. */
+const GROUP_RULE: CSSProperties = { marginTop: 16, paddingTop: 14, borderTop: `1px solid ${palette.border}` }
+
 /**
- * 廠區權限 (#215): one person's plants, by role. A 檢視者 picks the plants they view (at least one); anyone else who may
- * run a plant picks the plants they run as 廠區管理員, a plant someone else runs being handed over on save; a 系統維護員
- * sees every plant and runs none, so the boxes are all ticked and fixed. A 檢視者 who also runs a plant has it set from
- * the plant's cell on the right. Mount only while open.
+ * 廠區權限 (#215, Q153): one person's plants. A 一般使用者 has two groups, one over the other (版面 A, 使用者
+ * 2026-11-26): 檢視廠區, the plants they see whole, optional and for the 系統維護員 alone to change
+ * (`canEditViewerPlants`; greyed for a 稽核主管), then 負責的廠區, the plants they run as 廠區管理員. A 稽核人員 or the
+ * 稽核主管 has only the second; a plant someone else runs is handed over on save. One save writes both groups. A
+ * 系統維護員 sees every plant and runs none, so the boxes are all ticked and fixed. Mount only while open.
  */
 export function PlantRightsModal({
   member,
   members,
   plants,
+  canEditViewerPlants,
   onSave,
   onClose,
 }: {
@@ -301,12 +290,13 @@ export function PlantRightsModal({
   /** Everyone on the list, to say who runs each plant now. */
   members: AccessMember[]
   plants: Plant[]
+  /** Whether the signed-in person may change 檢視廠區 (mayEditViewerPlants): the 系統維護員 alone. */
+  canEditViewerPlants: boolean
   onSave: (settings: AccessSettings) => Promise<unknown>
   onClose: () => void
 }) {
   const { t } = useTranslation('access')
-  const mode: 'view' | 'run' | 'fixed' = member.audit_role === 'viewer' ? 'view' : mayRunPlant(member) ? 'run' : 'fixed'
-  const before = mode === 'view' ? member.viewer_plant_ids : member.coordinator_plant_ids
+  const views = mayViewPlants(member.audit_role)
   const header = (
     <Flex justify="space-between" wrap gap="4px 12px" style={{ paddingBottom: 10, marginBottom: 12, borderBottom: `1px solid ${palette.border}` }}>
       <Typography.Text strong>{personLabel(member.emp_id, member.name)}</Typography.Text>
@@ -316,7 +306,7 @@ export function PlantRightsModal({
     </Flex>
   )
 
-  if (mode === 'fixed') {
+  if (!mayRunPlant(member)) {
     return (
       <Modal
         open
@@ -333,50 +323,61 @@ export function PlantRightsModal({
     )
   }
 
+  /** In the plant master's order, as the boxes show them. */
+  const ordered = (ids: string[]) => plants.map((p) => p.id).filter((id) => ids.includes(id))
   return (
     <FormModal<PlantRightsValues>
       title={t('rights.title')}
       testId="access-rights-modal"
-      initialValues={{ plant_ids: before }}
+      initialValues={{ view_plant_ids: viewedPlants(member), plant_ids: member.coordinator_plant_ids }}
       errorOverrides={(e) => accessWriteError(t, e)}
-      onSave={async ({ plant_ids }) => {
-        const chosen = plants.map((p) => p.id).filter((id) => plant_ids.includes(id))
-        const base = { role: member.audit_role, note: member.note ?? '' }
-        if (mode === 'view') {
-          if (chosen.length === before.length && chosen.every((id) => before.includes(id))) return
-          return onSave({ ...base, viewerPlantIds: chosen })
-        }
-        const changes = plantChanges(member.coordinator_plant_ids, chosen)
-        if (changes) return onSave({ ...base, viewerPlantIds: member.viewer_plant_ids, coordinatorChanges: changes })
+      onSave={async ({ view_plant_ids, plant_ids }) => {
+        const settings = plantRightsSettings(member, { view: ordered(view_plant_ids ?? []), run: ordered(plant_ids) }, canEditViewerPlants)
+        if (settings) return onSave(settings)
       }}
       onClose={onClose}
     >
       {header}
-      <Alert type="info" showIcon style={{ marginBottom: 12 }} title={t(mode === 'view' ? 'rights.view' : 'rights.run')} data-testid="access-rights-mode" />
-      {mode === 'view' && member.coordinator_plant_ids.length > 0 && (
-        <Alert
-          type="info"
-          showIcon
-          style={{ marginBottom: 12 }}
-          data-testid="access-rights-viewer-runs"
-          title={t('rights.viewerRuns', { plants: member.coordinator_plant_ids.map((id) => plantLabelById(id, plants)).join('、') })}
-        />
+      {views ? (
+        <>
+          <div data-testid="access-rights-group-view">
+            <Flex vertical style={GROUP_HEAD}>
+              <Typography.Text strong>{t('rights.viewTitle')}</Typography.Text>
+              <Typography.Text type="secondary" data-testid="access-rights-view-hint">
+                {t(canEditViewerPlants ? 'rights.view' : 'rights.viewLocked')}
+              </Typography.Text>
+            </Flex>
+            <Form.Item name="view_plant_ids" style={{ marginBottom: 0 }}>
+              <PlantBoxes plants={plants} disabled={!canEditViewerPlants} testId="access-rights-view" />
+            </Form.Item>
+          </div>
+          <div style={GROUP_RULE} data-testid="access-rights-group-run">
+            <Flex vertical style={GROUP_HEAD}>
+              <Typography.Text strong>{t('rights.runTitle')}</Typography.Text>
+              <Typography.Text type="secondary">{t('rights.runHint')}</Typography.Text>
+            </Flex>
+            <Form.Item name="plant_ids" style={{ marginBottom: 0 }}>
+              <PlantBoxes plants={plants} runBy={{ member, members }} />
+            </Form.Item>
+          </div>
+        </>
+      ) : (
+        <>
+          <Alert type="info" showIcon style={{ marginBottom: 12 }} title={t('rights.run')} data-testid="access-rights-mode" />
+          <Form.Item name="plant_ids" style={{ marginBottom: 0 }}>
+            <PlantBoxes plants={plants} runBy={{ member, members }} />
+          </Form.Item>
+        </>
       )}
-      <Form.Item
-        name="plant_ids"
-        style={{ marginBottom: 0 }}
-        rules={mode === 'view' ? [{ required: true, type: 'array', min: 1, message: t('form.viewerPlantsRequired') }] : []}
-      >
-        <PlantBoxes plants={plants} runBy={mode === 'run' ? { member, members } : undefined} />
-      </Form.Item>
-      {mode === 'run' && <RunNotes member={member} members={members} plants={plants} />}
+      <RunNotes member={member} members={members} plants={plants} />
     </FormModal>
   )
 }
 
 /**
  * The plant boxes of 廠區權限: 全部廠區 and 清除選取, two columns, then how many are ticked. With `runBy`, a plant
- * someone else runs says who. A form control (value, onChange) or, `disabled`, a fixed picture.
+ * someone else runs says who. A form control (value, onChange) or, `disabled`, a fixed picture. `testId` tells the two
+ * groups of a 一般使用者 apart.
  */
 function PlantBoxes({
   plants,
@@ -384,12 +385,14 @@ function PlantBoxes({
   onChange,
   disabled,
   runBy,
+  testId = 'access-rights',
 }: {
   plants: Plant[]
   value?: string[]
   onChange?: (ids: string[]) => void
   disabled?: boolean
   runBy?: { member: AccessMember; members: AccessMember[] }
+  testId?: string
 }) {
   const { t } = useTranslation('access')
   const all = plants.length > 0 && plants.every((p) => value.includes(p.id))
@@ -402,12 +405,12 @@ function PlantBoxes({
           indeterminate={!all && value.length > 0}
           disabled={disabled}
           onChange={(e) => onChange?.(e.target.checked ? plants.map((p) => p.id) : [])}
-          data-testid="access-rights-all"
+          data-testid={`${testId}-all`}
         >
           {t('rights.all', { count: plants.length })}
         </Checkbox>
         {!disabled && (
-          <Button type="link" size="small" style={{ paddingInline: 0 }} onClick={() => onChange?.([])} data-testid="access-rights-clear">
+          <Button type="link" size="small" style={{ paddingInline: 0 }} onClick={() => onChange?.([])} data-testid={`${testId}-clear`}>
             {t('rights.clear')}
           </Button>
         )}
@@ -417,7 +420,7 @@ function PlantBoxes({
           {plants.map((p) => {
             const other = runner(p.id)
             return (
-              <Checkbox key={p.id} value={p.id} data-testid={`access-rights-${p.factory_code}`}>
+              <Checkbox key={p.id} value={p.id} data-testid={`${testId}-${p.factory_code}`}>
                 <span style={{ fontWeight: 600, color: disabled ? undefined : palette.primary }}>{p.factory_code}</span> {p.name}
                 {other && (
                   <Typography.Text type="secondary" style={{ marginInlineStart: 6, fontSize: textSize(12) }}>
@@ -429,7 +432,7 @@ function PlantBoxes({
           })}
         </div>
       </Checkbox.Group>
-      <Typography.Text type="secondary" style={{ marginTop: 4 }} data-testid="access-rights-count">
+      <Typography.Text type="secondary" style={{ marginTop: 4 }} data-testid={`${testId}-count`}>
         {t('rights.count', { count: value.length, total: plants.length })}
       </Typography.Text>
     </Flex>

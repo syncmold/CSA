@@ -1,21 +1,26 @@
-// npm run db:set-role -- <工號> <signer|viewer|audit_staff|audit_admin|system_maintainer> [檢視廠區代碼...]
+// npm run db:set-role -- <工號> <signer|audit_staff|audit_admin|system_maintainer> [檢視廠區代碼...]
 //
-// 平常在「權限管理」頁維護角色（#58、Q98、Q122）；這支指令留給新環境設第一位稽核主管（audit_admin）與系統維護員，以及本機開發。
-// 這支指令直接寫資料表，不做「換稽核主管」（前任降級）：稽核主管剛好一位的規則在權限管理頁的設定函式裡（#187）。
-// 和部署指令一樣不必先登入過：沒有 employee_ref 那一列就先建。設成稽核主管、稽核人員或檢視者時也放進放行名單（有角色卻換不到
-// session 沒有意義），系統維護員也一樣；設成簽核人只改角色，不放行，所以拿它降級別人不會順便讓人進來（Q99 (4)）。
-// 檢視者的檢視廠區給廠區代碼（例：FQ SY），沒給就用他在 employee_ref 的 OMS 廠區；兩者都沒有就要求給代碼。
+// 平常在「人員管理」頁維護角色（#58、Q98、Q122）；這支指令留給新環境設第一位稽核主管（audit_admin）與系統維護員，以及本機開發。
+// 這支指令直接寫資料表，不做「換稽核主管」（前任降級）：稽核主管剛好一位的規則在人員管理頁的設定函式裡（#187）。
+// 和部署指令一樣不必先登入過：沒有 employee_ref 那一列就先建。設成稽核主管、稽核人員或系統維護員時也放進放行名單（有角色卻換不到
+// session 沒有意義）；設成一般使用者（signer）只改角色，不放行，所以拿它降級別人不會順便讓人進來（Q99 (4)）。
+// 檢視者角色已取消（Q153）：檢視廠區是一般使用者的選填設定，在 signer 後面接廠區代碼（例：FQ SY）；有給代碼的人看得到整廠資料，
+// 所以也放進放行名單。signer 後面沒接代碼＝沒有檢視廠區（原本有的會清空）。其他角色不能有檢視廠區。
 // 資料庫的規則照樣適用：降級最後一位稽核主管或系統維護員會被拒絕；變更記進權限異動紀錄，操作者是空值（部署指令）。
 // 工號不進 repo，由操作者在命令列給。
 import pg from 'pg'
 import { required } from './env.mjs'
 
-const ROLES = ['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer']
+const ROLES = ['signer', 'audit_staff', 'audit_admin', 'system_maintainer']
 const [rawEmpId, role, ...plantCodes] = process.argv.slice(2)
 const empId = (rawEmpId ?? '').trim().toUpperCase()
 
-if (!empId || !ROLES.includes(role) || (plantCodes.length > 0 && role !== 'viewer')) {
-  console.error(`用法：npm run db:set-role -- <工號> <${ROLES.join('|')}> [檢視者的廠區代碼...]`)
+if (role === 'viewer') {
+  console.error(`檢視者角色已取消（Q153）：請改用 signer 加上檢視廠區代碼，例如 npm run db:set-role -- ${empId || '<工號>'} signer FQ`)
+  process.exit(2)
+}
+if (!empId || !ROLES.includes(role) || (plantCodes.length > 0 && role !== 'signer')) {
+  console.error(`用法：npm run db:set-role -- <工號> <${ROLES.join('|')}> [一般使用者的檢視廠區代碼...]`)
   process.exit(2)
 }
 
@@ -28,15 +33,8 @@ await client.connect()
 try {
   await client.query('begin')
   let plantIds = []
-  if (role === 'viewer') {
-    const codes = plantCodes.length
-      ? plantCodes.map((c) => c.trim().toUpperCase())
-      : (await client.query('select factory_code from public.employee_ref where emp_id = $1', [empId])).rows
-          .map((r) => r.factory_code)
-          .filter(Boolean)
-    if (!codes.length) {
-      throw new Error(`不知道 ${empId} 的廠區（還沒登入過）：請在後面加上檢視廠區代碼，例如 npm run db:set-role -- ${empId} viewer FQ`)
-    }
+  if (plantCodes.length) {
+    const codes = [...new Set(plantCodes.map((c) => c.trim().toUpperCase()))]
     const { rows } = await client.query('select id, factory_code from public.plant where factory_code = any($1::text[])', [codes])
     const missing = codes.filter((c) => !rows.some((r) => r.factory_code === c))
     if (missing.length) throw new Error(`廠區主檔沒有 ${missing.join('、')}`)
@@ -48,7 +46,8 @@ try {
      on conflict (emp_id) do update set audit_role = excluded.audit_role, viewer_plant_ids = excluded.viewer_plant_ids`,
     [empId, role, plantIds],
   )
-  const listed = role === 'signer'
+  // A 一般使用者 with no 檢視廠區 is only given the role (a demotion lets nobody in); one with 檢視廠區 is let in.
+  const listed = role === 'signer' && !plantIds.length
     ? { rowCount: 0 }
     : await client.query('insert into public.access_allowlist (emp_id) values ($1) on conflict do nothing', [empId])
   const { rows } = await client.query(

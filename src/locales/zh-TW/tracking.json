@@ -63,7 +63,7 @@
     "closed": "已結案"
   },
   "noYears": "尚未發起任何年度作業",
-  "empty": "沒有符合條件的自評表（進度追蹤只給稽核主管、檢視者與廠區管理員）",
+  "empty": "沒有符合條件的自評表（進度追蹤只給稽核主管、有檢視廠區的人與廠區管理員）",
   "cell": {
     "step": "第 {{position}}／{{count}} 關 {{name}}",
     "stageProgress": "{{stage}}・{{progress}}",

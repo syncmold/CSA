@@ -5,15 +5,18 @@ import { signInAsAuditAdmin } from './support/mockSession'
 // needed). Which 自評表 each role gets, and which stay on 首頁, is the database's job and is tested in
 // tests/db/records.rls.test.ts; here the pages must show those rows faithfully, and the menu its three parts.
 
-type As = 'audit_admin' | 'viewer' | 'coordinator' | 'signer' | 'system_maintainer'
+type As = 'audit_admin' | 'plant_viewer' | 'coordinator' | 'signer' | 'system_maintainer'
 
-/** Who I am to the mocked database: my role, whether I run a plant, and what 自評表紀錄's label is built from. */
-const ME: Record<As, { audit_role: string; runs: boolean; scope: { all_plants: boolean; plant_ids: string[] } }> = {
-  audit_admin: { audit_role: 'audit_admin', runs: false, scope: { all_plants: true, plant_ids: [] } },
-  viewer: { audit_role: 'viewer', runs: false, scope: { all_plants: false, plant_ids: ['p-FQ'] } },
-  coordinator: { audit_role: 'signer', runs: true, scope: { all_plants: false, plant_ids: ['p-FQ'] } },
-  signer: { audit_role: 'signer', runs: false, scope: { all_plants: false, plant_ids: [] } },
-  system_maintainer: { audit_role: 'system_maintainer', runs: false, scope: { all_plants: true, plant_ids: [] } },
+/**
+ * Who I am to the mocked database: my role, my 檢視廠區, whether I run a plant, and what 自評表紀錄's label is built
+ * from. A plant_viewer is a 一般使用者 with 檢視廠區 (Q153; the 檢視者 role before it).
+ */
+const ME: Record<As, { audit_role: string; views: string[]; runs: boolean; scope: { all_plants: boolean; plant_ids: string[] } }> = {
+  audit_admin: { audit_role: 'audit_admin', views: [], runs: false, scope: { all_plants: true, plant_ids: [] } },
+  plant_viewer: { audit_role: 'signer', views: ['p-FQ'], runs: false, scope: { all_plants: false, plant_ids: ['p-FQ'] } },
+  coordinator: { audit_role: 'signer', views: [], runs: true, scope: { all_plants: false, plant_ids: ['p-FQ'] } },
+  signer: { audit_role: 'signer', views: [], runs: false, scope: { all_plants: false, plant_ids: [] } },
+  system_maintainer: { audit_role: 'system_maintainer', views: [], runs: false, scope: { all_plants: true, plant_ids: [] } },
 }
 
 const PLANTS = [
@@ -44,7 +47,7 @@ async function mockApi(page: Page, as: As, pastClosed = 0) {
   const me = ME[as]
   await page.route('**/rest/v1/**', async (route: Route) => {
     const url = new URL(route.request().url())
-    if (url.pathname.endsWith('/employee_ref')) return route.fulfill({ json: [{ audit_role: me.audit_role, viewer_plant_ids: me.scope.plant_ids }] })
+    if (url.pathname.endsWith('/employee_ref')) return route.fulfill({ json: [{ audit_role: me.audit_role, viewer_plant_ids: me.views }] })
     if (url.pathname.endsWith('/plant_coordinator')) {
       return route.fulfill({ status: 200, headers: { 'content-range': me.runs ? '0-0/1' : '*/0' }, body: '' })
     }
@@ -82,7 +85,8 @@ async function menuOf(page: Page): Promise<string> {
 test('the menu: 首頁, the 發出表單 steps (headed only with two or more), the other settings, then the pages that show data (Q124 (3), Q147)', async ({ page }) => {
   const expected: Record<As, string> = {
     audit_admin: 'home | steps(templates flows assignment launch) | access | records tracking',
-    viewer: 'home | records tracking',
+    // 進度追蹤 comes with the 檢視廠區, not with a role (Q153): the plain 一般使用者 below has none.
+    plant_viewer: 'home | records tracking',
     coordinator: 'home | assignment | records tracking',
     signer: 'home | records',
     // Every page a 稽核主管 has (Q129).
@@ -186,7 +190,7 @@ test('自評表紀錄 folds by 年度 and 廠區, filters, and counts each 狀�
 
 test('the label beside the title says what one sees, in words', async ({ page }) => {
   const labels: [As, string][] = [
-    ['viewer', 'FQ 福清富群・全部年度'],
+    ['plant_viewer', 'FQ 福清富群・全部年度'],
     ['coordinator', 'FQ 福清富群・全部年度'],
     ['signer', '我參與過的・全部年度'],
     ['system_maintainer', '全部廠區・全部年度'],

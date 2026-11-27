@@ -1,9 +1,11 @@
-// 資料 API 接縫: 權限管理（工單 #58、Q98；系統維護員 #159、Q122）——放行名單、權限角色、檢視者與權限異動紀錄。
+// 資料 API 接縫: 人員管理（工單 #58、Q98；系統維護員 #159、Q122）——放行名單、權限角色、檢視廠區與權限異動紀錄。
+// Q153 起沒有檢視者角色：檢視廠區是一般使用者的選填設定，原本用檢視者的測試改成「一般使用者＋檢視廠區」，預期看到的資料相同。
 // Q150 起只有系統維護員放行（加入、移除）與設定角色、檢視廠區、備註；稽核主管只指定廠區管理員，名單與異動紀錄唯讀。
 // 每次執行用自己的工號（RUN 開頭），結束時移出放行名單；權限異動紀錄只新增、刪不掉，所以留著。
 import type pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it, onTestFinished } from 'vitest'
 import { readAssessmentPdfSource } from '../../src/api/assessmentPdfQuery'
+import { selectAssessmentRecords, selectRecordScope } from '../../src/api/recordsQuery'
 import { selectTracking } from '../../src/api/trackingQuery'
 import {
   launchAssigned, admin, depsFor, insertRow, loginAs, makeRoute, makeTemplate, migratedDb, ok, promoteToAuditAdmin, promoteToSystemMaintainer,
@@ -25,6 +27,9 @@ const EMP = {
   promoted: `${RUN}I`,
   /** 稽核人員 (#187) */
   staff: `${RUN}J`,
+  /** 一般使用者＋檢視廠區 (Q153)，以及一起加入的稽核人員 */
+  plantHead: `${RUN}V`,
+  withHead: `${RUN}W`,
 }
 
 const FACTORY_1 = `${RUN}P1`
@@ -113,24 +118,23 @@ describe('加入', () => {
 describe('只有系統維護員放行與設定角色（Q150，修訂 Q122 (3)）', () => {
   it('a 稽核主管 cannot add, remove, or change anyone’s role, 檢視廠區 or note, whatever the role (42501 maintainer_only)', async () => {
     const chief = await loginAs(EMP.chief, '甲')
-    const add = (role: string) =>
-      chief.rpc('add_access_members', { p_people: [person(EMP.outsider)], p_role: role, p_viewer_plant_ids: role === 'viewer' ? [ID.plant1] : [], p_note: null })
-    const update = (empId: string, role: string, note: string | null = null, viewerPlants = role === 'viewer' ? [ID.plant1] : []) =>
+    const add = (role: string, viewerPlants: string[] = []) =>
+      chief.rpc('add_access_members', { p_people: [person(EMP.outsider)], p_role: role, p_viewer_plant_ids: viewerPlants, p_note: null })
+    const update = (empId: string, role: string, note: string | null = null, viewerPlants: string[] = []) =>
       chief.rpc('update_access_member', { p_emp_id: empId, p_role: role, p_viewer_plant_ids: viewerPlants, p_note: note })
     for (const [what, call] of [
       ['add as 一般使用者', add('signer')],
-      ['add as 檢視者', add('viewer')],
+      ['add as 一般使用者 with 檢視廠區', add('signer', [ID.plant1!])],
       ['add as 稽核人員', add('audit_staff')],
       ['add as 稽核管理者', add('audit_admin')],
       ['add as 系統維護員', add('system_maintainer')],
-      ['make a 一般使用者 a 檢視者', update(EMP.batch1, 'viewer', '第二批')],
       ['promote a 一般使用者', update(EMP.batch1, 'audit_admin', '第二批')],
       ['make a 一般使用者 a 系統維護員', update(EMP.batch1, 'system_maintainer', '第二批')],
       ['edit a 一般使用者’s note', update(EMP.batch1, 'signer', '改備註')],
       ['clear a 一般使用者’s note', update(EMP.batch1, 'signer', null)],
-      ['give a 一般使用者 檢視廠區', update(EMP.batch1, 'signer', '第二批', [ID.plant1])],
+      ['give a 一般使用者 檢視廠區', update(EMP.batch1, 'signer', '第二批', [ID.plant1!])],
       ['edit a 稽核主管’s note', update(EMP.chief, 'audit_admin', 'x')],
-      ['demote a 系統維護員', update(EMP.maint, 'viewer')],
+      ['demote a 系統維護員', update(EMP.maint, 'signer')],
       ['demote themselves', update(EMP.chief, 'signer')],
       ['remove a 一般使用者', chief.rpc('remove_access_member', { p_emp_id: EMP.batch1 })],
       ['remove a 稽核主管', chief.rpc('remove_access_member', { p_emp_id: EMP.chief })],
@@ -149,31 +153,34 @@ describe('只有系統維護員放行與設定角色（Q150，修訂 Q122 (3)）
 
   it('a 稽核主管 still names who runs a plant: in the edit dialog with role, 檢視廠區 and note as they are, and from the plant grid', async () => {
     const maint = await loginAs(EMP.maint, '維')
-    ok(await maint.rpc('add_access_members', { p_people: [person(EMP.promoted, '升')], p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長' }))
+    // 升 是有檢視廠區的一般使用者（Q153；之前是檢視者，稽核主管不能替他指定廠區管理員）。
+    ok(await maint.rpc('add_access_members', { p_people: [person(EMP.promoted, '升')], p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長' }))
     const chief = await loginAs(EMP.chief, '甲')
     const coordinatorPlants = async () =>
       (ok(await chief.from('access_member').select('coordinator_plant_ids').eq('emp_id', EMP.promoted).single()) as { coordinator_plant_ids: string[] }).coordinator_plant_ids
     // 角色、檢視廠區、備註照原樣送（備註前後空白不算改）：只改負責廠區，不必是系統維護員。
     ok(await chief.rpc('update_access_member', {
-      p_emp_id: EMP.promoted, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: ' 廠長 ', p_coordinator_assign: [ID.plant1], p_coordinator_unassign: [],
+      p_emp_id: EMP.promoted, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: ' 廠長 ', p_coordinator_assign: [ID.plant1], p_coordinator_unassign: [],
     }))
     expect(await coordinatorPlants()).toEqual([ID.plant1])
     ok(await chief.rpc('update_access_member', {
-      p_emp_id: EMP.promoted, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長', p_coordinator_assign: [], p_coordinator_unassign: [ID.plant1],
+      p_emp_id: EMP.promoted, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長', p_coordinator_assign: [], p_coordinator_unassign: [ID.plant1],
     }))
     expect(await coordinatorPlants()).toEqual([])
-    // 同一個對話框裡連角色一起改就擋下，負責廠區也不動。
-    const refused = await chief.rpc('update_access_member', {
-      p_emp_id: EMP.promoted, p_role: 'signer', p_viewer_plant_ids: [], p_note: '廠長', p_coordinator_assign: [ID.plant1], p_coordinator_unassign: [],
-    })
-    expect([refused.error?.code, refused.error?.hint]).toEqual(['42501', 'maintainer_only'])
-    expect(await coordinatorPlants()).toEqual([])
+    // 同一個對話框裡連角色或檢視廠區一起改就擋下（檢視廠區沒照原樣送也算改，Q153），負責廠區也不動。
+    for (const [role, viewerPlants] of [['audit_staff', []], ['signer', []]] as const) {
+      const refused = await chief.rpc('update_access_member', {
+        p_emp_id: EMP.promoted, p_role: role, p_viewer_plant_ids: viewerPlants, p_note: '廠長', p_coordinator_assign: [ID.plant1], p_coordinator_unassign: [],
+      })
+      expect([refused.error?.code, refused.error?.hint], role).toEqual(['42501', 'maintainer_only'])
+      expect(await coordinatorPlants()).toEqual([])
+    }
     // 廠區方格的指定、卸任照舊。
     ok(await chief.rpc('set_plant_coordinator', { p_plant_id: ID.plant1, p_emp_id: EMP.promoted }))
     expect(await coordinatorPlants()).toEqual([ID.plant1])
     ok(await chief.rpc('remove_plant_coordinator', { p_plant_id: ID.plant1 }))
     expect(ok(await chief.from('access_member').select('audit_role,viewer_plant_ids,note').eq('emp_id', EMP.promoted).single()))
-      .toEqual({ audit_role: 'viewer', viewer_plant_ids: [ID.plant1], note: '廠長' })
+      .toEqual({ audit_role: 'signer', viewer_plant_ids: [ID.plant1], note: '廠長' })
     // 異動紀錄照樣讀得到（唯讀）。
     const actions = (ok(await chief.from('access_change_log').select('action').eq('target_emp_id', EMP.promoted).order('id')) as { action: string }[]).map((r) => r.action)
     expect(actions).toEqual(['added', 'coordinator_assigned', 'coordinator_removed', 'coordinator_assigned', 'coordinator_removed'])
@@ -186,11 +193,11 @@ describe('只有系統維護員放行與設定角色（Q150，修訂 Q122 (3)）
     // 稽核主管 is not set here: it hands the role over from the previous holder, which the shared database's other tests lean on
     // (see 換稽核主管 below, rolled back).
     ok(await maint.rpc('update_access_member', { p_emp_id: EMP.promoted, p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null }))
-    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.promoted, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.promoted, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
     const seen = ok(await maint.from('access_member').select('emp_id,audit_role').in('emp_id', [EMP.chief, EMP.maint, EMP.promoted]).order('emp_id'))
     expect(seen).toEqual([
       { emp_id: EMP.chief, audit_role: 'audit_admin' },
-      { emp_id: EMP.promoted, audit_role: 'viewer' },
+      { emp_id: EMP.promoted, audit_role: 'signer' },
       { emp_id: EMP.maint, audit_role: 'system_maintainer' },
     ])
   })
@@ -220,7 +227,7 @@ describe('稽核人員（#187）', () => {
     expect(refused(await chief.rpc('update_access_member', { p_emp_id: EMP.staff, p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: '改備註' })))
       .toEqual(['42501', 'maintainer_only'])
     ok(await maint.rpc('update_access_member', { p_emp_id: EMP.staff, p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: '改備註' }))
-    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.staff, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.staff, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
     ok(await maint.rpc('update_access_member', { p_emp_id: EMP.staff, p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: null }))
     expect(ok(await chief.from('access_member').select('audit_role,viewer_plant_ids').eq('emp_id', EMP.staff).single()))
       .toEqual({ audit_role: 'audit_staff', viewer_plant_ids: [] })
@@ -233,7 +240,7 @@ describe('稽核人員（#187）', () => {
     const staff = await loginAs(EMP.staff, '稽')
     for (const [fn, args] of [
       ['add_access_members', { p_people: [person(EMP.outsider)], p_role: 'signer', p_viewer_plant_ids: [], p_note: null }],
-      ['update_access_member', { p_emp_id: EMP.batch1, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null }],
+      ['update_access_member', { p_emp_id: EMP.batch1, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: null }],
       ['remove_access_member', { p_emp_id: EMP.batch1 }],
       ['set_plant_coordinator', { p_plant_id: ID.plant1, p_emp_id: EMP.staff }],
     ] as const) {
@@ -413,28 +420,30 @@ describe('換稽核主管（#187：稽核主管剛好一位）', () => {
 })
 
 describe('修改與移除（系統維護員，Q150）', () => {
-  it('changes role, 檢視廠區 and note together; any role but 檢視者 has no 檢視廠區', async () => {
+  it('changes role, 檢視廠區 and note together; any role but 一般使用者 has no 檢視廠區 (Q153)', async () => {
     const maint = await loginAs(EMP.maint, '維')
-    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.batch1, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長' }))
-    expect(ok(await maint.from('access_member').select('audit_role,viewer_plant_ids,note').eq('emp_id', EMP.batch1).single()))
-      .toEqual({ audit_role: 'viewer', viewer_plant_ids: [ID.plant1], note: '廠長' })
+    const batch1 = async () => ok(await maint.from('access_member').select('audit_role,viewer_plant_ids,note').eq('emp_id', EMP.batch1).single())
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.batch1, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長' }))
+    expect(await batch1()).toEqual({ audit_role: 'signer', viewer_plant_ids: [ID.plant1], note: '廠長' })
 
-    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.batch1, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: '' }))
-    expect(ok(await maint.from('access_member').select('audit_role,viewer_plant_ids,note').eq('emp_id', EMP.batch1).single()))
-      .toEqual({ audit_role: 'signer', viewer_plant_ids: [], note: null })
+    // 換成別的角色：就算照樣送檢視廠區也清空。
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.batch1, p_role: 'audit_staff', p_viewer_plant_ids: [ID.plant1], p_note: '' }))
+    expect(await batch1()).toEqual({ audit_role: 'audit_staff', viewer_plant_ids: [], note: null })
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.batch1, p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
+    expect(await batch1()).toEqual({ audit_role: 'signer', viewer_plant_ids: [], note: null })
   })
 
   it('only takes 檢視廠區 from the plant master', async () => {
     const maint = await loginAs(EMP.maint, '維')
     const r = await maint.rpc('update_access_member', {
-      p_emp_id: EMP.batch1, p_role: 'viewer', p_viewer_plant_ids: ['00000000-0000-4000-8000-000000000000'], p_note: null,
+      p_emp_id: EMP.batch1, p_role: 'signer', p_viewer_plant_ids: ['00000000-0000-4000-8000-000000000000'], p_note: null,
     })
     expect(r.error?.code).toBe('23503')
   })
 
   it('removing takes the person off the list, back to 簽核人 with no 檢視廠區, keeps employee_ref, and the next exchange is refused', async () => {
     const maint = await loginAs(EMP.maint, '維')
-    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.batch2, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.batch2, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: null }))
     ok(await maint.rpc('remove_access_member', { p_emp_id: EMP.batch2 }))
 
     expect(ok(await maint.from('access_member').select('emp_id').eq('emp_id', EMP.batch2))).toEqual([])
@@ -443,6 +452,69 @@ describe('修改與移除（系統維護員，Q150）', () => {
     // The next renewal asks exactly this (exchange/core.test.ts covers what a "no" does).
     expect(await depsFor(EMP.batch2, EMP.batch2).csa.isAdmitted(EMP.batch2)).toBe(false)
     expect((await maint.rpc('remove_access_member', { p_emp_id: EMP.batch2 })).error?.code).toBe('P0002')
+  })
+})
+
+describe('取消檢視者角色，檢視廠區改成一般使用者的選填設定（Q153）', () => {
+  const refusal = (r: { error: { code?: string; hint?: string } | null }) => [r.error?.code, r.error?.hint]
+  const memberOf = async (empId: string) =>
+    ok(await (await loginAs(EMP.chief, '甲')).from('access_member').select('audit_role,viewer_plant_ids,coordinator_plant_ids').eq('emp_id', empId).maybeSingle())
+
+  it('refuses the 檢視者 role wherever it is set (22023 viewer_retired), and adds nobody', async () => {
+    const maint = await loginAs(EMP.maint, '維')
+    expect(refusal(await maint.rpc('add_access_members', { p_people: [person(EMP.plantHead, '廠長')], p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null })))
+      .toEqual(['22023', 'viewer_retired'])
+    expect(ok(await maint.from('access_member').select('emp_id').eq('emp_id', EMP.plantHead))).toEqual([])
+    expect(refusal(await maint.rpc('update_access_member', { p_emp_id: EMP.batch1, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null })))
+      .toEqual(['22023', 'viewer_retired'])
+    expect(await memberOf(EMP.batch1)).toMatchObject({ audit_role: 'signer', viewer_plant_ids: [] })
+    // The 部署指令 and db:set-role write the table directly: refused there too.
+    const direct = await withSuperuser((sql) =>
+      sql.query(`update public.employee_ref set audit_role = 'viewer' where emp_id = $1`, [EMP.batch1]).then(() => null, (e: { code?: string; hint?: string }) => [e.code, e.hint]))
+    expect(direct).toEqual(['22023', 'viewer_retired'])
+  })
+
+  it('a 系統維護員 adds a 一般使用者 with 檢視廠區 or without; for any other role the 檢視廠區 sent are dropped', async () => {
+    const maint = await loginAs(EMP.maint, '維')
+    ok(await maint.rpc('add_access_members', { p_people: [person(EMP.plantHead, '廠長')], p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長' }))
+    expect(await memberOf(EMP.plantHead)).toEqual({ audit_role: 'signer', viewer_plant_ids: [ID.plant1], coordinator_plant_ids: [] })
+    ok(await maint.rpc('add_access_members', { p_people: [person(EMP.withHead, '稽二')], p_role: 'audit_staff', p_viewer_plant_ids: [ID.plant1], p_note: null }))
+    expect(await memberOf(EMP.withHead)).toEqual({ audit_role: 'audit_staff', viewer_plant_ids: [], coordinator_plant_ids: [] })
+    // The same on an edit that keeps the role: a 稽核人員 is not given 檢視廠區.
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.withHead, p_role: 'audit_staff', p_viewer_plant_ids: [ID.plant1], p_note: null }))
+    expect(await memberOf(EMP.withHead)).toMatchObject({ audit_role: 'audit_staff', viewer_plant_ids: [] })
+    ok(await maint.rpc('remove_access_member', { p_emp_id: EMP.withHead }))
+  })
+
+  it('a 稽核主管 cannot give, change or clear a 一般使用者’s 檢視廠區 (42501 maintainer_only); a 系統維護員 can', async () => {
+    const chief = await loginAs(EMP.chief, '甲')
+    const maint = await loginAs(EMP.maint, '維')
+    const set = (by: typeof chief, empId: string, plants: string[], note: string | null) =>
+      by.rpc('update_access_member', { p_emp_id: empId, p_role: 'signer', p_viewer_plant_ids: plants, p_note: note })
+    // 沒有檢視廠區的人：稽核主管不能替他設。
+    expect(refusal(await set(chief, EMP.batch1, [ID.plant1!], null))).toEqual(['42501', 'maintainer_only'])
+    expect(await memberOf(EMP.batch1)).toMatchObject({ viewer_plant_ids: [] })
+    // 已經有的人：稽核主管不能清掉。
+    expect(refusal(await set(chief, EMP.plantHead, [], '廠長'))).toEqual(['42501', 'maintainer_only'])
+    expect(await memberOf(EMP.plantHead)).toMatchObject({ viewer_plant_ids: [ID.plant1] })
+    // 系統維護員可以清掉、再設回來（選填：留空也行）。
+    ok(await set(maint, EMP.plantHead, [], '廠長'))
+    expect(await memberOf(EMP.plantHead)).toMatchObject({ audit_role: 'signer', viewer_plant_ids: [] })
+    ok(await set(maint, EMP.plantHead, [ID.plant1!], '廠長'))
+    expect(await memberOf(EMP.plantHead)).toMatchObject({ audit_role: 'signer', viewer_plant_ids: [ID.plant1] })
+  })
+
+  it('a 一般使用者 holds 檢視廠區 and runs a plant at once: a 稽核主管 names him 廠區管理員, the 檢視廠區 untouched', async () => {
+    const chief = await loginAs(EMP.chief, '甲')
+    // From the plant grid, then from 廠區權限 (role, 檢視廠區 and note sent back as they are).
+    ok(await chief.rpc('set_plant_coordinator', { p_plant_id: ID.plant1, p_emp_id: EMP.plantHead }))
+    expect(await memberOf(EMP.plantHead)).toEqual({ audit_role: 'signer', viewer_plant_ids: [ID.plant1], coordinator_plant_ids: [ID.plant1] })
+    ok(await chief.rpc('update_access_member', {
+      p_emp_id: EMP.plantHead, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長', p_coordinator_assign: [], p_coordinator_unassign: [ID.plant1],
+    }))
+    expect(await memberOf(EMP.plantHead)).toEqual({ audit_role: 'signer', viewer_plant_ids: [ID.plant1], coordinator_plant_ids: [] })
+    ok(await (await loginAs(EMP.maint, '維')).rpc('remove_access_member', { p_emp_id: EMP.plantHead }))
+    expect(await memberOf(EMP.plantHead)).toBeNull()
   })
 })
 
@@ -550,7 +622,7 @@ describe('至少留一位稽核管理者與一位系統維護員', () => {
   }
 
   it('nor can service_role or the 部署指令 change the tables directly', async () => {
-    const demote = `update public.employee_ref set audit_role = 'viewer' where emp_id = $1`
+    const demote = `update public.employee_ref set audit_role = 'signer' where emp_id = $1`
     const unlist = `delete from public.access_allowlist where emp_id = $1`
     const forget = `delete from public.employee_ref where emp_id = $1`
     for (const who of ['service_role', 'superuser']) {
@@ -619,16 +691,18 @@ describe('權限異動紀錄', () => {
 
   it('records 加入, each changed field and 移除 made on the page, with who did it', async () => {
     const maint = await loginAs(EMP.maint, '維')
-    ok(await maint.rpc('add_access_members', { p_people: [person(EMP.logged, '丁')], p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長' }))
-    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.logged, p_role: 'signer', p_viewer_plant_ids: [], p_note: '廠長' }))
+    ok(await maint.rpc('add_access_members', { p_people: [person(EMP.logged, '丁')], p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: '廠長' }))
+    // 換成稽核人員：角色一筆，檢視廠區跟著清空也一筆（Q153）。
+    ok(await maint.rpc('update_access_member', { p_emp_id: EMP.logged, p_role: 'audit_staff', p_viewer_plant_ids: [], p_note: '廠長' }))
     ok(await maint.rpc('update_access_member', { p_emp_id: EMP.logged, p_role: 'signer', p_viewer_plant_ids: [], p_note: '已調職' }))
     ok(await maint.rpc('remove_access_member', { p_emp_id: EMP.logged }))
 
     const by = { actor_emp_id: EMP.maint, actor_name: '維', target_emp_id: EMP.logged, target_name: '丁' }
     expect(await logOf(EMP.logged)).toEqual([
-      { ...by, action: 'added', before: null, after: { role: 'viewer', viewer_plants: [FACTORY_1], note: '廠長' } },
-      { ...by, action: 'role', before: 'viewer', after: 'signer' },
+      { ...by, action: 'added', before: null, after: { role: 'signer', viewer_plants: [FACTORY_1], note: '廠長' } },
+      { ...by, action: 'role', before: 'signer', after: 'audit_staff' },
       { ...by, action: 'viewer_plants', before: [FACTORY_1], after: [] },
+      { ...by, action: 'role', before: 'audit_staff', after: 'signer' },
       { ...by, action: 'note', before: '廠長', after: '已調職' },
       { ...by, action: 'removed', before: { role: 'signer', viewer_plants: [], note: '已調職' }, after: null },
     ])
@@ -651,11 +725,11 @@ describe('權限異動紀錄', () => {
 
   it('records every role change a 系統維護員 makes, and both 稽核管理者 and 系統維護員 read it', async () => {
     const roles = (rows: LogRow[]) => rows.filter((r) => r.action === 'role').map((r) => [r.actor_emp_id, r.before, r.after])
-    // From 稽核管理者只管一般使用者與檢視者: the 系統維護員 moved 升 through every role.
+    // From 只有系統維護員放行與設定角色: the 系統維護員 moved 升 through the roles.
     const expected = [
       [EMP.maint, 'system_maintainer', 'audit_staff'],
-      [EMP.maint, 'audit_staff', 'viewer'],
-      [EMP.maint, 'viewer', 'system_maintainer'],
+      [EMP.maint, 'audit_staff', 'signer'],
+      [EMP.maint, 'signer', 'system_maintainer'],
       [EMP.maint, 'system_maintainer', 'signer'],
     ]
     expect(roles(await logOf(EMP.promoted)).slice(-4)).toEqual(expected)
@@ -674,7 +748,7 @@ describe('權限異動紀錄', () => {
     }
     const truncated = await withSuperuser((sql) => sql.query('truncate public.access_change_log').then(() => null, (e: { code?: string }) => e.code))
     expect(truncated).toBe('42501')
-    expect((await logOf(EMP.logged)).length).toBe(5)
+    expect((await logOf(EMP.logged)).length).toBe(6)
 
     const signer = await loginAs(EMP.outsider, EMP.outsider)
     expect(ok(await signer.from('access_change_log').select('id'))).toEqual([])
@@ -716,12 +790,13 @@ describe('最後登入', () => {
   })
 })
 
-describe('檢視者與移除的提醒（發起一個測試年度）', () => {
+describe('檢視廠區與移除的提醒（發起一個測試年度）', () => {
   /** tests/db/helpers.ts 檔尾的年度區間表：19000 是這支。 */
   const YEAR = 19000 + Math.floor(Math.random() * 1000)
   const FACTORY_2 = `${RUN}P2`
   const UNIT = `${RUN}資材`
   const CODE = `${RUN}t`
+  /** viewer：有檢視廠區（廠區 1）的一般使用者（Q153；之前是檢視者）。 */
   const SIGNER = { checker: `${RUN}J`, manager: `${RUN}K`, viewer: `${RUN}L` }
   /** 自評表 id，依廠區 1／2 */
   const ASSESSMENT: Record<1 | 2, string> = { 1: '', 2: '' }
@@ -739,7 +814,7 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
       { name: '台北稽核人員', group: 'audit_review', signer: EMP.chief, unitId: null },
       { name: '稽核主管', group: 'audit_review', signer: EMP.chief, unitId: null },
     ])
-    // 檢視者在廠區 2 的流程上是第一關的簽核人：照簽核人的規則看得到、簽得了那一張。
+    // 有檢視廠區的人在廠區 2 的流程上是第一關的簽核人：照簽核人的規則看得到、簽得了那一張。
     await makeRoute(ID.template!, ID.plant2!, [
       { name: '自行檢查人員－資材', group: 'plant', signer: SIGNER.viewer, unitId: ID.unit },
       { name: '部門主管－資材', group: 'plant', signer: SIGNER.manager, unitId: null },
@@ -755,9 +830,9 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
     for (const r of ok(await admin.from('assessment').select('id,plant_id').eq('cycle_id', launched.data.cycle_id)) as { id: string; plant_id: string }[]) {
       ASSESSMENT[r.plant_id === ID.plant1 ? 1 : 2] = r.id
     }
-    // 流程上的人排進關卡前就在放行名單上（makeRoute，Q150），系統維護員把他改成檢視者。
+    // 流程上的人排進關卡前就在放行名單上（makeRoute，Q150），系統維護員替他設檢視廠區（角色照舊是一般使用者，Q153）。
     ok(await (await loginAs(EMP.maint, '維')).rpc('update_access_member', {
-      p_emp_id: SIGNER.viewer, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1], p_note: null,
+      p_emp_id: SIGNER.viewer, p_role: 'signer', p_viewer_plant_ids: [ID.plant1], p_note: null,
     }))
   })
 
@@ -769,7 +844,7 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
     await admin.from('assessing_unit').delete().eq('name', UNIT)
   })
 
-  it('a 檢視者 reads every 自評表 of the 檢視廠區 (page and PDF), the others only by the 簽核人 rule', async () => {
+  it('a 一般使用者 with 檢視廠區 reads every 自評表 of those plants (page and PDF), the others only by the 簽核人 rule', async () => {
     const viewer = await loginAs(SIGNER.viewer, '庚')
     const own = await readAssessmentPdfSource(viewer, ASSESSMENT[1])
     expect(own?.assessment.id).toBe(ASSESSMENT[1])
@@ -779,9 +854,23 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
 
     const notYet = await loginAs(SIGNER.manager, '丙')
     expect(await readAssessmentPdfSource(notYet, ASSESSMENT[1])).toBeNull()
+    // 沒有檢視廠區的一般使用者只看得到自己關卡的那一張：乙在廠區 1 的流程上，廠區 2 的看不到。
+    const checker = await loginAs(SIGNER.checker, '乙')
+    expect(ok(await checker.from('assessment').select('id').in('id', [ASSESSMENT[1], ASSESSMENT[2]]))).toEqual([{ id: ASSESSMENT[1] }])
+    expect(ok(await viewer.from('assessment').select('id').in('id', [ASSESSMENT[1], ASSESSMENT[2]]))).toHaveLength(2)
   })
 
-  it('a 檢視者 reads the answers of the 檢視廠區 before the unit submits, unlike a later 簽核人 (Q116 (9))', async () => {
+  it('歷年自評表 gives a 一般使用者 with 檢視廠區 those plants as their scope, one without it none', async () => {
+    const scopeOf = async (who: string, name: string) => ok(await selectRecordScope(await loginAs(who, name)))
+    expect(await scopeOf(SIGNER.viewer, '庚')).toEqual({ all_plants: false, plant_ids: [ID.plant1] })
+    expect(await scopeOf(SIGNER.checker, '乙')).toEqual({ all_plants: false, plant_ids: [] })
+    const mine = async (who: string, name: string) =>
+      (ok(await selectAssessmentRecords(await loginAs(who, name))) as { assessment_id: string }[]).map((r) => r.assessment_id).filter((id) => id === ASSESSMENT[1] || id === ASSESSMENT[2]).sort()
+    expect(await mine(SIGNER.viewer, '庚')).toEqual([ASSESSMENT[1], ASSESSMENT[2]].sort())
+    expect(await mine(SIGNER.checker, '乙')).toEqual([ASSESSMENT[1]])
+  })
+
+  it('a 一般使用者 with 檢視廠區 reads the answers of those plants before the unit submits, unlike a later 簽核人 (Q116 (9))', async () => {
     const point = ok(await admin.from('assessment_control_point').select('id').eq('assessment_id', ASSESSMENT[1]).single()) as { id: string }
     ok(await (await loginAs(SIGNER.checker, '乙')).rpc('save_assessment_answers', {
       p_assessment_id: ASSESSMENT[1],
@@ -797,7 +886,7 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
     expect(await units(SIGNER.manager, '丙')).toEqual([0, 0])
   })
 
-  it('追蹤總覽 shows a 檢視者 only the 檢視廠區, even where they also sign', async () => {
+  it('進度追蹤 shows a 一般使用者 with 檢視廠區 only those plants, even where they also sign; one without it none', async () => {
     const viewer = await loginAs(SIGNER.viewer, '庚')
     const rows = ok(await selectTracking(viewer, YEAR))
     expect(rows.map((r) => [r.factory_code, r.current_signer_emp_id, r.current_signer_name])).toEqual([[FACTORY_1, SIGNER.checker, '乙']])
@@ -809,7 +898,7 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
     const maint = await loginAs(EMP.maint, '維')
     expect((await readAssessmentPdfSource(maint, ASSESSMENT[1]))?.assessment.id).toBe(ASSESSMENT[1])
     expect(ok(await maint.from('assessment').select('id').in('id', [ASSESSMENT[1], ASSESSMENT[2]]))).toHaveLength(2)
-    // The 檢視者 test above saved an answer on 廠區 1, before that unit submitted.
+    // The 檢視廠區 test above saved an answer on 廠區 1, before that unit submitted.
     expect(ok(await maint.from('assessment_answer').select('assessing_unit_name').eq('assessment_id', ASSESSMENT[1]))).toHaveLength(1)
     expect(ok(await selectTracking(maint, YEAR)).map((r) => r.factory_code)).toEqual([FACTORY_1, FACTORY_2])
     expect(ok(await maint.from('questionnaire_template').select('id').eq('id', ID.template))).toEqual([{ id: ID.template }])
@@ -845,7 +934,7 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
     expect(saved.error?.code).toBe('42501')
   })
 
-  it('a 檢視者 cannot answer, submit, approve or return a 自評表 they only view', async () => {
+  it('檢視廠區 let no one answer, submit, approve or return a 自評表 they only view', async () => {
     const viewer = await loginAs(SIGNER.viewer, '庚')
     const point = ok(await admin.from('assessment_control_point').select('id').eq('assessment_id', ASSESSMENT[1]).single()) as { id: string }
     const saved = await viewer.rpc('save_assessment_answers', {
@@ -863,7 +952,7 @@ describe('檢視者與移除的提醒（發起一個測試年度）', () => {
   it('a changed role or 檢視廠區 takes effect on the next request', async () => {
     const maint = await loginAs(EMP.maint, '維')
     const viewer = await loginAs(SIGNER.viewer, '庚')
-    ok(await maint.rpc('update_access_member', { p_emp_id: SIGNER.viewer, p_role: 'viewer', p_viewer_plant_ids: [ID.plant1, ID.plant2], p_note: null }))
+    ok(await maint.rpc('update_access_member', { p_emp_id: SIGNER.viewer, p_role: 'signer', p_viewer_plant_ids: [ID.plant1, ID.plant2], p_note: null }))
     expect(ok(await selectTracking(viewer, YEAR)).map((r) => r.factory_code)).toEqual([FACTORY_1, FACTORY_2])
     ok(await maint.rpc('update_access_member', { p_emp_id: SIGNER.viewer, p_role: 'signer', p_viewer_plant_ids: [], p_note: null }))
     expect(await readAssessmentPdfSource(viewer, ASSESSMENT[1])).toBeNull()

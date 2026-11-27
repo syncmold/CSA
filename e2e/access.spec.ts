@@ -4,7 +4,8 @@ import {
 } from '../tests/db/helpers'
 import { actAs, actAsAdminAccount, type Person } from './support/mainFlow'
 
-// 權限管理（#58、Q98、Q122；管理員帳號 #161）：對真實的 Postgres＋PostgREST，系統維護員在畫面上加入一個沒登入過的人 → 改角色 → 移除，
+// 人員管理（#58、Q98、Q122；管理員帳號 #161；Q153 取消檢視者，檢視廠區改成一般使用者的選填設定）：
+// 對真實的 Postgres＋PostgREST，系統維護員在畫面上加入一個沒登入過的人 → 改角色 → 移除，
 // 並看異動紀錄；還排在關卡上的人要先換人才能移除（Q150）。只有系統維護員放行與設定角色（Q150）：稽核主管沒有加入人員與編輯，
 // 只留廠區權限指定廠區管理員（設成稽核主管會降級前任，只在資料庫測試裡試，免得動到共用資料庫的其他稽核主管）。誰能做什麼由資料庫決定，
 // 規則細節在 tests/db/access_management.rls.test.ts；這裡驗畫面走得通。
@@ -83,29 +84,47 @@ test('a 系統維護員 adds someone who never signed in, changes their role, an
   // 加入：一個 OMS 有、一個沒有、一個已在名單（自己）
   await page.getByTestId('access-add').click()
   const dialog = page.getByTestId('access-add-modal')
-  // 先選檢視者再貼工號：OMS 回來後檢視廠區照樣預設帶他的 OMS 廠區
-  await dialog.getByRole('radio', { name: /^檢視者/ }).check()
+  // 角色剩四個，沒有檢視者（Q153）。
+  await expect(dialog.getByRole('radio')).toHaveCount(4)
+  await expect(dialog.getByRole('radio', { name: /檢視者/ })).toHaveCount(0)
   await dialog.getByTestId('access-emp-ids').fill(`${NEWCOMER.empId.toLowerCase()}、${NOT_IN_OMS}\n${MAINT.empId}`)
   await expect(dialog.getByTestId(`access-plan-${NEWCOMER.empId}`)).toHaveText(`${NEWCOMER.empId}${NEWCOMER.name} ${FACTORY}加入`)
   await expect(dialog.getByTestId(`access-plan-${NOT_IN_OMS}`)).toContainText('OMS 查不到這個工號，不加入')
   await expect(dialog.getByTestId(`access-plan-${MAINT.empId}`)).toContainText('已在名單，略過')
-  // 檢視廠區預設帶他的 OMS 廠區
-  await expect(dialog.getByTestId('access-viewer-plants')).toContainText(`${FACTORY} ${PLANT_NAME}`)
+  // 一般使用者（預設）多一個選填的檢視廠區：沒有預設值（OMS 回來後也不帶他的廠區），其他角色不出現。
+  const viewerPlants = dialog.getByTestId('access-viewer-plants')
+  await expect(dialog.getByText('檢視廠區（選填）')).toBeVisible()
+  await expect(dialog).toContainText('只給需要看整廠資料的高階主管，例如廠長。留空＝只看自己被排到的自評表。可多選。')
+  await expect(viewerPlants.locator('.ant-select-selection-item')).toHaveCount(0)
+  await dialog.getByRole('radio', { name: /^稽核人員/ }).check()
+  await expect(viewerPlants).toHaveCount(0)
+  await dialog.getByRole('radio', { name: /^一般使用者/ }).check()
+  await viewerPlants.click()
+  await page.keyboard.type(FACTORY)
+  await page.locator('.ant-select-item-option', { hasText: `${FACTORY} ${PLANT_NAME}` }).click()
+  await page.keyboard.press('Escape')
+  await expect(viewerPlants).toContainText(`${FACTORY} ${PLANT_NAME}`)
   await dialog.getByTestId('access-note').fill('新任廠長')
   await dialog.getByRole('button', { name: '加入 1 人' }).click()
   await expect(dialog).toHaveCount(0)
 
   const row = memberRow(page, NEWCOMER.empId)
   await expect(row).toContainText(NEWCOMER.name)
-  await expect(row.getByTestId('access-member-role')).toHaveText('檢視者')
+  await expect(row.getByTestId('access-member-role')).toHaveText('一般使用者')
   await expect(row).toContainText('新任廠長')
   await expect(row).toContainText('尚未登入')
-  // 檢視廠區在「廠區權限」視窗裡：檢視者勾的是檢視廠區，預設帶他的 OMS 廠區（#215）。
+  // 「廠區權限」視窗裡一般使用者有上下兩區（Q153）：檢視廠區（系統維護員能改）與負責的廠區。
   await row.getByTestId('access-plant-rights').click()
   const rights = page.getByTestId('access-rights-modal')
-  await expect(rights.getByTestId('access-rights-mode')).toContainText('檢視廠區')
-  await expect(rights.getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeChecked()
-  await expect(rights.getByTestId('access-rights-count')).toHaveText(/^已選 1 \//)
+  const viewGroup = rights.getByTestId('access-rights-group-view')
+  const runGroup = rights.getByTestId('access-rights-group-run')
+  await expect(viewGroup).toContainText('選填，只有系統維護員能改')
+  await expect(viewGroup.getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeChecked()
+  await expect(viewGroup.getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeEnabled()
+  await expect(viewGroup.getByTestId('access-rights-view-count')).toHaveText(/^已選 1 \//)
+  await expect(runGroup).toContainText('負責的廠區（廠區管理員）')
+  await expect(runGroup.getByRole('checkbox', { name: new RegExp(FACTORY) })).not.toBeChecked()
+  await expect(runGroup.getByTestId('access-rights-count')).toHaveText(/^已選 0 \//)
   await page.keyboard.press('Escape')
   await expect(rights).toHaveCount(0)
   // 加入者在編輯視窗的建立資訊裡（#215 拿掉人員表的「怎麼進來」）。
@@ -119,9 +138,10 @@ test('a 系統維護員 adds someone who never signed in, changes their role, an
   await edit.getByRole('button', { name: /儲\s*存/ }).click()
   await expect(edit).toHaveCount(0)
   await expect(row.getByTestId('access-member-role')).toHaveText('稽核人員')
-  // 稽核人員的廠區權限勾的是管理的廠區，他還沒有。
+  // 稽核人員的廠區權限只有管理的廠區那一區，他還沒有。
   await row.getByTestId('access-plant-rights').click()
   await expect(rights.getByTestId('access-rights-mode')).toContainText('管理的廠區')
+  await expect(viewGroup).toHaveCount(0)
   await expect(rights.getByTestId('access-rights-count')).toHaveText(/^已選 0 \//)
   await page.keyboard.press('Escape')
   await expect(rights).toHaveCount(0)
@@ -164,8 +184,8 @@ test('a 系統維護員 adds someone who never signed in, changes their role, an
   await expect(log.getByTestId('access-log-content')).toHaveText([
     '移除　稽核人員；備註 新任廠長',
     `檢視廠區　${FACTORY} ${PLANT_NAME} → （無）`,
-    '角色　檢視者 → 稽核人員',
-    `加入　檢視者；檢視廠區 ${FACTORY} ${PLANT_NAME}；備註 新任廠長`,
+    '角色　一般使用者 → 稽核人員',
+    `加入　一般使用者；檢視廠區 ${FACTORY} ${PLANT_NAME}；備註 新任廠長`,
   ])
   await expect(log.first()).toContainText(`${MAINT.name}（${MAINT.empId}）`)
 })
@@ -183,9 +203,9 @@ test('the 管理員帳號, on no list, manages access like a 系統維護員; it
 
   await page.getByTestId('access-add').click()
   const dialog = page.getByTestId('access-add-modal')
-  // Every role, 系統維護員 included, as a 系統維護員 gets.
-  await expect(dialog.getByRole('radio')).toHaveCount(5)
-  await dialog.getByRole('radio', { name: /^檢視者/ }).check()
+  // Every role, 系統維護員 included, as a 系統維護員 gets: four since Q153. 一般使用者 is ticked to start with.
+  await expect(dialog.getByRole('radio')).toHaveCount(4)
+  await expect(dialog.getByRole('radio', { name: /^一般使用者/ })).toBeChecked()
   await dialog.getByTestId('access-emp-ids').fill(NEWCOMER.empId)
   await expect(dialog.getByTestId(`access-plan-${NEWCOMER.empId}`)).toContainText('加入')
   await dialog.getByRole('button', { name: '加入 1 人' }).click()
@@ -310,10 +330,11 @@ test('a 稽核主管 makes someone the 廠區負責人 from the plant card; they
     await expect(page.getByTestId('access-plant-owner-filter')).toContainText(`${OWNER.name}（1）`)
     await row.getByTestId('access-member-name').click()
     await expect(page.getByTestId('access-plant-owner-filter')).toContainText('全部管理員')
-    // 他的廠區權限勾著這一廠。
+    // 他的廠區權限在「負責的廠區」那一區勾著這一廠，檢視廠區那一區是空的（稽核主管只能看，Q153）。
     await row.getByTestId('access-plant-rights').click()
     const rights = page.getByTestId('access-rights-modal')
-    await expect(rights.getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeChecked()
+    await expect(rights.getByTestId('access-rights-group-run').getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeChecked()
+    await expect(rights.getByTestId('access-rights-group-view').getByRole('checkbox', { name: new RegExp(FACTORY) })).not.toBeChecked()
     await page.keyboard.press('Escape')
     await expect(rights).toHaveCount(0)
     // 稽核主管不能移除他（Q150）；系統維護員移除之前，確認框先說哪些廠區會變成未指定。
@@ -334,11 +355,9 @@ test('a 稽核主管 makes someone the 廠區負責人 from the plant card; they
     await expect(log.getByTestId('access-log-content')).toHaveText([`指定為廠區管理員　${FACTORY} ${PLANT_NAME}`, '加入　一般使用者'])
 
     await page.getByRole('tab', { name: '權限說明' }).click()
-    await expect(page.getByTestId('access-guide-matrix')).toContainText('負責的廠區')
+    await expect(page.getByTestId('access-guide-matrix')).toContainText('＋負責廠區')
     await expect(page.getByTestId('access-guide-matrix')).toContainText('稽核人員')
-    await expect(page.getByTestId('access-guide-audit_staff')).toContainText('台北稽核人員')
-    await expect(page.getByTestId('access-guide-audit_admin')).toContainText('剛好一位')
-    await expect(page.getByTestId('access-guide-coordinator-rule')).toContainText('一廠一位')
+    await expect(page.getByTestId('access-guide-notes')).toContainText('看得到的廠區為原本角色與負責廠區的合計')
 
     const owner = await browser.newPage()
     await actAs(owner, OWNER)
@@ -348,4 +367,143 @@ test('a 稽核主管 makes someone the 廠區負責人 from the plant card; they
     await admin.from('access_allowlist').delete().eq('emp_id', OWNER.empId)
     await admin.from('access_allowlist').delete().eq('emp_id', STAFF.empId)
   }
+})
+
+const HEAD: Person = { empId: `${RUN}H`, name: '測試廠長' }
+const AUDITOR: Person = { empId: `${RUN}U`, name: '測試稽核二' }
+
+test('廠區權限 of a 一般使用者 has two groups: a 稽核主管 sees the 檢視廠區 greyed and only names 廠區管理員, a 系統維護員 changes both (Q153)', async ({ page, browser }) => {
+  const r = await exchangeAs(HEAD.empId, HEAD.name)
+  if (!r.ok) throw new Error(`exchange: ${r.error}`)
+  ok(await admin.from('access_allowlist').insert({ emp_id: HEAD.empId }))
+  // 有檢視廠區的一般使用者（之前的檢視者）：直接寫資料表，畫面上的設定在第一個測試。
+  ok(await admin.from('employee_ref').update({ viewer_plant_ids: [plantId] }).eq('emp_id', HEAD.empId))
+  const a = await exchangeAs(AUDITOR.empId, AUDITOR.name)
+  if (!a.ok) throw new Error(`exchange: ${a.error}`)
+  ok(await admin.from('employee_ref').update({ audit_role: 'audit_staff' }).eq('emp_id', AUDITOR.empId))
+  ok(await admin.from('access_allowlist').insert({ emp_id: AUDITOR.empId }))
+  const plantsOf = async () => {
+    const me = ok(await admin.from('employee_ref').select('audit_role,viewer_plant_ids').eq('emp_id', HEAD.empId).single()) as { audit_role: string; viewer_plant_ids: string[] }
+    const runs = ok(await admin.from('plant_coordinator').select('plant_id').eq('emp_id', HEAD.empId)) as { plant_id: string }[]
+    return { role: me.audit_role, views: me.viewer_plant_ids, runs: runs.map((p) => p.plant_id) }
+  }
+  try {
+    // 他只有檢視廠區、不負責廠區：選單有進度追蹤（看的是檢視廠區，不是角色），沒有指派簽核人。
+    const head = await browser.newPage()
+    await actAs(head, HEAD)
+    await expect(head.getByTestId('nav-tracking')).toBeVisible()
+    await expect(head.getByTestId('nav-assignment')).toHaveCount(0)
+    await expect(head.getByTestId('nav-access')).toHaveCount(0)
+    await head.close()
+
+    // 稽核主管：名單上是一般使用者，廠區格子的提示寫「檢視廠區：他」。
+    await actAs(page, CHIEF)
+    await page.getByTestId('nav-access').click()
+    const row = memberRow(page, HEAD.empId)
+    await expect(row.getByTestId('access-member-role')).toHaveText('一般使用者')
+    await expect(page.getByTestId(`access-plant-${FACTORY}`)).toHaveAttribute('title', new RegExp(`檢視廠區：${HEAD.name}`))
+    // 角色篩選沒有檢視者。
+    await page.getByTestId('access-role-filter').click()
+    await expect(page.locator('.ant-select-item-option')).toHaveText(['全部角色', '一般使用者', '稽核人員', '稽核主管', '系統維護員'])
+    await page.keyboard.press('Escape')
+
+    // 廠區權限：上下兩區。檢視廠區變灰、不能改，寫明只有系統維護員能改；負責的廠區照常能勾。
+    await row.getByTestId('access-plant-rights').click()
+    const rights = page.getByTestId('access-rights-modal')
+    const viewGroup = rights.getByTestId('access-rights-group-view')
+    const runGroup = rights.getByTestId('access-rights-group-run')
+    await expect(viewGroup.getByTestId('access-rights-view-hint')).toContainText('只有系統維護員能改，這裡只能看')
+    await expect(viewGroup.getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeChecked()
+    for (const box of await viewGroup.getByRole('checkbox').all()) await expect(box).toBeDisabled()
+    await expect(viewGroup.getByTestId('access-rights-view-clear')).toHaveCount(0)
+    await expect(runGroup.getByRole('checkbox', { name: new RegExp(FACTORY) })).toBeEnabled()
+    await runGroup.getByRole('checkbox', { name: new RegExp(FACTORY) }).check()
+    // 廠區端的人當廠區管理員：台北稽核人員不連動的提醒照舊。
+    await expect(rights.getByTestId('access-coordinator-not-linked')).toBeVisible()
+    await rights.getByRole('button', { name: /儲\s*存/ }).click()
+    await expect(rights).toHaveCount(0)
+    // 只送了負責的廠區：檢視廠區原樣（沒有被資料庫擋下），一個人同時有兩種。
+    expect(await plantsOf()).toEqual({ role: 'signer', views: [plantId], runs: [plantId] })
+
+    // 系統維護員：兩區都能改，一次儲存寫兩區（清掉檢視廠區、卸任廠區管理員）。
+    const maint = await browser.newPage()
+    await actAs(maint, MAINT)
+    await maint.getByTestId('nav-access').click()
+    await memberRow(maint, HEAD.empId).getByTestId('access-plant-rights').click()
+    const maintRights = maint.getByTestId('access-rights-modal')
+    const maintView = maintRights.getByTestId('access-rights-group-view')
+    await expect(maintView.getByTestId('access-rights-view-hint')).toContainText('選填，只有系統維護員能改')
+    await maintView.getByRole('checkbox', { name: new RegExp(FACTORY) }).uncheck()
+    await expect(maintView.getByTestId('access-rights-view-count')).toHaveText(/^已選 0 \//)
+    await maintRights.getByTestId('access-rights-group-run').getByRole('checkbox', { name: new RegExp(FACTORY) }).uncheck()
+    await maintRights.getByRole('button', { name: /儲\s*存/ }).click()
+    await expect(maintRights).toHaveCount(0)
+    expect(await plantsOf()).toEqual({ role: 'signer', views: [], runs: [] })
+
+    // 權限說明：四個系統角色加廠區管理員，沒有檢視者那一欄與那一張卡；一般使用者的卡寫檢視廠區。
+    await maint.getByRole('tab', { name: '權限說明' }).click()
+    const guide = maint.getByTestId('access-guide')
+    // 廠區管理員是加在系統角色上的身分：排在最後一欄，只寫兼任後多出來的（使用者 2026-11-26，和權限申請表一致）。
+    const matrix = guide.getByTestId('access-guide-matrix')
+    await expect(matrix.getByRole('columnheader')).toHaveText(['功能／操作', '一般使用者', '稽核人員', '稽核主管', '系統維護員', '廠區管理員（兼任）兼任後多出的'])
+    await expect(guide.getByTestId('access-guide-add-on-hint')).toContainText('空白＝和原本角色一樣')
+    const cells = (name: string) => matrix.getByRole('row').filter({ hasText: name }).getByRole('cell')
+    await expect(cells('作答、送出、核准、退回')).toHaveText(['作答、送出、核准、退回（輪到的關卡）', '✓', '✓', '✓', '✓', ''])
+    await expect(cells('看全部自評表與答案')).toHaveText(['看全部自評表與答案', '檢視廠區', '—', '✓', '✓', '＋負責廠區'])
+    await expect(cells('匯出 PDF')).toHaveText(['匯出 PDF（看得到的自評表）', '✓', '✓', '✓', '✓', ''])
+    await expect(cells('發出前指派簽核人')).toHaveText(['發出前指派簽核人', '—', '—', '✓', '✓', '＋負責廠區'])
+    // 發出後只有稽核主管與系統維護員能換人（Q147）：兼任廠區管理員不會多出這一項。
+    await expect(cells('發出後替還沒簽的關卡換人')).toHaveText(['發出後替還沒簽的關卡換人', '—', '—', '✓', '✓', ''])
+    // 稽核人員那一欄是沒兼廠區管理員時的權限（使用者 2026-11-27）。
+    await expect(cells('匯出 Excel')).toHaveText(['匯出 Excel', '檢視廠區', '—', '✓', '✓', '＋負責廠區'])
+    await expect(cells('題庫、自評單位')).toHaveText(['題庫、自評單位', '—', '唯讀', '✓', '✓', '＋負責廠區'])
+    // 表格不寫兼任的說明：只有稽核人員兼任才有的三項，寫在表下的規則（使用者 2026-11-27）；身分卡片拿掉了。
+    await expect(guide.getByTestId('access-guide-notes')).toContainText('僅限稽核人員兼任；廠區端人員兼任者無此權限')
+    await expect(guide).not.toContainText('檢視者')
+    await expect(guide.getByTestId('access-guide-signer')).toHaveCount(0)
+    await maint.close()
+
+    // 稽核人員照舊只有「負責的廠區」一區，稽核主管勾了就存得進去（這個視窗沒有檢視廠區可送）。
+    await page.reload()
+    const auditor = memberRow(page, AUDITOR.empId)
+    await auditor.getByTestId('access-plant-rights').click()
+    await expect(rights.getByTestId('access-rights-mode')).toContainText('管理的廠區')
+    await expect(viewGroup).toHaveCount(0)
+    await rights.getByRole('checkbox', { name: new RegExp(FACTORY) }).check()
+    await rights.getByRole('button', { name: /儲\s*存/ }).click()
+    await expect(rights).toHaveCount(0)
+  } finally {
+    await admin.from('plant_coordinator').delete().eq('plant_id', plantId)
+    for (const p of [HEAD, AUDITOR]) await admin.from('access_allowlist').delete().eq('emp_id', p.empId)
+  }
+})
+
+test('異動紀錄 still words the entries that name the retired 檢視者, the conversion’s own (no operator) included (Q153)', async ({ page }) => {
+  // The dev database has none of these, so the log's answer is made up; the rest of the page is real.
+  const entry = { changed_at: '2026-11-26T02:00:00+00:00', target_emp_id: 'FQ0012', target_name: '李大同' }
+  await page.route('**/rest/v1/access_change_log*', (route) =>
+    route.fulfill({
+      json: [
+        { ...entry, id: 3, actor_emp_id: null, actor_name: null, action: 'role', before: 'viewer', after: 'signer' },
+        { ...entry, id: 2, actor_emp_id: MAINT.empId, actor_name: MAINT.name, action: 'viewer_plants', before: [], after: [FACTORY] },
+        { ...entry, id: 1, actor_emp_id: MAINT.empId, actor_name: MAINT.name, action: 'added', before: null, after: { role: 'viewer', viewer_plants: [], note: '廠長' } },
+      ],
+    }),
+  )
+  await actAs(page, MAINT)
+  await page.getByTestId('nav-access').click()
+  await page.getByRole('tab', { name: '異動紀錄' }).click()
+  const log = page.getByTestId('access-log').getByRole('row').filter({ hasText: 'FQ0012' })
+  await expect(log.getByTestId('access-log-content')).toHaveText([
+    '角色　檢視者（已取消） → 一般使用者',
+    `檢視廠區　（無） → ${FACTORY} ${PLANT_NAME}`,
+    '加入　檢視者（已取消）；備註 廠長',
+  ])
+  // The conversion has no operator: shown as the 部署指令, like every change made without someone signed in.
+  await expect(log.first()).toContainText('部署指令')
+  await expect(page.getByTestId('access-log')).not.toContainText('role.viewer')
+  // The 動作 filter still narrows them.
+  await page.getByTestId('access-log-action').click()
+  await page.locator('.ant-select-item-option', { hasText: /^角色$/ }).click()
+  await expect(log).toHaveCount(1)
 })

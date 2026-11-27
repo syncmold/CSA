@@ -4,13 +4,18 @@ import type { TFunction } from 'i18next'
 import type { PickerRow } from '../../exchange/core'
 import type { LookedUpPerson } from '../api/people'
 import { bringIn } from './people'
-import type { AccessMember, AccessSnapshot, AuditAdminChange, ChangeAction, ChangeLogRow, CoordinatorChange, RemovalImpactRow } from '../api/accessModel'
-import type { AuditRole } from '../api/employee'
+import type {
+  AccessMember, AccessSettings, AccessSnapshot, AuditAdminChange, ChangeAction, ChangeLogRow, CoordinatorChange, RemovalImpactRow,
+} from '../api/accessModel'
+import type { AuditRole, LoggedRole } from '../api/employee'
 import type { Plant } from '../api/plants'
 import { writeErrorMessage } from './templates'
 
-/** The roles kept in employee_ref.audit_role, in the order the dialogs offer them (Q98 (2), Q122 (1), #187). */
-export const AUDIT_ROLES: readonly AuditRole[] = ['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer']
+/**
+ * The roles kept in employee_ref.audit_role, in the order the dialogs offer them (Q98 (2), Q122 (1), #187). Four since
+ * Q153: 檢視者 is gone, and what it saw is a 一般使用者's optional 檢視廠區.
+ */
+export const AUDIT_ROLES: readonly AuditRole[] = ['signer', 'audit_staff', 'audit_admin', 'system_maintainer']
 
 /**
  * The 權限管理 page is for 稽核主管 and 系統維護員 (Q122 (2)(3)). For showing and hiding only; the database decides
@@ -84,11 +89,22 @@ export function assignableRoles(myRole: AuditRole | null | undefined): AuditRole
 
 /**
  * Whether `myRole` may open 廠區權限 for `m`: a 系統維護員 for anyone; a 稽核主管 only to make `m` a 廠區管理員 or
- * stand them down (Q150), so not for a 檢視者, whose 廠區權限 are his 檢視廠區, nor for a 系統維護員, who runs no plant.
+ * stand them down (Q150), so not for a 系統維護員, who runs no plant. There the 稽核主管 sees a 一般使用者's 檢視廠區
+ * but cannot change them (Q153).
  */
 export function mayEditPlantRights(myRole: AuditRole | null | undefined, m: Pick<AccessMember, 'audit_role'>): boolean {
-  return admitsPeople(myRole) || (myRole === 'audit_admin' && m.audit_role !== 'viewer' && mayRunPlant(m))
+  return admitsPeople(myRole) || (myRole === 'audit_admin' && mayRunPlant(m))
 }
+
+/** Whether `myRole` may change someone's 檢視廠區: the 系統維護員 alone (Q150, Q153); the database decides (maintainer_only). */
+export const mayEditViewerPlants = (myRole: AuditRole | null | undefined): boolean => admitsPeople(myRole)
+
+/** Only a 一般使用者 has 檢視廠區 (Q153); the database clears them for every other role. */
+export const mayViewPlants = (role: AuditRole | null | undefined): boolean => role === 'signer'
+
+/** The plants someone views whole: a 一般使用者's 檢視廠區, none for anyone else (Q153). */
+export const viewedPlants = (m: Pick<AccessMember, 'audit_role' | 'viewer_plant_ids'>): string[] =>
+  mayViewPlants(m.audit_role) ? m.viewer_plant_ids : []
 
 /**
  * Whether the plant someone runs has its Taipei 稽核人員 step follow them (#187): a 稽核人員 or the 稽核主管 does (Q140);
@@ -110,7 +126,7 @@ export type Identity = AuditRole | 'coordinator'
  * In the order of the 權限說明 tab: from the narrowest reach to the widest, then the 系統維護員, who does everything (Q129).
  * 稽核人員 sits after 廠區管理員: with no plant he is a 一般使用者, with one he is a 廠區管理員 who also exports (#187).
  */
-export const IDENTITIES: readonly Identity[] = ['signer', 'viewer', 'coordinator', 'audit_staff', 'audit_admin', 'system_maintainer']
+export const IDENTITIES: readonly Identity[] = ['signer', 'coordinator', 'audit_staff', 'audit_admin', 'system_maintainer']
 
 /**
  * Database refusals on this page in its words (the rules are in the database, ADR-0001). Two kinds of 23514 and the
@@ -132,23 +148,25 @@ export const CHANGE_ACTIONS: readonly ChangeAction[] = [
 ]
 
 /**
- * 追蹤總覽, and with it 首頁's 各廠填單進度 (Q115 (4)), is for 稽核主管, 系統維護員 and 檢視者, and also for whoever runs a plant,
- * whatever their role (Q117 (3)); the view gives anyone else no rows anyway.
+ * 進度追蹤, and with it 我的待辦's 各廠填單進度 (Q115 (4)), is for 稽核主管 and 系統維護員, for a 一般使用者 who has
+ * 檢視廠區 (`viewsAPlant`, Q153; before it the 檢視者), and also for whoever runs a plant, whatever their role
+ * (Q117 (3)); the view gives anyone else no rows anyway.
  */
-export function seesTracking(role: AuditRole | null | undefined, runsAPlant: boolean): boolean {
-  return runsAPlant || readsAll(role) || role === 'viewer'
+export function seesTracking(role: AuditRole | null | undefined, runsAPlant: boolean, viewsAPlant: boolean): boolean {
+  return runsAPlant || readsAll(role) || (mayViewPlants(role) && viewsAPlant)
 }
 
 /**
- * The plants 追蹤總覽's 匯出 Excel may hold: every plant for a 稽核主管 or 系統維護員, the 檢視廠區 for a 檢視者, the plants
- * a 稽核人員 runs as 廠區管理員 (#187), none otherwise. audit_role holds one value, so no one is both a 檢視者 and a
- * 稽核人員, and the union #191 asks for is just one of the two. Running a plant adds none for anyone else, a 檢視者 who
- * runs one included: those plants stay on screen but out of the Excel (Q117 (3), the user 2026-11-02 and 2026-11-03).
- * The Excel is built in the browser from rows already shown, so this is not a database rule.
+ * The plants 進度追蹤's 匯出 Excel may hold: every plant for a 稽核主管 or 系統維護員, their 檢視廠區 for a 一般使用者
+ * (Q153; before it the 檢視者), the plants a 稽核人員 runs as 廠區管理員 (#187), none otherwise. Only a 一般使用者 has
+ * 檢視廠區, so no one has both 檢視廠區 and a 稽核人員's plants, and the union #191 asks for is just one of the two.
+ * Running a plant adds none for anyone else, a 一般使用者 with 檢視廠區 who runs one included: those plants stay on
+ * screen but out of the Excel (Q117 (3), the user 2026-11-02 and 2026-11-03). The Excel is built in the browser from
+ * rows already shown, so this is not a database rule.
  */
 export function exportablePlants(role: AuditRole | null | undefined, viewerPlantIds: string[], runPlantIds: string[]): 'all' | string[] {
   if (readsAll(role)) return 'all'
-  if (role === 'viewer') return viewerPlantIds
+  if (mayViewPlants(role)) return viewerPlantIds
   return role === 'audit_staff' ? runPlantIds : []
 }
 
@@ -193,16 +211,10 @@ export function planAdd(empIds: string[], people: LookedUpPerson[], members: Pic
   })
 }
 
-/** 檢視廠區 to start from: the people's own OMS 廠區, where the plant master has it. */
-export function defaultViewerPlants(people: Pick<PickerRow, 'factory_code'>[], plants: Plant[]): string[] {
-  const codes = new Set(people.map((p) => p.factory_code))
-  return plants.filter((p) => codes.has(p.factory_code)).map((p) => p.id)
-}
-
 export interface MemberFilter {
   query: string
   identity: Identity | null
-  /** Only those who see this plant's 自評表: its 檢視者, its 廠區負責人 and every 稽核主管. */
+  /** Only those who see this plant's 自評表: whoever has it among their 檢視廠區, its 廠區管理員 and every 稽核主管 and 系統維護員. */
   plantId: string | null
 }
 
@@ -211,7 +223,7 @@ export type Reach = { all: true } | { all: false; view: string[]; run: string[] 
 
 export function reachOf(m: Pick<AccessMember, 'audit_role' | 'viewer_plant_ids' | 'coordinator_plant_ids'>): Reach {
   if (readsAll(m.audit_role)) return { all: true }
-  return { all: false, view: m.audit_role === 'viewer' ? m.viewer_plant_ids : [], run: m.coordinator_plant_ids }
+  return { all: false, view: viewedPlants(m), run: m.coordinator_plant_ids }
 }
 
 const seesPlant = (m: AccessMember, plantId: string) => {
@@ -232,6 +244,7 @@ export function filterMembers(members: AccessMember[], { query, identity, plantI
 export interface PlantRoster {
   plant: Plant
   coordinator: AccessMember | null
+  /** The 一般使用者 who have this plant among their 檢視廠區 (Q153). */
   viewers: AccessMember[]
 }
 
@@ -240,7 +253,7 @@ export function plantRoster(plants: Plant[], members: AccessMember[]): PlantRost
   return plants.map((plant) => ({
     plant,
     coordinator: members.find((m) => m.coordinator_plant_ids.includes(plant.id)) ?? null,
-    viewers: members.filter((m) => m.audit_role === 'viewer' && m.viewer_plant_ids.includes(plant.id)),
+    viewers: members.filter((m) => viewedPlants(m).includes(plant.id)),
   }))
 }
 
@@ -305,7 +318,7 @@ export function changeText(row: ChangeLogRow, t: TFunction, plants: Plant[]): { 
   const value = (v: unknown): string => {
     switch (row.action) {
       case 'role':
-        return t(`access:role.${v as AuditRole}`)
+        return t(`access:role.${v as LoggedRole}`)
       case 'viewer_plants':
         return (v as string[]).length ? plantList(v as string[], plants) : none
       case 'note':
@@ -355,6 +368,23 @@ export function plantChanges(before: string[], after: string[]): PlantChanges | 
   const assign = after.filter((id) => !before.includes(id))
   const unassign = before.filter((id) => !after.includes(id))
   return assign.length || unassign.length ? { assign, unassign } : undefined
+}
+
+/**
+ * What 廠區權限 saves for `m` (Q153): the 檢視廠區 and the 負責廠區 ticked, in one write; nothing when neither changed.
+ * 檢視廠區 go back as they were unless `m` is a 一般使用者 and the signed-in person may change them
+ * (`canEditViewerPlants`, the 系統維護員 alone): a 稽核主管 naming a 廠區管理員 must not seem to touch them, or the
+ * database refuses the whole save (maintainer_only).
+ */
+export function plantRightsSettings(
+  m: Pick<AccessMember, 'audit_role' | 'note' | 'viewer_plant_ids' | 'coordinator_plant_ids'>,
+  ticked: { view: string[]; run: string[] },
+  canEditViewerPlants: boolean,
+): AccessSettings | undefined {
+  const viewerPlantIds = mayViewPlants(m.audit_role) && canEditViewerPlants ? ticked.view : m.viewer_plant_ids
+  const coordinatorChanges = plantChanges(m.coordinator_plant_ids, ticked.run)
+  if (!plantChanges(m.viewer_plant_ids, viewerPlantIds) && !coordinatorChanges) return undefined
+  return { role: m.audit_role, note: m.note ?? '', viewerPlantIds, ...(coordinatorChanges ? { coordinatorChanges } : {}) }
 }
 
 /** The removal warning's three lists (Q98 (5)). */

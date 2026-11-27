@@ -20,7 +20,7 @@ const NAMED_OVERDUE = 4
 const PART_LINE = `1px solid ${palette.rowLine}`
 
 /**
- * 各廠填單進度 (Q115 (4)), for 稽核管理者 and 檢視者 only: the newest 年度's 自評表 counted as 結案 out of all and by
+ * 各廠填單進度 (Q115 (4)), for whoever sees 進度追蹤 only (稽核主管, 系統維護員, those with 檢視廠區, 廠區管理員): the newest 年度's 自評表 counted as 結案 out of all and by
  * stage (填寫中／簽核中／結案), a bar per 廠區 and how many are past the 截止日 and still being filled in. The rows are
  * 追蹤總覽's (view tracking_assessment, the same reach), so the card links there. 方向 A (#129): the count as a number
  * rather than a ring, the stages orange, blue and green.

@@ -4,7 +4,7 @@ import type { AssessmentStatus } from './assessments'
 /**
  * 自評表紀錄 (#164, Q124 (2)): every 自評表 the signed-in employee can see, of every 年度. Which ones is the
  * database's reading rule (`my_visible_assessment_ids`, through view `assessment_record`), not a rule of this page:
- * every plant for 稽核管理者 and 系統維護員, the plants they view or run for 檢視者 and 廠區負責人, their own for the rest.
+ * every plant for 稽核主管 and 系統維護員, the plants they view (their 檢視廠區, Q153) or run as 廠區管理員, their own for the rest.
  */
 export interface AssessmentRecord {
   assessment_id: string

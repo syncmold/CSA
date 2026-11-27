@@ -32,9 +32,9 @@ const VIEW_SWITCH_THEME = { components: { Radio: { colorPrimary: palette.selecte
 /**
  * 追蹤總覽 (#14): the 廠區 × 問卷範本 matrix of one 年度, with each 自評表's current 關卡, signer and 停留天數.
  * The rows and the day counts come from the database (view tracking_assessment, Q95), which gives them to
- * 稽核管理者, 檢視者 and 廠區負責人 for their plants (Q98 (6), Q117 (3)); like the other /admin pages there is no
+ * 稽核管理者, a 一般使用者 with 檢視廠區 (Q153) and 廠區負責人 for their plants (Q98 (6), Q117 (3)); like the other /admin pages there is no
  * front-end role check, anyone else sees an empty page. 匯出 Excel holds only the plants one may export: those a
- * 稽核人員 runs, but none a 廠區端 廠區管理員 or a 檢視者 only runs (access exportablePlants, #187).
+ * 稽核人員 runs and one's own 檢視廠區, but none a 廠區端 廠區管理員 only runs (access exportablePlants, #187).
  * Two views of the same matrix (Q105), chosen in the header and kept in the address (?view=queue): 熱度矩陣 and
  * 待處理優先. The filters, the counts above and 匯出 Excel are shared, and the Excel is built from that matrix
  * whichever view is open (domain/tracking), with 控制作業 expanded however the 熱度矩陣 shows it (#86).
@@ -62,7 +62,7 @@ export function TrackingPage() {
   const rows = data.rows
   const matrix = trackingMatrix(data, filter)
   const summary = trackingSummary(matrix)
-  // The Excel holds only the plants this person may export, under the same filters (a 檢視者 who also runs a plant
+  // The Excel holds only the plants this person may export, under the same filters (someone with 檢視廠區 who also runs a plant
   // sees it here but does not export it; a 稽核人員 exports the plants they run, #187).
   const exported = trackingMatrix(onlyPlants(data, exportable), filter)
   const companies = companyOptions(rows)

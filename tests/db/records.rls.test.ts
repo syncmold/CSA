@@ -12,6 +12,7 @@ const EMP = {
   chief: `${RUN}F`,
   auditAdmin: `${RUN}A`,
   maintainer: `${RUN}M`,
+  /** 有檢視廠區（一廠）的一般使用者（Q153；之前是檢視者） */
   viewer: `${RUN}V`,
   coordinator: `${RUN}C`.toUpperCase(),
   outsider: `${RUN}D`,
@@ -82,7 +83,7 @@ beforeAll(async () => {
       { name: '稽核主管', group: 'audit_review', signer: EMP.chief, unitId: null },
     ])
   }
-  ok(await admin.from('employee_ref').update({ audit_role: 'viewer', viewer_plant_ids: [ID.plant1] }).eq('emp_id', EMP.viewer))
+  ok(await admin.from('employee_ref').update({ viewer_plant_ids: [ID.plant1] }).eq('emp_id', EMP.viewer))
   ok(await admin.from('access_allowlist').insert({ emp_id: EMP.coordinator }))
   ok(await admin.from('plant_coordinator').insert({ plant_id: ID.plant2, emp_id: EMP.coordinator }))
 
@@ -142,7 +143,7 @@ describe('自評表紀錄：看得到哪些照自評表的讀取規則（Q124 (2
     }
   })
 
-  it('gives a 檢視者 their 檢視廠區 and a 廠區負責人 the plant they run, every 年度', async () => {
+  it('gives a 一般使用者 with 檢視廠區 those plants and a 廠區負責人 the plant they run, every 年度', async () => {
     expect((await recordIdsOf(EMP.viewer)).sort()).toEqual([FORM.old1, FORM.new1].sort())
     expect(ok(await selectRecordScope(await as(EMP.viewer)))).toEqual({ all_plants: false, plant_ids: [ID.plant1] })
     expect((await recordIdsOf(EMP.coordinator)).sort()).toEqual([FORM.old2, FORM.new2].sort())

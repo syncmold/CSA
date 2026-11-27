@@ -439,7 +439,7 @@ export function loggedActions(target: string): Promise<string[]> {
  *  16000 control_reference
  *  17000 tracking
  *  18000 e2e/main-flow（Playwright 主線驗收，#8）
- *  19000 access_management（權限管理的檢視者，#58）
+ *  19000 access_management（人員管理的檢視廠區，#58；Q153 前是檢視者）
  *  20000 parallel_branches（分流並行，#97）
  *  21000 plant_coordinator（廠區負責人，#100）
  *  22000 route_branches（簽核流程編輯器的分流、多一關，#98）

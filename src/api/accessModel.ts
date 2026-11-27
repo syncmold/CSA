@@ -1,6 +1,6 @@
 // 權限管理 (#58, Q98): the shapes the page reads. Kept apart from the API module (which creates the browser
 // client on import) so the domain helpers and their tests use them without a client.
-import type { AuditRole } from './employee'
+import type { AuditRole, LoggedRole } from './employee'
 
 /** One row of view `access_member`: a person on the 放行名單 with their 稽核角色. */
 export interface AccessMember {
@@ -9,7 +9,7 @@ export interface AccessMember {
   name: string | null
   factory_code: string | null
   audit_role: AuditRole
-  /** plant.id; empty unless 檢視者 */
+  /** plant.id of their 檢視廠區: optional, and only a 一般使用者 has any (Q153) */
   viewer_plant_ids: string[]
   note: string | null
   added_at: string
@@ -20,6 +20,16 @@ export interface AccessMember {
   last_login_at: string | null
   /** plant.id of the plants they run as 廠區負責人 (Q116 (5)); any 權限角色 may run plants. */
   coordinator_plant_ids: string[]
+}
+
+/** What 加入, 編輯 and 廠區權限 send to the database's maintenance functions. */
+export interface AccessSettings {
+  role: AuditRole
+  /** 檢視廠區: a 一般使用者's only (Q153); the database clears them for any other role. */
+  viewerPlantIds: string[]
+  note: string
+  /** The 負責廠區 added and taken off (廠區權限 only); the others stay as they are, and all of them when absent. */
+  coordinatorChanges?: { assign: string[]; unassign: string[] }
 }
 
 export type ChangeAction =
@@ -43,7 +53,7 @@ export interface AuditAdminChange {
 
 /** 加入／移除 carry the whole picture at that moment; the others carry the one value. 檢視廠區 are 廠區代碼. */
 export interface AccessSnapshot {
-  role: AuditRole
+  role: LoggedRole
   viewer_plants: string[]
   note: string | null
 }

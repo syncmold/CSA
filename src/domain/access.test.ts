@@ -4,9 +4,10 @@ import { describe, expect, it } from 'vitest'
 import type { AccessMember, ChangeLogRow, RemovalImpactRow } from '../api/accessModel'
 import type { AuditRole } from '../api/employee'
 import {
-  accessWriteError, actsAsAuditAdmin, admitsPeople, assignableRoles, canEditRoute, canEditTemplate, mayAddSettings, readsSettings, linksTaipeiAudit, changeText, defaultViewerPlants, exportablePlants, filterLog, filterMembers, groupImpact, identitiesOf,
-  managesAccess, mayEditPlantRights, mayRunPlant, parseEmpIds, personLabel, planAdd, plantChanges, plantRoster, reachOf, readsAll, seesTracking,
-  takeovers,
+  accessWriteError, actsAsAuditAdmin, admitsPeople, assignableRoles, AUDIT_ROLES, canEditRoute, canEditTemplate, mayAddSettings, readsSettings, linksTaipeiAudit, changeText, exportablePlants, filterLog, filterMembers, groupImpact, identitiesOf,
+  IDENTITIES, managesAccess, mayEditPlantRights, mayEditViewerPlants, mayRunPlant, mayViewPlants, parseEmpIds, personLabel, planAdd, plantChanges, plantRightsSettings, plantRoster, reachOf,
+  readsAll,
+  seesTracking, takeovers, viewedPlants,
 } from './access'
 
 const t = ((key: string, options?: Record<string, unknown>) =>
@@ -73,24 +74,32 @@ describe('planAdd', () => {
   })
 })
 
-describe('defaultViewerPlants', () => {
-  it('is the batch\'s own OMS 廠區 that the plant master has', () => {
-    const people = [{ emp_id: 'A', name: 'a', factory_code: 'SY' }, { emp_id: 'B', name: 'b', factory_code: 'ZZ' }, { emp_id: 'C', name: 'c', factory_code: 'SY' }]
-    expect(defaultViewerPlants(people, PLANTS)).toEqual(['p-SY'])
+describe('the roles after Q153', () => {
+  it('are four, with no 檢視者 among the roles to give or the 身分 to show', () => {
+    expect(AUDIT_ROLES).toEqual(['signer', 'audit_staff', 'audit_admin', 'system_maintainer'])
+    expect(IDENTITIES).toEqual(['signer', 'coordinator', 'audit_staff', 'audit_admin', 'system_maintainer'])
+  })
+
+  it('give 檢視廠區 to a 一般使用者 only, whatever a row still holds', () => {
+    expect(AUDIT_ROLES.filter(mayViewPlants)).toEqual(['signer'])
+    expect(viewedPlants(member('A', { viewer_plant_ids: ['p-SY'] }))).toEqual(['p-SY'])
+    expect(viewedPlants(member('B', { audit_role: 'audit_staff', viewer_plant_ids: ['p-SY'] }))).toEqual([])
+    expect(viewedPlants(member('C'))).toEqual([])
   })
 })
 
 describe('identitiesOf', () => {
   it('is the 權限角色, plus 廠區負責人 for someone who runs a plant', () => {
     expect(identitiesOf(member('A'))).toEqual(['signer'])
-    expect(identitiesOf(member('B', { audit_role: 'viewer', coordinator_plant_ids: ['p-SY'] }))).toEqual(['viewer', 'coordinator'])
+    // 檢視廠區 are a setting, not a 身分 (Q153): a 一般使用者 who views one plant and runs another is still these two.
+    expect(identitiesOf(member('B', { viewer_plant_ids: ['p-FQ'], coordinator_plant_ids: ['p-SY'] }))).toEqual(['signer', 'coordinator'])
   })
 })
 
 describe('filterMembers', () => {
   const members = [
     member('FQ0123', { name: '王小明', coordinator_plant_ids: ['p-FQ'] }),
-    member('SS140', { name: '李大華', audit_role: 'viewer', viewer_plant_ids: ['p-SY'] }),
+    member('SS140', { name: '李大華', viewer_plant_ids: ['p-SY'] }),
     member('SSA78', { audit_role: 'audit_admin' }),
   ]
   const all = { query: '', identity: null, plantId: null }
@@ -98,22 +107,24 @@ describe('filterMembers', () => {
   it('searches 工號 or 姓名, ignoring case, and narrows by 身分', () => {
     expect(filterMembers(members, { ...all, query: 'ss' }).map((m) => m.emp_id)).toEqual(['SS140', 'SSA78'])
     expect(filterMembers(members, { ...all, query: '小明' }).map((m) => m.emp_id)).toEqual(['FQ0123'])
-    expect(filterMembers(members, { ...all, identity: 'viewer' }).map((m) => m.emp_id)).toEqual(['SS140'])
+    expect(filterMembers(members, { ...all, identity: 'signer' }).map((m) => m.emp_id)).toEqual(['FQ0123', 'SS140'])
     expect(filterMembers(members, { ...all, identity: 'coordinator' }).map((m) => m.emp_id)).toEqual(['FQ0123'])
   })
 
-  it('narrows by 廠區 to whoever sees it: its 檢視者, its 廠區負責人 and every 稽核主管', () => {
+  it('narrows by 廠區 to whoever sees it: whoever has it among their 檢視廠區, its 廠區管理員 and every 稽核主管', () => {
     expect(filterMembers(members, { ...all, plantId: 'p-FQ' }).map((m) => m.emp_id)).toEqual(['FQ0123', 'SSA78'])
     expect(filterMembers(members, { ...all, plantId: 'p-SY' }).map((m) => m.emp_id)).toEqual(['SS140', 'SSA78'])
   })
 })
 
 describe('plantRoster', () => {
-  it('gives each plant, in the master’s order, its 廠區負責人 (or none) and its 檢視者', () => {
+  it('gives each plant, in the master’s order, its 廠區管理員 (or none) and the 一般使用者 who have it among their 檢視廠區', () => {
     const owner = member('FQ0050', { coordinator_plant_ids: ['p-FQ'] })
-    const viewer = member('FQ0001', { audit_role: 'viewer', viewer_plant_ids: ['p-FQ', 'p-SY'] })
-    expect(plantRoster(PLANTS, [owner, viewer, member('X')]).map((r) => [r.plant.factory_code, r.coordinator?.emp_id ?? null, r.viewers.map((v) => v.emp_id)]))
-      .toEqual([['FQ', 'FQ0050', ['FQ0001']], ['SY', null, ['FQ0001']]])
+    const viewer = member('FQ0001', { viewer_plant_ids: ['p-FQ', 'p-SY'] })
+    // Views one plant and runs the other (Q153).
+    const both = member('SY0009', { viewer_plant_ids: ['p-FQ'], coordinator_plant_ids: ['p-SY'] })
+    expect(plantRoster(PLANTS, [owner, viewer, both, member('X')]).map((r) => [r.plant.factory_code, r.coordinator?.emp_id ?? null, r.viewers.map((v) => v.emp_id)]))
+      .toEqual([['FQ', 'FQ0050', ['FQ0001', 'SY0009']], ['SY', 'SY0009', ['FQ0001']]])
   })
 })
 
@@ -127,12 +138,14 @@ describe('takeovers', () => {
 })
 
 describe('seesTracking', () => {
-  it('is for 稽核主管, 檢視者 and anyone who runs a plant (Q117 (3))', () => {
-    expect(seesTracking('audit_admin', false)).toBe(true)
-    expect(seesTracking('viewer', false)).toBe(true)
-    expect(seesTracking('signer', true)).toBe(true)
-    expect(seesTracking('signer', false)).toBe(false)
-    expect(seesTracking(null, false)).toBe(false)
+  it('is for 稽核主管, a 一般使用者 with 檢視廠區 (Q153) and anyone who runs a plant (Q117 (3))', () => {
+    expect(seesTracking('audit_admin', false, false)).toBe(true)
+    expect(seesTracking('signer', false, true)).toBe(true)
+    expect(seesTracking('signer', true, false)).toBe(true)
+    expect(seesTracking('signer', false, false)).toBe(false)
+    expect(seesTracking('audit_staff', false, false)).toBe(false)
+    expect(seesTracking('audit_staff', true, false)).toBe(true)
+    expect(seesTracking(null, false, false)).toBe(false)
   })
 })
 
@@ -143,16 +156,26 @@ describe('changeText', () => {
   })
 
   it('words each kind of change as 改前 → 改後', () => {
-    expect(changeText(row({ action: 'role', before: 'signer', after: 'viewer' }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.role', before: 'access:role.signer', after: 'access:role.viewer' })
+    expect(changeText(row({ action: 'role', before: 'signer', after: 'audit_staff' }), t, PLANTS))
+      .toEqual({ action: 'access:log.action.role', before: 'access:role.signer', after: 'access:role.audit_staff' })
     expect(changeText(row({ action: 'viewer_plants', before: [], after: ['FQ', 'SY'] }), t, PLANTS))
       .toEqual({ action: 'access:log.action.viewer_plants', before: 'access:log.none', after: 'FQ 福清富群、SY 松岡' })
     expect(changeText(row({ action: 'note', before: null, after: '廠長' }), t, PLANTS))
       .toEqual({ action: 'access:log.action.note', before: 'access:log.none', after: '廠長' })
-    expect(changeText(row({ action: 'added', after: { role: 'viewer', viewer_plants: ['XX'], note: null } }), t, PLANTS))
-      .toEqual({ action: 'access:log.action.added', before: '', after: 'access:role.viewer；access:log.plants(XX)' })
+    expect(changeText(row({ action: 'added', after: { role: 'signer', viewer_plants: ['XX'], note: null } }), t, PLANTS))
+      .toEqual({ action: 'access:log.action.added', before: '', after: 'access:role.signer；access:log.plants(XX)' })
     expect(changeText(row({ action: 'removed', before: { role: 'audit_admin', viewer_plants: [], note: '主管' } }), t, PLANTS))
       .toEqual({ action: 'access:log.action.removed', before: 'access:role.audit_admin；access:log.note(主管)', after: '' })
+  })
+
+  it('still words the entries that name the retired 檢視者 (Q153): old ones, and the one the conversion left on each', () => {
+    // The conversion wrote these with no actor: 檢視者 → 一般使用者, the 檢視廠區 untouched.
+    expect(changeText(row({ action: 'role', before: 'viewer', after: 'signer' }), t, PLANTS))
+      .toEqual({ action: 'access:log.action.role', before: 'access:role.viewer', after: 'access:role.signer' })
+    expect(changeText(row({ action: 'added', after: { role: 'viewer', viewer_plants: ['FQ'], note: null } }), t, PLANTS))
+      .toEqual({ action: 'access:log.action.added', before: '', after: 'access:role.viewer；access:log.plants(FQ 福清富群)' })
+    expect(changeText(row({ action: 'removed', before: { role: 'viewer', viewer_plants: [], note: '廠長' } }), t, PLANTS))
+      .toEqual({ action: 'access:log.action.removed', before: 'access:role.viewer；access:log.note(廠長)', after: '' })
   })
 
   it('words 廠區負責人 changes by the plant, naming whom a successor replaced', () => {
@@ -208,12 +231,12 @@ describe('filterLog', () => {
 })
 
 describe('exportablePlants', () => {
-  it('is every plant for a 稽核主管 and the 檢視廠區 for a 檢視者; running a plant adds none (Q117 (3))', () => {
+  it('is every plant for a 稽核主管 and their 檢視廠區 for a 一般使用者 (Q153); running a plant adds none (Q117 (3))', () => {
     expect(exportablePlants('audit_admin', [], [])).toBe('all')
-    expect(exportablePlants('viewer', ['p1'], [])).toEqual(['p1'])
-    expect(exportablePlants('viewer', ['p1'], ['p2'])).toEqual(['p1'])
-    expect(exportablePlants('signer', ['p1'], ['p2'])).toEqual([])
-    expect(exportablePlants(undefined, [], [])).toEqual([])
+    expect(exportablePlants('signer', ['p1'], [])).toEqual(['p1'])
+    expect(exportablePlants('signer', ['p1'], ['p2'])).toEqual(['p1'])
+    expect(exportablePlants('signer', [], ['p2'])).toEqual([])
+    expect(exportablePlants(undefined, ['p1'], [])).toEqual([])
   })
 
   it('is the plants a 稽核人員 runs as 廠區管理員, none while they run none (#187)', () => {
@@ -223,53 +246,59 @@ describe('exportablePlants', () => {
 })
 
 describe('reachOf', () => {
-  it('is everything for a 稽核主管; otherwise the plants viewed (檢視者 only) and the plants run', () => {
+  it('is everything for a 稽核主管; otherwise the plants viewed (a 一般使用者 only, Q153) and the plants run', () => {
     expect(reachOf(member('A', { audit_role: 'audit_admin', coordinator_plant_ids: ['p-FQ'] }))).toEqual({ all: true })
-    expect(reachOf(member('B', { audit_role: 'viewer', viewer_plant_ids: ['p-SY'], coordinator_plant_ids: ['p-FQ'] })))
+    expect(reachOf(member('B', { viewer_plant_ids: ['p-SY'], coordinator_plant_ids: ['p-FQ'] })))
       .toEqual({ all: false, view: ['p-SY'], run: ['p-FQ'] })
-    expect(reachOf(member('C', { viewer_plant_ids: ['p-SY'] }))).toEqual({ all: false, view: [], run: [] })
+    expect(reachOf(member('C'))).toEqual({ all: false, view: [], run: [] })
+    expect(reachOf(member('E', { audit_role: 'audit_staff', coordinator_plant_ids: ['p-FQ'] }))).toEqual({ all: false, view: [], run: ['p-FQ'] })
     expect(reachOf(member('D', { audit_role: 'system_maintainer' }))).toEqual({ all: true })
   })
 })
 
 describe('who manages whom (Q122)', () => {
   it('opens 權限管理 to 稽核主管 and 系統維護員 only', () => {
-    const roles: (AuditRole | null)[] = ['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer', null]
-    expect(roles.map(managesAccess)).toEqual([false, false, false, true, true, false])
+    const roles: (AuditRole | null)[] = ['signer', 'audit_staff', 'audit_admin', 'system_maintainer', null]
+    expect(roles.map(managesAccess)).toEqual([false, false, true, true, false])
   })
 
   it('gives a 系統維護員 every 稽核主管 page and button (Q129)', () => {
-    const roles: (AuditRole | null)[] = ['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer', null]
-    expect(roles.map(actsAsAuditAdmin)).toEqual([false, false, false, true, true, false])
+    const roles: (AuditRole | null)[] = ['signer', 'audit_staff', 'audit_admin', 'system_maintainer', null]
+    expect(roles.map(actsAsAuditAdmin)).toEqual([false, false, true, true, false])
   })
 
   it('lets a 系統維護員 read everything and export every plant, as a 稽核主管', () => {
     expect(readsAll('system_maintainer')).toBe(true)
-    expect(readsAll('viewer')).toBe(false)
-    expect(seesTracking('system_maintainer', false)).toBe(true)
+    expect(readsAll('signer')).toBe(false)
+    expect(seesTracking('system_maintainer', false, false)).toBe(true)
     expect(exportablePlants('system_maintainer', [], [])).toBe('all')
   })
 
   it('lets only a 系統維護員 let people in and give roles (Q150)', () => {
-    expect(assignableRoles('system_maintainer')).toEqual(['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer'])
+    expect(assignableRoles('system_maintainer')).toEqual(['signer', 'audit_staff', 'audit_admin', 'system_maintainer'])
     expect(assignableRoles('audit_admin')).toEqual([])
     expect(assignableRoles('audit_staff')).toEqual([])
-    expect((['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer'] as const).map(admitsPeople)).toEqual([false, false, false, false, true])
+    expect(AUDIT_ROLES.map(admitsPeople)).toEqual([false, false, false, true])
     expect(admitsPeople(undefined)).toBe(false)
   })
 
-  it('lets a 稽核主管 open 廠區權限 only for someone who may run a plant and is no 檢視者, a 系統維護員 for anyone (Q150)', () => {
-    const roles = ['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer'] as const
-    const editable = (me: AuditRole | undefined) => roles.filter((r) => mayEditPlantRights(me, member('X', { audit_role: r })))
+  it('lets a 稽核主管 open 廠區權限 for anyone who may run a plant, a 一般使用者 with 檢視廠區 included (Q153), a 系統維護員 for anyone (Q150)', () => {
+    const editable = (me: AuditRole | undefined) => AUDIT_ROLES.filter((r) => mayEditPlantRights(me, member('X', { audit_role: r })))
     expect(editable('audit_admin')).toEqual(['signer', 'audit_staff', 'audit_admin'])
-    expect(editable('system_maintainer')).toEqual(roles)
-    expect(editable('viewer')).toEqual([])
+    expect(mayEditPlantRights('audit_admin', member('V', { viewer_plant_ids: ['p-FQ'] }))).toBe(true)
+    expect(editable('system_maintainer')).toEqual(AUDIT_ROLES)
+    expect(editable('signer')).toEqual([])
     expect(editable('audit_staff')).toEqual([])
     expect(editable(undefined)).toEqual([])
   })
 
+  it('lets only a 系統維護員 change 檢視廠區: there the 稽核主管 only names 廠區管理員 (Q150, Q153)', () => {
+    expect(AUDIT_ROLES.filter(mayEditViewerPlants)).toEqual(['system_maintainer'])
+    expect(mayEditViewerPlants(undefined)).toBe(false)
+  })
+
   it('links the Taipei 稽核人員 step only for a 稽核人員 or the 稽核主管 who runs a plant (#187, Q140)', () => {
-    expect((['signer', 'viewer', 'audit_staff', 'audit_admin', 'system_maintainer'] as const).map(linksTaipeiAudit)).toEqual([false, false, true, true, false])
+    expect(AUDIT_ROLES.map(linksTaipeiAudit)).toEqual([false, true, true, false])
   })
 
   it('keeps a 系統維護員 off the 廠區負責人 choices', () => {
@@ -292,6 +321,37 @@ describe('plantChanges', () => {
     expect(plantChanges(['a', 'b'], ['b', 'a'])).toBeUndefined()
     expect(plantChanges(['a'], [])).toEqual({ assign: [], unassign: ['a'] })
     expect(plantChanges(['a', 'b'], ['b', 'c'])).toEqual({ assign: ['c'], unassign: ['a'] })
+  })
+})
+
+describe('plantRightsSettings', () => {
+  const signer = member('KS0031', { note: '窗口', viewer_plant_ids: ['p-FQ'], coordinator_plant_ids: ['p-SY'] })
+
+  it('saves nothing when neither group changed', () => {
+    expect(plantRightsSettings(signer, { view: ['p-FQ'], run: ['p-SY'] }, true)).toBeUndefined()
+    expect(plantRightsSettings(signer, { view: ['p-FQ'], run: ['p-SY'] }, false)).toBeUndefined()
+  })
+
+  it('writes both groups of a 一般使用者 in one save for a 系統維護員', () => {
+    expect(plantRightsSettings(signer, { view: ['p-FQ', 'p-SY'], run: [] }, true))
+      .toEqual({ role: 'signer', note: '窗口', viewerPlantIds: ['p-FQ', 'p-SY'], coordinatorChanges: { assign: [], unassign: ['p-SY'] } })
+    // Only the 檢視廠區: no 負責廠區 are sent, so they stay as they are. Emptying them is allowed (they are optional).
+    expect(plantRightsSettings(signer, { view: [], run: ['p-SY'] }, true)).toEqual({ role: 'signer', note: '窗口', viewerPlantIds: [] })
+  })
+
+  it('sends the 檢視廠區 back untouched for a 稽核主管, who only names 廠區管理員 (the database refuses anything else)', () => {
+    expect(plantRightsSettings(signer, { view: ['p-FQ'], run: ['p-SY', 'p-FQ'] }, false))
+      .toEqual({ role: 'signer', note: '窗口', viewerPlantIds: ['p-FQ'], coordinatorChanges: { assign: ['p-FQ'], unassign: [] } })
+    // Whatever the greyed boxes hold is not sent.
+    expect(plantRightsSettings(signer, { view: [], run: [] }, false))
+      .toEqual({ role: 'signer', note: '窗口', viewerPlantIds: ['p-FQ'], coordinatorChanges: { assign: [], unassign: ['p-SY'] } })
+    expect(plantRightsSettings(signer, { view: [], run: ['p-SY'] }, false)).toBeUndefined()
+  })
+
+  it('never gives 檢視廠區 to another role: a 稽核人員 has only the plants they run', () => {
+    const staff = member('SY0204', { audit_role: 'audit_staff', note: null, coordinator_plant_ids: [] })
+    expect(plantRightsSettings(staff, { view: ['p-FQ'], run: ['p-SY'] }, true))
+      .toEqual({ role: 'audit_staff', note: '', viewerPlantIds: [], coordinatorChanges: { assign: ['p-SY'], unassign: [] } })
   })
 })
 
@@ -323,17 +383,16 @@ describe('範本與流程的維護範圍 (Q144)', () => {
   })
 
   it('其他角色都不能改', () => {
-    for (const role of ['signer', 'viewer', null, undefined] as const) {
+    for (const role of ['signer', null, undefined] as const) {
       expect(canEditTemplate(role, ['FQ'], tpl(['FQ']))).toBe(false)
       expect(canEditRoute(role, ['p1'], 'p1')).toBe(false)
       expect(mayAddSettings(role, ['p1'])).toBe(false)
     }
   })
 
-  it('稽核人員看得到全部設定，一般使用者與檢視者看不到', () => {
+  it('稽核人員看得到全部設定，一般使用者看不到', () => {
     expect(readsSettings('audit_staff')).toBe(true)
     expect(readsSettings('audit_admin')).toBe(true)
-    expect(readsSettings('viewer')).toBe(false)
     expect(readsSettings('signer')).toBe(false)
   })
 })

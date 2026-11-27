@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchMyRunPlantIds, fetchRunsAPlant } from '../api/access'
 import { fetchMyAuditRole, fetchMyViewerPlantIds } from '../api/employee'
-import { actsAsAuditAdmin, canEditRoute, canEditTemplate, exportablePlants, mayAddSettings, seesTracking, type TemplateScope } from '../domain/access'
+import { actsAsAuditAdmin, canEditRoute, canEditTemplate, exportablePlants, mayAddSettings, mayViewPlants, seesTracking, type TemplateScope } from '../domain/access'
 import { usePlants } from './usePlants'
 import { useAuth } from '../auth/AuthContext'
 
@@ -33,13 +33,33 @@ export function useRunsAPlant() {
 }
 
 /**
- * Whether the signed-in employee sees 追蹤總覽 (and 首頁's 各廠填單進度): a 稽核管理者, a 檢視者, or anyone who runs
- * a plant (Q117 (3)). For showing and hiding only; `isLoading` until both answers are in.
+ * The signed-in employee's own 檢視廠區 (Q153): asked only for a 一般使用者, the one role that may have any. Keyed under
+ * the role's key so 人員管理 refreshes it too.
+ */
+function useMyViewerPlantIds() {
+  const { session } = useAuth()
+  const empId = session?.employee.emp_id
+  const role = useMyAuditRole()
+  return useQuery({
+    queryKey: ['my-audit-role', 'viewer-plants', empId],
+    queryFn: () => fetchMyViewerPlantIds(empId!),
+    enabled: !!empId && mayViewPlants(role.data),
+    staleTime: 5 * 60_000,
+  })
+}
+
+/**
+ * Whether the signed-in employee sees 進度追蹤 (and 我的待辦's 各廠填單進度): a 稽核主管 or 系統維護員, a 一般使用者 with
+ * 檢視廠區 (Q153), or anyone who runs a plant (Q117 (3)). For showing and hiding only; `isLoading` until the answers are in.
  */
 export function useSeesTracking() {
   const role = useMyAuditRole()
   const runsAPlant = useRunsAPlant()
-  return { sees: seesTracking(role.data, runsAPlant.data ?? false), isLoading: role.isLoading || runsAPlant.isLoading }
+  const viewerPlants = useMyViewerPlantIds()
+  return {
+    sees: seesTracking(role.data, runsAPlant.data ?? false, (viewerPlants.data ?? []).length > 0),
+    isLoading: role.isLoading || runsAPlant.isLoading || viewerPlants.isLoading,
+  }
 }
 
 /** Whether the signed-in employee gets 分派填寫人 (#101): a 稽核管理者, or anyone who runs a plant. For showing and hiding only. */
@@ -57,12 +77,7 @@ export function useExportablePlants(): 'all' | string[] {
   const { session } = useAuth()
   const empId = session?.employee.emp_id
   const role = useMyAuditRole()
-  const viewerPlants = useQuery({
-    queryKey: ['my-audit-role', 'viewer-plants', empId],
-    queryFn: () => fetchMyViewerPlantIds(empId!),
-    enabled: !!empId && role.data === 'viewer',
-    staleTime: 5 * 60_000,
-  })
+  const viewerPlants = useMyViewerPlantIds()
   const runPlants = useQuery({
     queryKey: ['my-audit-role', 'run-plants', empId],
     queryFn: () => fetchMyRunPlantIds(empId!),

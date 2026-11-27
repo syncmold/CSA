@@ -48,7 +48,7 @@ export const router = createBrowserRouter([
       { path: '/admin/launch', element: <LaunchPage /> },
       // 分派填寫人 (#101)：同上，不在前端擋角色；自評表由資料庫決定，分派函式只接受本廠負責人與稽核管理者。
       { path: '/admin/assignment', element: <AssignmentPage /> },
-      // 追蹤總覽 (#14)：同上，不在前端擋角色；view tracking_assessment 回給稽核管理者與檢視者（#58，檢視廠區），其他人看到空頁。
+      // 追蹤總覽 (#14)：同上，不在前端擋角色；view tracking_assessment 回給稽核管理者與有檢視廠區的人（#58、Q153），其他人看到空頁。
       { path: '/admin/tracking', element: <TrackingPage /> },
       // 權限管理 (#58)：同上，不在前端擋角色；名單與異動紀錄只有稽核管理者讀得到，維護函式也只給稽核管理者。
       { path: '/admin/access', element: <AccessPage /> },

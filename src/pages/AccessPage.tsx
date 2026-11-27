@@ -20,7 +20,8 @@ import { NO_WRAP } from '../components/tableColumns'
 import { useFillToBottom } from '../components/useFillToBottom'
 import { useWriteToast } from '../components/useWriteToast'
 import {
-  accessWriteError, admitsPeople, assignableRoles, AUDIT_ROLES, CHANGE_ACTIONS, changeText, filterLog, filterMembers, mayEditPlantRights, personLabel, plantText,
+  accessWriteError, admitsPeople, assignableRoles, AUDIT_ROLES, CHANGE_ACTIONS, changeText, filterLog, filterMembers, mayEditPlantRights, mayEditViewerPlants,
+  personLabel, plantText,
 } from '../domain/access'
 import { errorText } from '../domain/errors'
 import { listLoading } from '../domain/lists'
@@ -105,7 +106,7 @@ function MembersTab({ master }: { master: Plant[] | undefined }) {
   const roles = assignableRoles(myRole)
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<AuditRole | null>(null)
-  /** Only those who see this plant's 自評表: its 檢視者, its 廠區管理員, every 稽核主管 and 系統維護員. */
+  /** Only those who see this plant's 自評表: whoever has it among their 檢視廠區, its 廠區管理員, every 稽核主管 and 系統維護員. */
   const [plantId, setPlantId] = useState<string | null>(null)
   /** The person whose plants alone the right-hand card shows: picked by name here or in its 管理員 filter. */
   const [focus, setFocus] = useState<string | null>(null)
@@ -322,6 +323,7 @@ function MembersTab({ master }: { master: Plant[] | undefined }) {
           member={dialog.member}
           members={all}
           plants={plants}
+          canEditViewerPlants={mayEditViewerPlants(myRole)}
           onSave={(settings) => saveSettings(dialog.member, settings)}
           onClose={() => setDialog(null)}
         />

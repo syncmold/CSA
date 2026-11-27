@@ -144,7 +144,7 @@ export function PlantCoordinators({
 }
 
 /**
- * A plant over who runs it; its full name and 檢視者 in the tooltip. Each line stays one line: a long code or name ends in
+ * A plant over who runs it; its full name and who has it among their 檢視廠區 (Q153) in the tooltip. Each line stays one line: a long code or name ends in
  * 「…」 rather than stretching the cell (使用者 2026-11-23).
  */
 /** `striped`: on a row of cells drawn pale grey. */
